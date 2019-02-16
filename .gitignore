@@ -16,6 +16,7 @@ erl_crash.dump
 # build
 *.o
 *.a
+*.asm
 *.gch
 
 # roms
