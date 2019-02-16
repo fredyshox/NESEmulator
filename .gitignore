@@ -1,0 +1,22 @@
+# OS X
+.DS_Store
+
+# Elixir
+/_build
+/cover
+/deps
+/doc
+/.fetch
+erl_crash.dump
+*.ez
+*.beam
+/config/*.secret.exs
+.elixir_ls/
+
+# build
+*.o
+*.a
+*.gch
+
+# roms
+*.nes
