@@ -18,6 +18,7 @@ erl_crash.dump
 *.a
 *.asm
 *.gch
+build/
 
 # roms
 *.nes
