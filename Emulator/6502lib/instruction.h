@@ -73,9 +73,21 @@ struct asm6502 asm6502_create(int type, struct mem_addr addr);
 
 // Handlers
 
+// Arithmetic 
 void add_with_carry(state6502 *state, asm6502 cmd);
+void increment_memory(state6502 *state, asm6502 cmd);
+void increment_x(state6502 *state, asm6502 cmd);
+void increment_y(state6502 *state, asm6502 cmd);
+void subtract_with_carry(state6502 *state, asm6502 cmd);
+void decrement_memory(state6502 *state, asm6502 cmd);
+void decrement_x(state6502 *state, asm6502 cmd);
+void decrement_y(state6502 *state, asm6502 cmd);
+
+// Flags
+void clear_carry(state6502 *state, asm6502 cmd);
+void set_carry(state6502 *state, asm6502 cmd);
+
+// Memory
 void load_accumulator(state6502 *state, asm6502 cmd);
 void load_xreg(state6502 *state, asm6502 cmd);
 void load_yreg(state6502 *state, asm6502 cmd);
-void clear_carry(state6502 *state, asm6502 cmd);
-void set_carry(state6502 *state, asm6502 cmd);

@@ -1,0 +1,42 @@
+6502 Instruction groups:
+
+* Arithmetic group:
+- ADC (imm, abs, abx, aby, zp, zpx, izx, izy) 
+	- flags: C, Z, V, N
+	- add with carry
+- INC (abs, abx, zp, zpx)
+	- flags: N, Z
+	- increment memory
+- INX (imp)
+	- flags: N, Z
+	- increment X
+- INY (imp
+	- flags: N, Z
+	- increment Y
+- SBC (imm, abs, abx, aby, zp, zpx, izx, izy)
+	- flags: C, Z, V, N
+	- substract with carry 
+- DEC - same as INC but decrement memory
+- DEX - same as INX but decrement X
+- DEY - same as INY but decrement Y
+
+* Bitwise:
+- AND (imm, abs, abx, aby, zp, zpx, izx, izy)
+	- flags: N, Z
+	- bitwise and with acc
+- ASL (acc, abs, abx, zp, zpx)
+	- flags: C, N, Z
+	- arithmetic shift left
+- ORA (imm, abs, abx, aby, zp, zpx, izx, izy)
+	- flags: N, Z
+	- bitwise or with acc
+- EOR (imm, abs, abx, aby, zp, zpx, izx, izy)
+	- flags: N, Z
+	- bitwise xor with acc ()
+- ROL (acc, abs, abx, zp, zpx)
+	- flags: C, N, Z
+	- bitwise rotate left
+- ROR (acc, abs, abx, zp, zpx)
+	- flags: C, N, Z
+	- bitwise rotate right
+
