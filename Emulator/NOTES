@@ -40,3 +40,22 @@
 	- flags: C, N, Z
 	- bitwise rotate right
 
+* Memory:
+- LDA (imm, abs, abx, aby, zp, zpx, izx, izy)
+  - flags: N, Z
+  - load to accumulator
+- LDX (imm, abs, aby, zp, zpx) 
+  - flags: N, Z
+  - load to register X
+- LDY (imm, abs, abx, zp, zpx)
+  - flags: N, Z
+  - load to register Y
+- STA (abs, abx, aby, zp, zpx, izx, izy)
+  - flags:
+  - store accumulator value
+- STX (abs, zp, zpy)
+  - flags: 
+  - store register X value
+- STY (abs, zp, zpx)
+  - flags: 
+  - store register Y value

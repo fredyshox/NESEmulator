@@ -3,6 +3,9 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
+#ifndef addr_h
+#define addr_h
+
 #include <stdint.h>
 #include "state.h"
 
@@ -33,23 +36,25 @@ typedef struct mem_addr mem_addr;
 
 // Helpers
 
-static int full_value(struct mem_addr *maddr, uint8_t *code);
-static int lsb_value(struct mem_addr *maddr, uint8_t *code);
+static int full_value(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+static int lsb_value(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
 
 // Addressing modes
 
-int immediate_addr(struct mem_addr *maddr, uint8_t *code);
-int zeropage_addr(struct mem_addr *maddr, uint8_t *code);
-int zeropage_x_addr(struct mem_addr *maddr, uint8_t *code);
-int zeropage_y_addr(struct mem_addr *maddr, uint8_t *code);
-int relative_addr(struct mem_addr *maddr, uint8_t *code);
-int absolute_addr(struct mem_addr *maddr, uint8_t *code);
-int absolute_x_addr(struct mem_addr *maddr, uint8_t *code);
-int absolute_y_addr(struct mem_addr *maddr, uint8_t *code);
-int indirect_addr(struct mem_addr *maddr, uint8_t *code);
-int indexed_indirect_addr(struct mem_addr *maddr, uint8_t *code);
-int indirect_indexed_addr(struct mem_addr *maddr, uint8_t *code);
+int immediate_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int zeropage_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int zeropage_x_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int zeropage_y_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int relative_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int absolute_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int absolute_x_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int absolute_y_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int indirect_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int indexed_indirect_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
+int indirect_indexed_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
 
 // Handler
 
 uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr);
+
+#endif /* addr_h */

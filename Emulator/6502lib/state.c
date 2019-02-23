@@ -13,12 +13,12 @@ void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   state->reg_y = 0x00;
   state->sp = 0xff;
   state->pc = 0x0000;
-  state->status = { 0x00 };
+  memset(&state->status, 0x00, sizeof(struct flags6502));  
   state->memory = memory;
 }
 
 void memory6502_create(struct memory6502 *memory, uint16_t size) {
-  uint8_t buffer = malloc(size * sizeof(uint8_t));
+  uint8_t *buffer = malloc(size * sizeof(uint8_t));
   memory->mptr = buffer;
   memory->size = size;
   memory->did_load_cb = NULL;
@@ -39,8 +39,7 @@ void memory6502_store(struct memory6502 *memory, uint16_t idx, uint8_t value) {
 
 uint8_t memory6502_load(struct memory6502 *memory, uint16_t idx) {
   if (idx >= memory->size) {
-    __LOAD_ERR_NNULL(memory, idx);
-    return;
+    return __LOAD_ERR_NNULL(memory, idx);
   }
 
   __DID_LOAD_NNULL(memory, idx);
