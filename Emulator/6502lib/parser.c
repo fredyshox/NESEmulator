@@ -10,6 +10,7 @@ int execute_asm(state6502 *state) {
   asm6502 operation; 
   int consumed = parse_asm(&operation, state->memory, state->pc);
   state->pc += (uint16_t) consumed;
+  asm6502_execute(operation, state);
   return 0;
 }
 

@@ -15,6 +15,10 @@ struct asm6502 asm6502_create(int type, struct mem_addr addr, void (*handler)(st
 
   return instruction;
 }
+ 
+void asm6502_execute(struct asm6502 cmd, struct state6502* state) {
+  cmd.handler(state, cmd);
+}
 
 static inline void eval_zero_flag(state6502 *state, uint16_t value) {
   if ((value & 0xff) == 0) {

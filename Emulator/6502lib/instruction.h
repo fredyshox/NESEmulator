@@ -75,8 +75,8 @@ struct asm6502 {
 
 typedef struct asm6502 asm6502;
 
-struct asm6502 asm6502_create(int type, struct mem_addr addr, void (*handler)(state6502*, asm6502));
-
+struct asm6502 asm6502_create(int type, struct mem_addr addr, void (*handler)(struct state6502*, struct asm6502));
+void asm6502_execute(struct asm6502 cmd, struct state6502* state); 
 // Handlers
 
 // Arithmetic 
