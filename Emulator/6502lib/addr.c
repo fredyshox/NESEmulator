@@ -8,7 +8,7 @@ uint8_t memory6502_load(struct memory6502 *memory, uint16_t idx);
 static int full_value(struct mem_addr *maddr, struct memory6502 *memory, uint16_t pos) {
   // little endian
   uint8_t lsb = memory6502_load(memory, pos);
-  uint8_t msb = memory6502_load(memory, pos);
+  uint8_t msb = memory6502_load(memory, pos + 1);
   uint16_t value = lsb | (uint16_t) msb << 8;
   maddr->value = value;
   return 2;

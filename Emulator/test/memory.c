@@ -5,17 +5,18 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 #include "parser.h"
 #include "state.h"  
 
-#define ASSERT_T(EXPR, MSG) if (EXPR) \
-                              fprintf(stderr, "\033[0;32mTest passed: %s\033[0m\n", MSG); \
-                            else \
-                              fprintf(stderr, "\033[0;31mTest failed: %s\033[0m\n", MSG);
+#define ASSERT_T(EXPR, MSG, RES)  *RES = (EXPR); \
+                                  if (EXPR) \
+                                    fprintf(stderr, "\033[0;32mTest passed: %s\033[0m\n", MSG); \
+                                  else \
+                                    fprintf(stderr, "\033[0;31mTest failed: %s\033[0m\n", MSG);
 
-uint16_t load_case_size = 0x17;
 uint8_t load_case[] = {
   /* .db */ 0x7e, 0x65, 0x25, 0x55, 0x01, 0x00, 0xff, 0xf9, 
   /* .org(0x0008) */ 
@@ -29,45 +30,62 @@ uint8_t load_case[] = {
   /* .org(0x0013) */
   /* LDA $03 */ 0xa5, 0x04,
   /* .org(0x0015) */
-  /* LDA $03, X */ 0xb5, 0x03
+  /* LDA $03, X */ 0xb5, 0x03,
   /* .org(0x0017) */
+  /* LDA ($02, X) */ 0xa1, 0x02,
+  /* .org(0x0019) */
+  /* LDA ($04), Y*/ 0xb1, 0x04
+  /* .org(0x001B) */
 };
 
 void test_load() {
+  bool res = true;
   // prepare case 
   state6502 cpu;
   memset(&cpu, 0, sizeof(state6502));
   memory6502 memory = {0, 0, NULL, NULL, NULL, NULL};
   memory.mptr = load_case;
-  memory.size = load_case_size;
+  memory.size = sizeof(load_case) / sizeof(uint8_t);
   cpu.memory = &memory;
   // imm load 
   cpu.pc = 0x0008;
-  
-  ASSERT_T(cpu.reg_a == 0x7f, "LDA imm");
+  execute_asm(&cpu);  
+  ASSERT_T(cpu.reg_a == 0x7f, "LDA imm", &res);
   // abs load  
   cpu.pc = 0x000a;
-
-  ASSERT_T(cpu.reg_a == 0x7e, "LDA abs");
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0x7e, "LDA abs", &res);
   // abs x load 
   cpu.pc = 0x000d;
   cpu.reg_x = 0x01;
-
-  ASSERT_T(cpu.reg_a == 0x25, "LDA, abx");
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0x25, "LDA abx", &res);
   // abs y load 
   cpu.pc = 0x0010;
   cpu.reg_y = 0x01;
-
-  ASSERT_T(cpu.reg_a == 0x55, "LDA aby");
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0x55, "LDA aby", &res);
   // zp load
   cpu.pc = 0x0013;
-
-  ASSERT_T(cpu.reg_a == 0x01, "LDA zp");
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0x01, "LDA zp", &res);
   // zp x load
   cpu.pc = 0x0015;
+  cpu.reg_x = 0x03;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0xff, "LDA zpx", &res);
+  // indexed indirect load
+  cpu.pc = 0x0017;
   cpu.reg_x = 0x02;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0x65, "LDA inx", &res);
+  // indirect indexed load
+  cpu.pc = 0x0019;
+  cpu.reg_y = 0x02;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0x55, "LDA iny", &res);
 
-  ASSERT_T(cpu.reg_a == 0x00, "LDA zpx");
+  assert(res);
 }
 
 void test_load_flags() {
