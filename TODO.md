@@ -2,11 +2,9 @@
 Emulator
 instruction.h:
 * asm6502 constructors?
-* asm handlers via function pointer
 * group instructions and move their handlers to separate files
+* operations: bitwise, stack, branch/jumps/subroutines
 state.h:
 all:
-* handle array pointer out of bounds
-* implement support for new memory handlers
 Disassebler
 * some data section detection 

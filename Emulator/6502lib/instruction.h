@@ -92,10 +92,20 @@ void decrement_y(state6502 *state, asm6502 cmd);
 // Flags
 void clear_carry(state6502 *state, asm6502 cmd);
 void set_carry(state6502 *state, asm6502 cmd);
+void clear_interrupt(state6502 *state, asm6502 cmd);
+void set_interrupt(state6502 *state, asm6502 cmd);
+void clear_overflow(state6502 *state, asm6502 cmd);
 
 // Memory
 void load_accumulator(state6502 *state, asm6502 cmd);
 void load_xreg(state6502 *state, asm6502 cmd);
 void load_yreg(state6502 *state, asm6502 cmd);
+void store_accumulator(state6502 *state, asm6502 cmd);
+void store_xreg(state6502 *state, asm6502 cmd);
+void store_yreg(state6502 *state, asm6502 cmd);
+void transfer_a2x(state6502 *state, asm6502 cmd);
+void transfer_x2a(state6502 *state, asm6502 cmd);
+void transfer_a2y(state6502 *state, asm6502 cmd);
+void transfer_y2a(state6502 *state, asm6502 cmd);
 
 #endif /* instruction_h */

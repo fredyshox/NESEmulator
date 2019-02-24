@@ -191,19 +191,9 @@ static uint8_t load_value(state6502 *state, asm6502 cmd) {
     value = memory6502_load(state->memory, addr);
   }
 
-  // zero flag
-  if (value == 0) {
-    state->status.zero = 1;
-  } else {
-    state->status.zero = 0;
-  }
-
-  // sign flag
-  if (value & 0x80) {
-    state->status.negative = 1;
-  } else {
-    state->status.negative = 0;
-  }
+  // flags
+  eval_zero_flag(state, value);
+  eval_sign_flag(state, value);
 
   return value;
 }
@@ -229,6 +219,65 @@ void load_yreg(state6502 *state, asm6502 cmd) {
   state->reg_y = load_value(state, cmd);
 }
 
+// Store acc value
+// Affected flags: none
+void store_accumulator(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == STA_ASM);
+  uint16_t addr = handle_addr(state, cmd.maddr);
+  memory6502_store(state->memory, addr, state->reg_a);
+}
+
+// Store X register value
+// Affected flags: none
+void store_xreg(state6502 *state, asm6502 cmd) { 
+  assert(cmd.type == STX_ASM);
+  uint16_t addr = handle_addr(state, cmd.maddr);
+  memory6502_store(state->memory, addr, state->reg_x);
+}
+
+// Store Y register value
+// Affected flags: none
+void store_yreg(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == STY_ASM);
+  uint16_t addr = handle_addr(state, cmd.maddr);
+  memory6502_store(state->memory, addr, state->reg_y);
+}
+
+static void transfer(state6502 *state, uint8_t *src, uint8_t *dest) {
+  uint8_t value = *src;
+  eval_zero_flag(state, value);
+  eval_sign_flag(state, value);
+  *dest = value;
+}
+
+// Copy value from a to x
+// Affected flags: Z, N
+void transfer_a2x(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == TAX_ASM);
+  transfer(state, &state->reg_a, &state->reg_x);
+}
+
+// Copy value from x to a
+// Affected flags: Z, N
+void transfer_x2a(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == TXA_ASM);
+  transfer(state, &state->reg_x, &state->reg_a);
+}
+
+// Copy value from a to y
+// Affected flags: Z, N
+void transfer_a2y(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == TAY_ASM);
+  transfer(state, &state->reg_a, &state->reg_y);
+}
+
+// Copy value from y to a
+// Affected flags: Z, N
+void transfer_y2a(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == TYA_ASM);
+  transfer(state, &state->reg_y, &state->reg_a);
+}
+
 // Clear carry flag
 // Affected flags: C
 void clear_carry(state6502 *state, asm6502 cmd) {
@@ -242,3 +291,25 @@ void set_carry(state6502 *state, asm6502 cmd) {
   assert(cmd.type == SEC_ASM);
   state->status.carry = 1;
 }
+
+// Clear interrupt flag
+// Affected flags: I
+void clear_interrupt(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == SEI_ASM);
+  state->status.interrupt = 0;
+}
+
+// Set interrupt flag
+// Affected flags: I
+void set_interrupt(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == CLI_ASM);
+  state->status.interrupt = 1;
+}
+
+// Clear overflow flag
+// Affected flags: V
+void clear_overflow(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == CLV_ASM);
+  state->status.overflow = 0;
+}
+
