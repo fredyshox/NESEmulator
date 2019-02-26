@@ -3,19 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <assert.h>
-#include "parser.h"
-#include "state.h"  
-
-#define ASSERT_T(EXPR, MSG, RES)  *RES = (EXPR); \
-                                  if (EXPR) \
-                                    fprintf(stderr, "\033[0;32mTest passed: %s\033[0m\n", MSG); \
-                                  else \
-                                    fprintf(stderr, "\033[0;31mTest failed: %s\033[0m\n", MSG);
+#include "test.h"
 
 uint8_t load_case[] = {
   /* .db */ 0x7e, 0x65, 0x25, 0x55, 0x01, 0x00, 0xff, 0xf9, 
@@ -42,11 +30,7 @@ void test_load() {
   bool res = true;
   // prepare case 
   state6502 cpu;
-  memset(&cpu, 0, sizeof(state6502));
-  memory6502 memory = {0, 0, NULL, NULL, NULL, NULL};
-  memory.mptr = load_case;
-  memory.size = sizeof(load_case) / sizeof(uint8_t);
-  cpu.memory = &memory;
+  TEST_PREPARE(cpu, load_case);
   // imm load 
   cpu.pc = 0x0008;
   execute_asm(&cpu);  

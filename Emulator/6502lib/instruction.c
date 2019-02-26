@@ -15,7 +15,7 @@ struct asm6502 asm6502_create(int type, struct mem_addr addr, void (*handler)(st
 
   return instruction;
 }
- 
+
 void asm6502_execute(struct asm6502 cmd, struct state6502* state) {
   cmd.handler(state, cmd);
 }
@@ -79,11 +79,11 @@ void add_with_carry(state6502 *state, asm6502 cmd) {
 
 void increment_memory(state6502 *state, asm6502 cmd) {
   assert(cmd.type == INC_ASM);
-  
+
   uint16_t addr = handle_addr(state, cmd.maddr);
   uint16_t value = memory6502_load(state->memory, addr);
   value += 1;
-  
+
   // flags
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
@@ -95,18 +95,18 @@ void increment_memory(state6502 *state, asm6502 cmd) {
 void increment_x(state6502 *state, asm6502 cmd) {
   assert(cmd.type == INX_ASM);
   uint16_t value = state->reg_x + 1;
-  
-  // flags 
+
+  // flags
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
-  
+
   state->reg_x = (uint8_t) value;
 }
 
 void increment_y(state6502 *state, asm6502 cmd) {
   assert(cmd.type == INY_ASM);
   uint16_t value = state->reg_y + 1;
-  
+
   // flags
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
@@ -126,7 +126,7 @@ void subtract_with_carry(state6502 *state, asm6502 cmd) {
 
   uint16_t result = (uint16_t) state->reg_a - value - (!state->status.carry);
 
-  // flags 
+  // flags
   eval_zero_flag(state, result);
   eval_sign_flag(state, result);
   eval_carry_flag(state, result);
@@ -147,11 +147,11 @@ void subtract_with_carry(state6502 *state, asm6502 cmd) {
 
 void decrement_memory(state6502 *state, asm6502 cmd) {
   assert(cmd.type == DEC_ASM);
-  
+
   uint16_t addr = handle_addr(state, cmd.maddr);
   uint16_t value = memory6502_load(state->memory, addr);
   value -= 1;
-  
+
   // flags
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
@@ -162,22 +162,22 @@ void decrement_memory(state6502 *state, asm6502 cmd) {
 void decrement_x(state6502 *state, asm6502 cmd) {
   assert(cmd.type == DEX_ASM);
   uint16_t value = state->reg_x - 1;
-  
-  // flags 
+
+  // flags
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
-  
+
   state->reg_x = (uint8_t) value;
 }
 
 void decrement_y(state6502 *state, asm6502 cmd) {
   assert(cmd.type == DEY_ASM);
   uint16_t value = state->reg_y - 1;
-  
-  // flags 
+
+  // flags
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
-  
+
   state->reg_y = (uint8_t) value;
 }
 
@@ -229,7 +229,7 @@ void store_accumulator(state6502 *state, asm6502 cmd) {
 
 // Store X register value
 // Affected flags: none
-void store_xreg(state6502 *state, asm6502 cmd) { 
+void store_xreg(state6502 *state, asm6502 cmd) {
   assert(cmd.type == STX_ASM);
   uint16_t addr = handle_addr(state, cmd.maddr);
   memory6502_store(state->memory, addr, state->reg_x);
@@ -243,6 +243,8 @@ void store_yreg(state6502 *state, asm6502 cmd) {
   memory6502_store(state->memory, addr, state->reg_y);
 }
 
+// Copy value from src to dest
+// Affected flags: Z, N
 static void transfer(state6502 *state, uint8_t *src, uint8_t *dest) {
   uint8_t value = *src;
   eval_zero_flag(state, value);
@@ -250,29 +252,21 @@ static void transfer(state6502 *state, uint8_t *src, uint8_t *dest) {
   *dest = value;
 }
 
-// Copy value from a to x
-// Affected flags: Z, N
 void transfer_a2x(state6502 *state, asm6502 cmd) {
   assert(cmd.type == TAX_ASM);
   transfer(state, &state->reg_a, &state->reg_x);
 }
 
-// Copy value from x to a
-// Affected flags: Z, N
 void transfer_x2a(state6502 *state, asm6502 cmd) {
   assert(cmd.type == TXA_ASM);
   transfer(state, &state->reg_x, &state->reg_a);
 }
 
-// Copy value from a to y
-// Affected flags: Z, N
 void transfer_a2y(state6502 *state, asm6502 cmd) {
   assert(cmd.type == TAY_ASM);
   transfer(state, &state->reg_a, &state->reg_y);
 }
 
-// Copy value from y to a
-// Affected flags: Z, N
 void transfer_y2a(state6502 *state, asm6502 cmd) {
   assert(cmd.type == TYA_ASM);
   transfer(state, &state->reg_y, &state->reg_a);
@@ -312,4 +306,3 @@ void clear_overflow(state6502 *state, asm6502 cmd) {
   assert(cmd.type == CLV_ASM);
   state->status.overflow = 0;
 }
-
