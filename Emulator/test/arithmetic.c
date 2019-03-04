@@ -15,7 +15,9 @@ uint8_t adc_case[] = {
 
 uint8_t sbc_case[] = {
   /* .org(0x0000) */
-  /* SBC */
+  /* SBC #$44 */ 0xe9, 0x44,
+  /* SBC #$01 */ 0xe9, 0x01,
+  /* SBC #$ff */ 0xe9, 0xff
 };
 
 void test_adc() {
@@ -52,22 +54,41 @@ void test_adc() {
 }
 
 void test_sbc() {
+  bool res = true;
   // just carry and overflow 
-}
+  state6502 cpu;
+  TEST_PREPARE(cpu, sbc_case);
+  // carry
+  cpu.pc = 0x0000;
+  cpu.status.carry = 0;
+  cpu.reg_a = 0xff;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0xba, "(1) SBC: 0xff - 0x44 (carry=0)", &res);
+  // carry 2
+  cpu.pc = 0x0000;
+  cpu.status.carry = 1;
+  cpu.reg_a = 0xff;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0xbb, "(2) SBC: 0xff - 0x44 (carry=1)", &res);
+  // overflow (-128 - 1 = 127)
+  cpu.pc = 0x0002;
+  cpu.status.carry = 1;
+  cpu.reg_a = 0x80;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0x7f && cpu.status.overflow == 1, "(3) SBC: 0x80 - 0x01 (status overflow)", &res);
+  // overflow (127 - (-1) = -128)
+  cpu.pc = 0x0004;
+  cpu.status.carry = 1;
+  cpu.reg_a = 0x7f;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.reg_a == 0x80 && cpu.status.overflow == 1, "(4) SBC: 0x7f - 0xff (status overflow)", &res);
 
-void test_inc() {
-
-}
-
-void test_dec() {
-
+  assert(res);
 }
 
 int main() {
   test_adc();
   test_sbc();
-  test_inc();
-  test_dec();
   return 0;
 }
 

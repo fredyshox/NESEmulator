@@ -181,6 +181,154 @@ void decrement_y(state6502 *state, asm6502 cmd) {
   state->reg_y = (uint8_t) value;
 }
 
+void bitwise_shift_l(state6502 *state, asm6502 cmd) {
+  uint16_t value;
+  uint16_t addr;
+  if (cmd.maddr.type == ACC_ADDR) {
+    value = state->reg_a;
+  } else {
+    addr = handle_addr(state, cmd.maddr);
+    value = (uint16_t) memory6502_load(state->memory, addr);
+  }
+  
+  value = value << 1;
+  eval_zero_flag(state, value);
+  eval_sign_flag(state, value);
+  eval_carry_flag(state, value);
+  
+  if (cmd.maddr.type == ACC_ADDR) {
+    state->reg_a = (uint8_t) value;
+  } else {
+    memory6502_store(state->memory, addr, (uint8_t) value); 
+  }
+}
+
+void bitwise_shift_r(state6502 *state, asm6502 cmd) {
+  uint8_t value;
+  uint16_t addr;
+  if (cmd.maddr.type == ACC_ADDR) {
+    value = state->reg_a;
+  } else {
+    addr = handle_addr(state, cmd.maddr);
+    value = memory6502_load(state->memory, addr);
+  }
+
+  state->status.carry = value & 0x01;
+  value = value >> 1;
+  eval_zero_flag(state, value);
+  eval_sign_flag(state, value);
+
+  if (cmd.maddr.type == ACC_ADDR) {
+    state->reg_a = value;
+  } else {
+    memory6502_store(state->memory, addr, value);
+  }
+}
+
+void bitwise_and(state6502 *state, asm6502 cmd) {
+  uint8_t value;
+  if (cmd.maddr.type == IMM_ADDR) {
+    value = cmd.maddr.lval;
+  } else {
+    uint16_t addr = handle_addr(state, cmd.maddr);
+    value = memory6502_load(state->memory, addr);
+  }
+  value = value & state->reg_a;
+  eval_zero_flag(state, value);
+  eval_sign_flag(state, value);
+
+  state->reg_a = value;
+}
+
+void bitwise_xor(state6502 *state, asm6502 cmd) {
+  uint8_t value;
+  if (cmd.maddr.type == IMM_ADDR) {
+    value = cmd.maddr.lval;
+  } else {
+    uint16_t addr = handle_addr(state, cmd.maddr);
+    value = memory6502_load(state->memory, addr);
+  }
+  value = value ^ state->reg_a;
+  eval_zero_flag(state, value);
+  eval_sign_flag(state, value);
+
+  state->reg_a = value;
+}
+
+void bitwise_or(state6502 *state, asm6502 cmd) {
+  uint8_t value;
+  if (cmd.maddr.type == IMM_ADDR) {
+    value = cmd.maddr.lval;
+  } else {
+    uint16_t addr = handle_addr(state, cmd.maddr);
+    value = memory6502_load(state->memory, addr);
+  }
+  value = value | state->reg_a;
+  eval_zero_flag(state, value);
+  eval_sign_flag(state, value);
+
+  state->reg_a = value;
+}
+
+void bitwise_rotate_l(state6502 *state, asm6502 cmd) {
+  uint16_t value;
+  uint16_t addr;
+  if (cmd.maddr.type == ACC_ADDR) {
+    value = state->reg_a;
+  } else {
+    addr = handle_addr(state, cmd.maddr);
+    value = memory6502_load(state->memory, addr);
+  }
+
+  value = (value << 1) + state->status.carry;
+  eval_zero_flag(state, value);
+  eval_sign_flag(state, value);
+  eval_carry_flag(state, value);
+
+  if (cmd.maddr.type == ACC_ADDR) {
+    state->reg_a = (uint8_t) value;
+  } else {
+    memory6502_store(state->memory, addr, (uint8_t) value); 
+  }
+}
+
+void bitwise_rotate_r(state6502 *state, asm6502 cmd) {
+  uint16_t value;
+  uint16_t addr;
+  if (cmd.maddr.type == ACC_ADDR) {
+    value = state->reg_a;
+  } else {
+    addr = handle_addr(state, cmd.maddr);
+    value = memory6502_load(state->memory, addr);
+  }
+  
+  value = value + (state->status.carry) ? 0x0100 : 0;
+  state->status.carry = value & 0x0001;  
+  value = value >> 1;
+  eval_zero_flag(state, value);
+  eval_sign_flag(state, value);
+
+  if (cmd.maddr.type == ACC_ADDR) {
+    state->reg_a = (uint8_t) value;
+  } else {
+    memory6502_store(state->memory, addr, (uint8_t) value); 
+  }
+}
+
+void bitwise_bit_test(state6502 *state, asm6502 cmd) {
+  uint8_t value;
+  if (cmd.maddr.type == IMM_ADDR) {
+    value = cmd.maddr.lval;
+  } else {
+    uint16_t addr = handle_addr(state, cmd.maddr);
+    value = memory6502_load(state->memory, addr);
+  }
+  
+  state->status.negative = ((value & 0x80) != 0);
+  state->status.overflow = ((value & 0x40) != 0);
+  state->status.zero = ((value & state->reg_a) == 0);
+}
+
 // Affected flags: Z, N
 static uint8_t load_value(state6502 *state, asm6502 cmd) {
   uint8_t value;
@@ -306,3 +454,7 @@ void clear_overflow(state6502 *state, asm6502 cmd) {
   assert(cmd.type == CLV_ASM);
   state->status.overflow = 0;
 }
+
+// Does nothing 
+void no_operation(state6502 *state, asm6502 cmd) { /* nothing */ }
+

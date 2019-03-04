@@ -47,7 +47,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       consumed += indirect_indexed_addr(&addr, memory, mpos);
       adc:
         cmd->type = ADC_ASM;
-        cmd->maddr = addr;
         cmd->handler = add_with_carry;
         break;
     // AND
@@ -76,14 +75,40 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       consumed += indirect_indexed_addr(&addr, memory, mpos);
       and:
         cmd->type = AND_ASM;
-        cmd->maddr = addr;
-        // cmd->handler = 
+        cmd->handler = bitwise_and;
         break;
     // ASL - arithmentic bitwise shift left
+    case 0x0a:
+      addr.type = ACC_ADDR;
+      goto asl;
+    case 0x0e:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto asl;
+    case 0x1e:
+      consumed += absolute_x_addr(&addr, memory, mpos);
+      goto asl;
+    case 0x06:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto asl;
+    case 0x16:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      asl:
+        cmd->type = ASL_ASM;
+        cmd->handler = bitwise_shift_l;
+        break;
     // BCC
     // BCS
     // BEQ
     // BIT
+    case 0x2c:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto bit;
+    case 0x24:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      bit:
+        cmd->type = BIT_ASM;
+        cmd->handler = bitwise_bit_test;
+        break;
     // BMI
     // BNE
     // BPL 
@@ -91,9 +116,24 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
     // BVC
     // BVS
     // CLC
+    case 0x18:
+      cmd->type = CLC_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = clear_carry;
+      break;
     // CLD
     // CLI
+    case 0x58:
+      cmd->type = CLI_ASM;
+      addr.type = CLI_ASM;
+      cmd->handler = clear_interrupt;
+      break;
     // CLV
+    case 0xb8:
+      cmd->type = CLV_ASM;
+      addr.type = CLV_ASM;
+      cmd->handler = clear_overflow;
+      break;
     // CMP
     // CPX
     // CPY
@@ -111,20 +151,48 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       consumed += zeropage_x_addr(&addr, memory, mpos);
       dec:
         cmd->type = DEC_ASM;
-        cmd->maddr = addr;
         cmd->handler = decrement_memory;
         break;
     // DEX
     case 0xca:
       cmd->type = DEX_ASM;
-      cmd->maddr.type = IMP_ADDR;
+      addr.type = IMP_ADDR;
       cmd->handler = decrement_x;
+      break;
     // DEY
     case 0x88:
       cmd->type = DEY_ASM;
-      cmd->maddr.type = IMP_ADDR;
+      addr.type = IMP_ADDR;
       cmd->handler = decrement_y;
+      break;
     // EOR
+    case 0x49:
+      consumed += immediate_addr(&addr, memory, mpos);
+      goto eor;
+    case 0x4d:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto eor;
+    case 0x5d:
+      consumed += absolute_x_addr(&addr, memory, mpos);
+      goto eor;
+    case 0x59:
+      consumed += absolute_y_addr(&addr, memory, mpos);
+      goto eor;
+    case 0x45:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto eor;
+    case 0x55:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      goto eor;
+    case 0x41:
+      consumed += indexed_indirect_addr(&addr, memory, mpos);
+      goto eor;
+    case 0x51:
+      consumed += indirect_indexed_addr(&addr, memory, mpos);
+      eor:
+        cmd->type = EOR_ASM;
+        cmd->handler = bitwise_xor;
+        break;
     // INC
     case 0xee:
       consumed += absolute_addr(&addr, memory, mpos);
@@ -139,19 +207,18 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       consumed += zeropage_x_addr(&addr, memory, mpos);
       inc:
         cmd->type = INC_ASM;
-        cmd->maddr = addr;
         cmd->handler = increment_memory;
         break;
     // INX
     case 0xe8:
       cmd->type = INX_ASM;
-      cmd->maddr.type = IMP_ADDR;
+      addr.type = IMP_ADDR;
       cmd->handler = increment_x;
       break;
     // INY
     case 0xc8:
       cmd->type = INY_ASM;
-      cmd->maddr.type = IMP_ADDR;
+      addr.type = IMP_ADDR;
       cmd->handler = increment_y;
       break;
     // JMP
@@ -182,7 +249,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       consumed += indirect_indexed_addr(&addr, memory, mpos);
       lda:
         cmd->type = LDA_ASM;
-        cmd->maddr = addr;
         cmd->handler = load_accumulator;
         break;
     // LDX
@@ -202,19 +268,122 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       consumed += zeropage_y_addr(&addr, memory, mpos);
       ldx:
         cmd->type = LDX_ASM;
-        cmd->maddr = addr;
         cmd->handler = load_xreg;
         break;
     // LDY
+    case 0xa0:
+      consumed += immediate_addr(&addr, memory, mpos);
+      goto ldy;
+    case 0xac:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto ldy;
+    case 0xbc: 
+      consumed += absolute_x_addr(&addr, memory, mpos);
+      goto ldy;
+    case 0xa4:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto ldy;
+    case 0xb4:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      ldy:
+        cmd->type = LDY_ASM;
+        cmd->handler = load_yreg;
+        break;
     // LSR
+    case 0x4a:
+      addr.type = ACC_ADDR;
+      goto lsr;
+    case 0x4e:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto lsr;
+    case 0x5e:
+      consumed += absolute_x_addr(&addr, memory, mpos);
+      goto lsr;
+    case 0x46:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto lsr;
+    case 0x56:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      lsr:
+        cmd->type = LSR_ASM;
+        cmd->handler = bitwise_shift_r;
+        break;
     // NOP
+    case 0xea:
+      cmd->type = NOP_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = no_operation;
+      break;
     // ORA
+    case 0x09:
+      consumed += immediate_addr(&addr, memory, mpos);
+      goto ora;
+    case 0x0d:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto ora;
+    case 0x1d:
+      consumed += absolute_x_addr(&addr, memory, mpos);
+      goto ora;
+    case 0x19:
+      consumed += absolute_y_addr(&addr, memory, mpos);
+      goto ora;
+    case 0x05:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto ora;
+    case 0x15:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      goto ora;
+    case 0x01:
+      consumed += indexed_indirect_addr(&addr, memory ,mpos);
+      goto ora;
+    case 0x11:
+      consumed += indirect_indexed_addr(&addr, memory, mpos);
+      ora:
+        cmd->type = ORA_ASM;
+        cmd->handler = bitwise_or;
+        break;
     // PHA
     // PHP
     // PLA
     // PLP
     // ROL
+    case 0x2a:
+      addr.type = ACC_ADDR;
+      goto rol;
+    case 0x2e:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto rol;
+    case 0x3e:
+      consumed += absolute_x_addr(&addr, memory, mpos);
+      goto rol;
+    case 0x26:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto rol;
+    case 0x36:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      rol:
+        cmd->type = ROL_ASM;
+        cmd->handler = bitwise_rotate_l;
+        break;
     // ROR
+    case 0x6a:
+      addr.type = ACC_ADDR;
+      goto ror;
+    case 0x7e:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto ror;
+    case 0x6e:
+      consumed += absolute_x_addr(&addr, memory, mpos);
+      goto ror;
+    case 0x66:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto ror;
+    case 0x76:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      ror:
+        cmd->type = ROR_ASM;
+        cmd->handler = bitwise_rotate_r;
+        break;
     // RTI
     // RTS
     // SBC
@@ -243,26 +412,103 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       consumed += indirect_indexed_addr(&addr, memory, mpos);
       sbc:
         cmd->type = SBC_ASM;
-        cmd->maddr = addr;
         cmd->handler = subtract_with_carry;
         break;
     // SEC
-    // SED
+    case 0x38:
+      cmd->type = SEC_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = set_carry;
+      break;
+    // SED 
     // SEI
+    case 0x78:
+      cmd->type = SEI_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = set_interrupt;
+      break;
     // STA
+    case 0x8d:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto sta;
+    case 0x9d:
+      consumed += absolute_x_addr(&addr, memory, mpos);
+      goto sta;
+    case 0x99:
+      consumed += absolute_y_addr(&addr, memory, mpos);
+      goto sta;
+    case 0x85:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto sta;
+    case 0x95:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      goto sta;
+    case 0x81:
+      consumed += indexed_indirect_addr(&addr, memory, mpos);
+      goto sta; 
+    case 0x91:
+      consumed += indirect_indexed_addr(&addr, memory, mpos);
+      sta:
+        cmd->type = STA_ASM;
+        cmd->handler = store_accumulator;
+        break;
     // STX
+    case 0x8e:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto stx;
+    case 0x86:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto stx;
+    case 0x96:
+      consumed += zeropage_y_addr(&addr, memory, mpos);
+      stx:
+        cmd->type = STX_ASM;
+        cmd->handler = store_xreg;
+        break;
     // STY
+    case 0x8c:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto sty;
+    case 0x84:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto sty;
+    case 0x94:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      sty:
+        cmd->type = STY_ASM;
+        cmd->handler = store_yreg;
+        break;
     // TAX
-    // TAY
-    // TSX
+    case 0xaa:
+      cmd->type = TAX_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = transfer_a2x;
+      break;
     // TXA
-    // TXS
+    case 0x8a:
+      cmd->type = TXA_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = transfer_x2a;
+      break;
+    // TAY
+    case 0xa8:
+      cmd->type = TAY_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = transfer_a2y;
+      break;
     // TYA
+    case 0x98:
+      cmd->type = TYA_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = transfer_y2a;
+      break;
+    // TSX
+    // TXS
     default:
       fprintf(stderr, "Error: unsupported opcode %x\n", opcode);
-      consumed = 0;
-      break;
+      return 0;
   }
+  cmd->maddr = addr;
 
   return consumed;
 }

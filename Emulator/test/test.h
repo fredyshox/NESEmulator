@@ -2,6 +2,9 @@
 // Common testing stuff
 //
 
+#ifndef TEST_H
+#define TEST_H
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -21,4 +24,5 @@
                                    memory.mptr = PROGRAM; \
                                    memory.size = sizeof(PROGRAM) / sizeof(uint8_t); \
                                    cpu.memory = &memory; 
+#endif /* TEST_H */
 

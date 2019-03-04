@@ -3,7 +3,8 @@ Emulator
 instruction.h:
 * asm6502 constructors?
 * group instructions and move their handlers to separate files
-* operations: bitwise, stack, branch/jumps/subroutines
+* operations: stack, branch/jumps/subroutines
+* move common operation code to some #defines
 state.h:
 all:
 Disassebler

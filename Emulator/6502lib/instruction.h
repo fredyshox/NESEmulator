@@ -89,6 +89,16 @@ void decrement_memory(state6502 *state, asm6502 cmd);
 void decrement_x(state6502 *state, asm6502 cmd);
 void decrement_y(state6502 *state, asm6502 cmd);
 
+// Bitwise
+void bitwise_shift_l(state6502 *state, asm6502 cmd);
+void bitwise_shift_r(state6502 *state, asm6502 cmd);
+void bitwise_and(state6502 *state, asm6502 cmd);
+void bitwise_xor(state6502 *state, asm6502 cmd);
+void bitwise_or(state6502 *state, asm6502 cmd);
+void bitwise_rotate_l(state6502 *state, asm6502 cmd);
+void bitwise_rotate_r(state6502 *state, asm6502 cmd);
+void bitwise_bit_test(state6502 *state, asm6502 cmd);
+
 // Flags
 void clear_carry(state6502 *state, asm6502 cmd);
 void set_carry(state6502 *state, asm6502 cmd);
@@ -107,5 +117,8 @@ void transfer_a2x(state6502 *state, asm6502 cmd);
 void transfer_x2a(state6502 *state, asm6502 cmd);
 void transfer_a2y(state6502 *state, asm6502 cmd);
 void transfer_y2a(state6502 *state, asm6502 cmd);
+
+// Other
+void no_operation(state6502 *state, asm6502 cmd);
 
 #endif /* instruction_h */
