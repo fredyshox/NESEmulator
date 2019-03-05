@@ -97,8 +97,23 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
         cmd->handler = bitwise_shift_l;
         break;
     // BCC
+    case 0x90:
+      consumed += relative_addr(&addr, memory, mpos);
+      cmd->type = BCC_ASM;
+      cmd->handler = branch_carry_c;
+      break;
     // BCS
+    case 0xb0:
+      consumed += relative_addr(&addr, memory, mpos);
+      cmd->type = BCS_ASM;
+      cmd->handler = branch_carry;
+      break;
     // BEQ
+    case 0xf0:
+      consumed += relative_addr(&addr, memory, mpos);
+      cmd->type = BEQ_ASM;
+      cmd->handler = branch_eq;
+      break;
     // BIT
     case 0x2c:
       consumed += absolute_addr(&addr, memory, mpos);
@@ -110,11 +125,36 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
         cmd->handler = bitwise_bit_test;
         break;
     // BMI
+    case 0x30:
+      consumed += relative_addr(&addr, memory, mpos);
+      cmd->type = BMI_ASM;
+      cmd->handler = branch_minus;
+      break;
     // BNE
+    case 0xd0:
+      consumed += relative_addr(&addr, memory, mpos);
+      cmd->type = BNE_ASM;
+      cmd->handler = branch_neq;
+      break;
     // BPL 
+    case 0x10:
+      consumed += relative_addr(&addr, memory, mpos);
+      cmd->type = BPL_ASM;
+      cmd->handler = branch_plus;
+      break;
     // BRK
     // BVC
+    case 0x50:
+      consumed += relative_addr(&addr, memory, mpos);
+      cmd->type = BVC_ASM;
+      cmd->handler = branch_overflow_c;
+      break;
     // BVS
+    case 0x70:
+      consumed += relative_addr(&addr, memory, mpos);
+      cmd->type = BVS_ASM;
+      cmd->handler = branch_overflow;
+      break;
     // CLC
     case 0x18:
       cmd->type = CLC_ASM;
@@ -125,13 +165,13 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
     // CLI
     case 0x58:
       cmd->type = CLI_ASM;
-      addr.type = CLI_ASM;
+      addr.type = IMP_ADDR;
       cmd->handler = clear_interrupt;
       break;
     // CLV
     case 0xb8:
       cmd->type = CLV_ASM;
-      addr.type = CLV_ASM;
+      addr.type = IMP_ADDR;
       cmd->handler = clear_overflow;
       break;
     // CMP
@@ -343,9 +383,29 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
         cmd->handler = bitwise_or;
         break;
     // PHA
+    case 0x48:
+      cmd->type = PHA_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = push_accumulator;
+      break;
     // PHP
+    case 0x08: 
+      cmd->type = PHP_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = push_cpu_status;
+      break;
     // PLA
+    case 0x68:
+      cmd->type = PLA_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = pull_accumulator;
+      break;
     // PLP
+    case 0x28:
+      cmd->type = PLP_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = pull_cpu_status;
+      break;
     // ROL
     case 0x2a:
       addr.type = ACC_ADDR;
@@ -503,7 +563,17 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->handler = transfer_y2a;
       break;
     // TSX
+    case 0xba:
+      cmd->type = TSX_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = transfer_sptr2x;
+      break;
     // TXS
+    case 0x9a:
+      cmd->type = TXS_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = transfer_x2sptr;
+      break;
     default:
       fprintf(stderr, "Error: unsupported opcode %x\n", opcode);
       return 0;
@@ -512,3 +582,4 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
 
   return consumed;
 }
+

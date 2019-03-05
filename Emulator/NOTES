@@ -1,7 +1,7 @@
 6502 Instruction groups:
 
 * Arithmetic group:
-- ADC (imm, abs, abx, aby, zp, zpx, izx, izy) 
+- ADC (imm, abs, abx, aby, zp, zpx, izx, izy)
 	- flags: C, Z, V, N
 	- add with carry
 - INC (abs, abx, zp, zpx)
@@ -15,7 +15,7 @@
 	- increment Y
 - SBC (imm, abs, abx, aby, zp, zpx, izx, izy)
 	- flags: C, Z, V, N
-	- substract with carry 
+	- substract with carry
 - DEC - same as INC but decrement memory
 - DEX - same as INX but decrement X
 - DEY - same as INY but decrement Y
@@ -27,6 +27,9 @@
 - ASL (acc, abs, abx, zp, zpx)
 	- flags: C, N, Z
 	- arithmetic shift left
+- LSR (acc, abs, abx, zp, zpx)
+	- flags: C, N, Z
+	- logical shift right
 - ORA (imm, abs, abx, aby, zp, zpx, izx, izy)
 	- flags: N, Z
 	- bitwise or with acc
@@ -39,12 +42,15 @@
 - ROR (acc, abs, abx, zp, zpx)
 	- flags: C, N, Z
 	- bitwise rotate right
+- BIT (abs, zp)
+	- flags: N, Z, V
+	- bit test, bit 7 => N, bit 6 => V, AND with acc => zero
 
 * Memory:
 - LDA (imm, abs, abx, aby, zp, zpx, izx, izy)
   - flags: N, Z
   - load to accumulator
-- LDX (imm, abs, aby, zp, zpx) 
+- LDX (imm, abs, aby, zp, zpx)
   - flags: N, Z
   - load to register X
 - LDY (imm, abs, abx, zp, zpx)
@@ -54,8 +60,8 @@
   - flags:
   - store accumulator value
 - STX (abs, zp, zpy)
-  - flags: 
+  - flags:
   - store register X value
 - STY (abs, zp, zpx)
-  - flags: 
+  - flags:
   - store register Y value

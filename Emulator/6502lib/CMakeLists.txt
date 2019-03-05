@@ -4,9 +4,14 @@ project(6502lib)
 
 set(6502lib_SOURCES
   addr.c
-  instruction.c
+  asm.c
   parser.c
-  state.c)
+  state.c
+  handlers/arithmetic.c
+  handlers/branch.c
+  handlers/memory.c
+  handlers/other.c
+  handlers/stack.c)
 
 add_library(6502
   STATIC

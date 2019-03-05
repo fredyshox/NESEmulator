@@ -4,7 +4,7 @@
 //
 
 #include "addr.h"
-uint8_t memory6502_load(struct memory6502 *memory, uint16_t idx);
+
 static int full_value(struct mem_addr *maddr, struct memory6502 *memory, uint16_t pos) {
   // little endian
   uint8_t lsb = memory6502_load(memory, pos);

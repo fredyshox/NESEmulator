@@ -34,11 +34,6 @@ struct mem_addr {
 
 typedef struct mem_addr mem_addr;
 
-// Helpers
-
-static int full_value(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
-static int lsb_value(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);
-
 // Addressing modes
 
 int immediate_addr(struct mem_addr *maddr, struct memory6502* memory, uint16_t pos);

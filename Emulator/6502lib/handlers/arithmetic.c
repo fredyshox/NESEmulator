@@ -1,48 +1,11 @@
 //
-// 6502 asm instructions
+// 6502 asm arithmetic handlers
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "instruction.h"
+#include "arithmetic.h"
+#include "addr.h"
 #include <stdbool.h>
-#include <assert.h>
-
-struct asm6502 asm6502_create(int type, struct mem_addr addr, void (*handler)(state6502*, asm6502)) {
-  struct asm6502 instruction;
-  instruction.type = type;
-  instruction.maddr = addr;
-  instruction.handler = handler;
-
-  return instruction;
-}
-
-void asm6502_execute(struct asm6502 cmd, struct state6502* state) {
-  cmd.handler(state, cmd);
-}
-
-static inline void eval_zero_flag(state6502 *state, uint16_t value) {
-  if ((value & 0xff) == 0) {
-    state->status.zero = 1;
-  } else {
-    state->status.zero = 0;
-  }
-}
-
-static inline void eval_sign_flag(state6502 *state, uint16_t value) {
-  if (value & 0x80) {
-    state->status.negative = 1;
-  } else {
-    state->status.negative = 0;
-  }
-}
-
-static inline void eval_carry_flag(state6502 *state, uint16_t value) {
-  if (value > 0xff) {
-    state->status.carry = 1;
-  } else {
-    state->status.carry = 0;
-  }
-}
 
 // Add value to accumulator with carry
 // Affected flags: Z, N, C, V
@@ -190,16 +153,16 @@ void bitwise_shift_l(state6502 *state, asm6502 cmd) {
     addr = handle_addr(state, cmd.maddr);
     value = (uint16_t) memory6502_load(state->memory, addr);
   }
-  
+
   value = value << 1;
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
   eval_carry_flag(state, value);
-  
+
   if (cmd.maddr.type == ACC_ADDR) {
     state->reg_a = (uint8_t) value;
   } else {
-    memory6502_store(state->memory, addr, (uint8_t) value); 
+    memory6502_store(state->memory, addr, (uint8_t) value);
   }
 }
 
@@ -288,7 +251,7 @@ void bitwise_rotate_l(state6502 *state, asm6502 cmd) {
   if (cmd.maddr.type == ACC_ADDR) {
     state->reg_a = (uint8_t) value;
   } else {
-    memory6502_store(state->memory, addr, (uint8_t) value); 
+    memory6502_store(state->memory, addr, (uint8_t) value);
   }
 }
 
@@ -301,9 +264,9 @@ void bitwise_rotate_r(state6502 *state, asm6502 cmd) {
     addr = handle_addr(state, cmd.maddr);
     value = memory6502_load(state->memory, addr);
   }
-  
+
   value = value + (state->status.carry) ? 0x0100 : 0;
-  state->status.carry = value & 0x0001;  
+  state->status.carry = value & 0x0001;
   value = value >> 1;
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
@@ -311,7 +274,7 @@ void bitwise_rotate_r(state6502 *state, asm6502 cmd) {
   if (cmd.maddr.type == ACC_ADDR) {
     state->reg_a = (uint8_t) value;
   } else {
-    memory6502_store(state->memory, addr, (uint8_t) value); 
+    memory6502_store(state->memory, addr, (uint8_t) value);
   }
 }
 
@@ -323,138 +286,8 @@ void bitwise_bit_test(state6502 *state, asm6502 cmd) {
     uint16_t addr = handle_addr(state, cmd.maddr);
     value = memory6502_load(state->memory, addr);
   }
-  
+
   state->status.negative = ((value & 0x80) != 0);
   state->status.overflow = ((value & 0x40) != 0);
   state->status.zero = ((value & state->reg_a) == 0);
 }
-
-// Affected flags: Z, N
-static uint8_t load_value(state6502 *state, asm6502 cmd) {
-  uint8_t value;
-  if (cmd.maddr.type == IMM_ADDR) {
-    value = cmd.maddr.lval;
-  } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
-    value = memory6502_load(state->memory, addr);
-  }
-
-  // flags
-  eval_zero_flag(state, value);
-  eval_sign_flag(state, value);
-
-  return value;
-}
-
-// Load value into accumulator register
-// Affected flags: Z, N
-void load_accumulator(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == LDA_ASM);
-  state->reg_a = load_value(state, cmd);
-}
-
-// Load value into X register
-// Affected flags: Z, N
-void load_xreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == LDX_ASM);
-  state->reg_x = load_value(state, cmd);
-}
-
-// Load value into Y register
-// Affected flags: Z, N
-void load_yreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == LDY_ASM);
-  state->reg_y = load_value(state, cmd);
-}
-
-// Store acc value
-// Affected flags: none
-void store_accumulator(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == STA_ASM);
-  uint16_t addr = handle_addr(state, cmd.maddr);
-  memory6502_store(state->memory, addr, state->reg_a);
-}
-
-// Store X register value
-// Affected flags: none
-void store_xreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == STX_ASM);
-  uint16_t addr = handle_addr(state, cmd.maddr);
-  memory6502_store(state->memory, addr, state->reg_x);
-}
-
-// Store Y register value
-// Affected flags: none
-void store_yreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == STY_ASM);
-  uint16_t addr = handle_addr(state, cmd.maddr);
-  memory6502_store(state->memory, addr, state->reg_y);
-}
-
-// Copy value from src to dest
-// Affected flags: Z, N
-static void transfer(state6502 *state, uint8_t *src, uint8_t *dest) {
-  uint8_t value = *src;
-  eval_zero_flag(state, value);
-  eval_sign_flag(state, value);
-  *dest = value;
-}
-
-void transfer_a2x(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == TAX_ASM);
-  transfer(state, &state->reg_a, &state->reg_x);
-}
-
-void transfer_x2a(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == TXA_ASM);
-  transfer(state, &state->reg_x, &state->reg_a);
-}
-
-void transfer_a2y(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == TAY_ASM);
-  transfer(state, &state->reg_a, &state->reg_y);
-}
-
-void transfer_y2a(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == TYA_ASM);
-  transfer(state, &state->reg_y, &state->reg_a);
-}
-
-// Clear carry flag
-// Affected flags: C
-void clear_carry(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CLC_ASM);
-  state->status.carry = 0;
-}
-
-// Set carry flag
-// Affected flags: C
-void set_carry(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == SEC_ASM);
-  state->status.carry = 1;
-}
-
-// Clear interrupt flag
-// Affected flags: I
-void clear_interrupt(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == SEI_ASM);
-  state->status.interrupt = 0;
-}
-
-// Set interrupt flag
-// Affected flags: I
-void set_interrupt(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CLI_ASM);
-  state->status.interrupt = 1;
-}
-
-// Clear overflow flag
-// Affected flags: V
-void clear_overflow(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CLV_ASM);
-  state->status.overflow = 0;
-}
-
-// Does nothing 
-void no_operation(state6502 *state, asm6502 cmd) { /* nothing */ }
-
