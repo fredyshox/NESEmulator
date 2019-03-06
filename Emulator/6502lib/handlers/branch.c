@@ -1,5 +1,6 @@
 //
 // 6502 asm branch handlers
+// Compilation handlers that directly modify program counter
 // Copyright (c) 2019 Kacper Rączy
 //
 
@@ -70,4 +71,9 @@ void return_interrupt(state6502* state, asm6502 cmd) {
   // ^pulls in reverse order
   state->pc = *(uint16_t*) (data);
   state->status = *(flags6502*) (data + 2);
+}
+
+void break_interrupt(state6502 *state, asm6502 cmd) {
+  state->status.brk = 1;
+  state->pc += 1;
 }

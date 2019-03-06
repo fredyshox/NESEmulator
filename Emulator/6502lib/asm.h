@@ -69,6 +69,7 @@ enum {
   JSR_ASM = 0x51d,
   RTI_ASM = 0x52a,
   RTS_ASM = 0x52b,
+  BRK_ASM = 0x50b,
   // Stack
   PHA_ASM = 0x624,
   PHP_ASM = 0x625,
@@ -77,7 +78,6 @@ enum {
   TSX_ASM = 0x635,
   TXS_ASM = 0x637,
   // Other
-  BRK_ASM = 0x70b,
   CMP_ASM = 0x712,
   CPX_ASM = 0x713,
   CPY_ASM = 0x714,

@@ -143,6 +143,11 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->handler = branch_plus;
       break;
     // BRK
+    case 0x00:
+      cmd->type = BRK_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = break_interrupt;
+      break;
     // BVC
     case 0x50:
       consumed += relative_addr(&addr, memory, mpos);
