@@ -7,7 +7,7 @@
 
 int execute_asm(state6502 *state) {
   // TOOD parse and execute instruction
-  asm6502 operation; 
+  asm6502 operation;
   int consumed = parse_asm(&operation, state->memory, state->pc);
   state->pc += (uint16_t) consumed;
   asm6502_execute(operation, state);
@@ -136,7 +136,7 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->type = BNE_ASM;
       cmd->handler = branch_neq;
       break;
-    // BPL 
+    // BPL
     case 0x10:
       consumed += relative_addr(&addr, memory, mpos);
       cmd->type = BPL_ASM;
@@ -175,9 +175,60 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->handler = clear_overflow;
       break;
     // CMP
+    case 0xc9:
+      consumed += immediate_addr(&addr, memory, mpos);
+      goto cmp;
+    case 0xcd:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto cmp;
+    case 0xdd:
+      consumed += absolute_x_addr(&addr, memory, mpos);
+      goto cmp;
+    case 0xd9:
+      consumed += absolute_y_addr(&addr, memory, mpos);
+      goto cmp;
+    case 0xc5:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      goto cmp;
+    case 0xd5:
+      consumed += zeropage_x_addr(&addr, memory, mpos);
+      goto cmp;
+    case 0xc1:
+      consumed += indexed_indirect_addr(&addr, memory, mpos);
+      goto cmp;
+    case 0xd1:
+      consumed += indirect_indexed_addr(&addr, memory, mpos);
+      cmp:
+        cmd->type = CMP_ASM;
+        cmd->handler = compare_accumulator;
+        break;
     // CPX
+    case 0xe0:
+      consumed += immediate_addr(&addr, memory, mpos);
+      goto cpx;
+    case 0xec:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto cpx;
+    case 0xe4:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      cpx:
+        cmd->type = CPX_ASM;
+        cmd->handler = compare_xreg;
+        break;
     // CPY
-    // DEC 
+    case 0xc0:
+      consumed += immediate_addr(&addr, memory, mpos);
+      goto cpy;
+    case 0xcc:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto cpy;
+    case 0xc4:
+      consumed += zeropage_addr(&addr, memory, mpos);
+      cpy:
+        cmd->type = CPY_ASM;
+        cmd->handler = compare_yreg;
+        break;
+    // DEC
     case 0xce:
       consumed += absolute_addr(&addr, memory, mpos);
       goto dec;
@@ -262,7 +313,21 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->handler = increment_y;
       break;
     // JMP
+    case 0x4c:
+      consumed += absolute_addr(&addr, memory, mpos);
+      goto jmp;
+    case 0x63:
+      consumed += indirect_addr(&addr, memory, mpos);
+      jmp:
+        cmd->type = JMP_ASM;
+        cmd->handler = jump;
+        break;
     // JSR
+    case 0x20:
+      consumed += absolute_addr(&addr, memory, mpos);
+      cmd->type = JSR_ASM;
+      cmd->handler = jump_subroutine;
+      break;
     // LDA
     case 0xa9:
       consumed += immediate_addr(&addr, memory, mpos);
@@ -317,7 +382,7 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
     case 0xac:
       consumed += absolute_addr(&addr, memory, mpos);
       goto ldy;
-    case 0xbc: 
+    case 0xbc:
       consumed += absolute_x_addr(&addr, memory, mpos);
       goto ldy;
     case 0xa4:
@@ -389,7 +454,7 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->handler = push_accumulator;
       break;
     // PHP
-    case 0x08: 
+    case 0x08:
       cmd->type = PHP_ASM;
       addr.type = IMP_ADDR;
       cmd->handler = push_cpu_status;
@@ -445,7 +510,17 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
         cmd->handler = bitwise_rotate_r;
         break;
     // RTI
+    case 0x40:
+      cmd->type = RTI_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = return_interrupt;
+      break;
     // RTS
+    case 0x60:
+      cmd->type = RTS_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = return_subroutine;
+      break;
     // SBC
     case 0xe9:
       consumed += immediate_addr(&addr, memory, mpos);
@@ -480,7 +555,7 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       addr.type = IMP_ADDR;
       cmd->handler = set_carry;
       break;
-    // SED 
+    // SED
     // SEI
     case 0x78:
       cmd->type = SEI_ASM;
@@ -505,7 +580,7 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       goto sta;
     case 0x81:
       consumed += indexed_indirect_addr(&addr, memory, mpos);
-      goto sta; 
+      goto sta;
     case 0x91:
       consumed += indirect_indexed_addr(&addr, memory, mpos);
       sta:
@@ -582,4 +657,3 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
 
   return consumed;
 }
-
