@@ -7,13 +7,13 @@
 
 void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   assert(memory != NULL && state != NULL);
-   
+
   state->reg_a = 0x00;
   state->reg_x = 0x00;
   state->reg_y = 0x00;
   state->sp = 0xff;
   state->pc = 0x0000;
-  memset(&state->status, 0x00, sizeof(struct flags6502));  
+  memset(&state->status, 0x00, sizeof(struct flags6502));
   state->memory = memory;
 }
 
@@ -45,4 +45,3 @@ uint8_t memory6502_load(struct memory6502 *memory, uint16_t idx) {
   __DID_LOAD_NNULL(memory, idx);
   return memory->mptr[idx];
 }
-

@@ -38,7 +38,19 @@ struct state6502 {
 
 typedef struct state6502 state6502;
 
-void state6502_create(struct state6502 *state, struct memory6502 *memory); 
+void state6502_create(struct state6502 *state, struct memory6502 *memory);
+
+#define STATE6502_STACK_PUSH(STATE, BYTES, LEN) \
+  for (int i = 0; i < LEN; i++) {  \
+    memory6502_store(STATE->memory, (uint16_t) STATE->sp + 0x100, *(BYTES + i));  \
+    STATE->sp -= 1;  \
+  }
+
+#define STATE6502_STACK_PULL(STATE, BYTES, LEN) \
+  for (int i = LEN - 1; i >= 0; i--) {  \
+    *(BYTES + i) = memory6502_load(STATE->memory, (uint16_t) STATE->sp + 0x100);  \
+    STATE->sp += 1;  \
+  }  \
 
 #define MAX_MEM_SIZE UINT16_MAX
 
@@ -56,10 +68,10 @@ typedef struct memory6502 memory6502;
 #define __DID_LOAD_NNULL(mem, idx) if (mem->did_load_cb != NULL) mem->did_load_cb(mem, idx);
 #define __DID_STORE_NNULL(mem, idx, val) if (mem->did_store_cb != NULL) mem->did_store_cb(mem, idx);
 #define __STORE_ERR_NNULL(mem, idx, val) if (mem->store_error_cb != NULL) mem->store_error_cb(mem, idx, val);
-#define __LOAD_ERR_NNULL(mem, idx) (mem->load_error_cb != NULL) ? mem->load_error_cb(mem, idx) : 0x00 
+#define __LOAD_ERR_NNULL(mem, idx) (mem->load_error_cb != NULL) ? mem->load_error_cb(mem, idx) : 0x00
 
-void memory6502_create(struct memory6502 *memory, uint16_t size); 
-void memory6502_store(struct memory6502 *memory, uint16_t idx, uint8_t value); 
+void memory6502_create(struct memory6502 *memory, uint16_t size);
+void memory6502_store(struct memory6502 *memory, uint16_t idx, uint8_t value);
 uint8_t memory6502_load(struct memory6502 *memory, uint16_t idx);
 
 #endif /* state_h */
