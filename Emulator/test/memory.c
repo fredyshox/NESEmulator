@@ -6,8 +6,8 @@
 #include "test.h"
 
 uint8_t load_case[] = {
-  /* .db */ 0x7e, 0x65, 0x25, 0x55, 0x01, 0x00, 0xff, 0xf9, 
-  /* .org(0x0008) */ 
+  /* .db */ 0x7e, 0x65, 0x25, 0x55, 0x01, 0x00, 0xff, 0xf9,
+  /* .org(0x0008) */
   /* LDA #$7f */ 0xa9, 0x7f,
   /* .org(0x000a) */
   /* LDA $0000 */ 0xad, 0x00, 0x00,
@@ -28,23 +28,23 @@ uint8_t load_case[] = {
 
 void test_load() {
   bool res = true;
-  // prepare case 
+  // prepare case
   state6502 cpu;
   TEST_PREPARE(cpu, load_case);
-  // imm load 
+  // imm load
   cpu.pc = 0x0008;
-  execute_asm(&cpu);  
+  execute_asm(&cpu);
   ASSERT_T(cpu.reg_a == 0x7f, "LDA imm", &res);
-  // abs load  
+  // abs load
   cpu.pc = 0x000a;
   execute_asm(&cpu);
   ASSERT_T(cpu.reg_a == 0x7e, "LDA abs", &res);
-  // abs x load 
+  // abs x load
   cpu.pc = 0x000d;
   cpu.reg_x = 0x01;
   execute_asm(&cpu);
   ASSERT_T(cpu.reg_a == 0x25, "LDA abx", &res);
-  // abs y load 
+  // abs y load
   cpu.pc = 0x0010;
   cpu.reg_y = 0x01;
   execute_asm(&cpu);
@@ -84,6 +84,10 @@ void test_store_flags() {
 
 }
 
+void test_stack() {
+  
+}
+
 int main() {
   test_load();
   test_load_flags();
@@ -91,4 +95,3 @@ int main() {
   test_store_flags();
   return 0;
 }
-

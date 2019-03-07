@@ -19,3 +19,11 @@ add_unit_test(memory_op
 add_unit_test(arithmetic_op
   arithmetic.c
   6502)
+
+add_unit_test(program_counter_op
+  pc.c
+  6502)
+
+add_unit_test(flags_op
+  flags.c
+  6502)
