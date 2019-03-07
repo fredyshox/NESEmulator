@@ -4,7 +4,6 @@
 //
 
 // TODO test jsr
-// TODO test stack op, and compare
 
 #include "test.h"
 
@@ -28,7 +27,7 @@ void test_branch() {
   ASSERT_T(cpu.pc == 0x04 + 0x40 + 0x02, "(1) BCC (pc: 0x04, step: 0x40, len: 0x02)", &res);
   // test2
   cpu.pc = 6;
-  cpu.status.carry = 0;
+  cpu.status.carry = 1;
   execute_asm(&cpu);
   ASSERT_T(cpu.pc == (uint16_t)(0x08 + (int8_t) 0xff), "(2) BCC (pc: 0x06, step: 0xff, len: 0x02)", &res);
 
@@ -84,12 +83,25 @@ void test_returns() {
   // stack: psw,lsb,msb
   test[0x1fd] = 0x01;
   execute_asm(&cpu);
-  ASSERT_T(cpu.pc == 0x0111 && cpu.sp == 0xff, "(2) RTI (program counter)", &res);
-  ASSERT_T((*(uint8_t*) &cpu.status) == 0xff, "(2) RTI (cpu status)", &res);
+  ASSERT_T(cpu.pc == 0xff11 && cpu.sp == 0xff, "(2) RTI (program counter)", &res);
+  ASSERT_T((*(uint8_t*) &cpu.status) == 0x01, "(2) RTI (cpu status)", &res);
 
   assert(res);
 }
 
-int main() {
+int main(int argc, char** argv) {
+  if (argc != 2)
+    return 1;
+
+  if (strcmp(argv[1], "--branch") == 0) {
+    test_branch();
+  } else if (strcmp(argv[1], "--jump") == 0) {
+    test_jump();
+  } else if (strcmp(argv[1], "--jsr") == 0) {
+    test_jsr();
+  } else if (strcmp(argv[1], "--return") == 0) {
+    test_returns();
+  }
+
   return 0;
 }

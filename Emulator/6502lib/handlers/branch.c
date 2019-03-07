@@ -69,7 +69,7 @@ void return_interrupt(state6502* state, asm6502 cmd) {
   uint8_t data[3];
   STATE6502_STACK_PULL(state, data, 3);
   // ^pulls in reverse order
-  state->pc = *(uint16_t*) (data);
+  state->pc = (uint16_t) data[0] << 8 | (uint16_t) data[1];
   state->status = *(flags6502*) (data + 2);
 }
 

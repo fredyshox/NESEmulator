@@ -319,7 +319,7 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
     case 0x4c:
       consumed += absolute_addr(&addr, memory, mpos);
       goto jmp;
-    case 0x63:
+    case 0x6c:
       consumed += indirect_addr(&addr, memory, mpos);
       jmp:
         cmd->type = JMP_ASM;

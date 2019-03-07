@@ -22,13 +22,13 @@ uint8_t sbc_case[] = {
 
 void test_adc() {
   bool res = true;
-  // prepare case 
+  // prepare case
   state6502 cpu;
   TEST_PREPARE(cpu, adc_case);
-  // zero  
+  // zero
   cpu.pc = 0x0000;
   cpu.reg_a = 0x00;
-  execute_asm(&cpu);  
+  execute_asm(&cpu);
   ASSERT_T(cpu.reg_a == 0x00, "(1) ADC: 0 + 0", &res);
   ASSERT_T(cpu.status.zero == 1, "(1) ADC: status zero", &res);
   // sth
@@ -37,7 +37,7 @@ void test_adc() {
   execute_asm(&cpu);
   ASSERT_T(cpu.reg_a == 0x33, "(2) ADC: 0x10 + 0x23", &res);
   ASSERT_T(cpu.status.negative == 0, "(2) ADC: status positive", &res);
-  // carry 
+  // carry
   cpu.pc = 0x0004;
   cpu.reg_a = 0x02;
   execute_asm(&cpu);
@@ -55,7 +55,7 @@ void test_adc() {
 
 void test_sbc() {
   bool res = true;
-  // just carry and overflow 
+  // just carry and overflow
   state6502 cpu;
   TEST_PREPARE(cpu, sbc_case);
   // carry
@@ -86,9 +86,15 @@ void test_sbc() {
   assert(res);
 }
 
-int main() {
-  test_adc();
-  test_sbc();
+int main(int argc, char** argv) {
+  if (argc != 2)
+    return 1;
+
+  if (strcmp(argv[1], "--adc") == 0) {
+    test_adc();
+  } else if (strcmp(argv[1], "--sbc") == 0) {
+    test_sbc();
+  }
+
   return 0;
 }
-

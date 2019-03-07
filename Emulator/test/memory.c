@@ -73,25 +73,34 @@ void test_load() {
 }
 
 void test_load_flags() {
-
+  // TODO
 }
 
 void test_store() {
-
+  // TODO
 }
 
 void test_store_flags() {
-
+  // TODO
 }
 
 void test_stack() {
-  
+  // TODO
 }
 
-int main() {
-  test_load();
-  test_load_flags();
-  test_store();
-  test_store_flags();
+int main(int argc, char** argv) {
+  if (argc != 2)
+    return 1;
+
+  if (strcmp(argv[1], "--load") == 0) {
+    test_load();
+    test_load_flags();
+  } else if (strcmp(argv[1], "--store") == 0) {
+    test_store();
+    test_store_flags();
+  } else if (strcmp(argv[1], "--stack") == 0) {
+    test_stack();
+  }
+
   return 0;
 }
