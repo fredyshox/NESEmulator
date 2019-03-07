@@ -15,29 +15,25 @@ void transfer_sptr2x(state6502 *state, asm6502 cmd) {
 }
 
 void push_accumulator(state6502 *state, asm6502 cmd) {
-  uint16_t addr = (uint16_t) state->sp + 0x100;
-  memory6502_store(state->memory, addr, state->reg_a);
-  state->sp -= 1;
+  uint8_t value = state->reg_a;
+  STATE6502_STACK_PUSH(state, &value, 1);
 }
 
 void pull_accumulator(state6502 *state, asm6502 cmd) {
-  uint16_t addr = (uint16_t) state->sp + 0x100;
-  state->reg_a = memory6502_load(state->memory, addr);
+  uint8_t acc;
+  STATE6502_STACK_PULL(state, &acc, 1);
+  state->reg_a = acc;
   eval_zero_flag(state, (uint16_t) state->reg_a);
   eval_sign_flag(state, (uint16_t) state->reg_a);
-  state->sp += 1;
 }
 
 void push_cpu_status(state6502 *state, asm6502 cmd) {
-  uint16_t addr = (uint16_t) state->sp + 0x100;
   uint8_t cpu_status = *((uint8_t*) &state->status);
-  memory6502_store(state->memory, addr, cpu_status);
-  state->sp -= 1;
+  STATE6502_STACK_PUSH(state, &cpu_status, 1);
 }
 
 void pull_cpu_status(state6502 *state, asm6502 cmd) {
-  uint16_t addr = (uint16_t) state->sp + 0x100;
-  uint8_t cpu_status = memory6502_load(state->memory, addr);
+  uint8_t cpu_status;
+  STATE6502_STACK_PULL(state, &cpu_status, 1);
   state->status = *((flags6502*) &cpu_status);
-  state->sp += 1;
 }

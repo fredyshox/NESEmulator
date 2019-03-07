@@ -26,6 +26,15 @@ struct flags6502 {
 
 typedef struct flags6502 flags6502;
 
+enum interrupt6502 {
+  IRQ_INT,
+  BRK_INT,
+  NMI_INT,
+  RST_INT
+};
+
+typedef enum interrupt6502 interrupt6502;
+
 struct state6502 {
   uint8_t reg_a;
   uint8_t reg_x;
@@ -39,6 +48,7 @@ struct state6502 {
 typedef struct state6502 state6502;
 
 void state6502_create(struct state6502 *state, struct memory6502 *memory);
+void interrupt6502_handle(state6502 *state, interrupt6502 intnum);
 
 #define STATE6502_STACK_PUSH(STATE, BYTES, LEN) \
   for (int i = 0; i < LEN; i++) {  \
@@ -48,9 +58,9 @@ void state6502_create(struct state6502 *state, struct memory6502 *memory);
 
 #define STATE6502_STACK_PULL(STATE, BYTES, LEN) \
   for (int i = LEN - 1; i >= 0; i--) {  \
-    *(BYTES + i) = memory6502_load(STATE->memory, (uint16_t) STATE->sp + 0x100);  \
     STATE->sp += 1;  \
-  }  \
+    *(BYTES + i) = memory6502_load(STATE->memory, (uint16_t) STATE->sp + 0x100);  \
+  } 
 
 #define MAX_MEM_SIZE UINT16_MAX
 

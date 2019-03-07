@@ -6,7 +6,6 @@
 #include "parser.h"
 
 int execute_asm(state6502 *state) {
-  // TOOD parse and execute instruction
   asm6502 operation;
   int consumed = parse_asm(&operation, state->memory, state->pc);
   state->pc += (uint16_t) consumed;
@@ -14,7 +13,6 @@ int execute_asm(state6502 *state) {
   return 0;
 }
 
-// TODO: out of bounds error handling
 int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
   uint8_t opcode = memory6502_load(memory, pos);
   uint16_t mpos = pos + 1;
