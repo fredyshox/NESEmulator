@@ -20,16 +20,26 @@ void test_branch() {
   bool res = true;
   state6502 cpu;
   TEST_PREPARE(cpu, branch_case);
-  // test1
+  // test1a (branch taken)
   cpu.pc = 4;
   cpu.status.carry = 0;
   execute_asm(&cpu);
   ASSERT_T(cpu.pc == 0x04 + 0x40 + 0x02, "(1) BCC (pc: 0x04, step: 0x40, len: 0x02)", &res);
-  // test2
+  // test1b (branch not taken)
+  cpu.pc = 4;
+  cpu.status.carry = 1;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.pc == 0x04 + 2, "(2) BCC (non taken)", &res);
+  // test2a (taken)
   cpu.pc = 6;
   cpu.status.carry = 1;
   execute_asm(&cpu);
-  ASSERT_T(cpu.pc == (uint16_t)(0x08 + (int8_t) 0xff), "(2) BCC (pc: 0x06, step: 0xff, len: 0x02)", &res);
+  ASSERT_T(cpu.pc == (uint16_t)(0x08 + (int8_t) 0xff), "(3) BCC (pc: 0x06, step: 0xff, len: 0x02)", &res);
+  // test2b (non taken)
+  cpu.pc = 6;
+  cpu.status.carry = 0;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.pc == 0x06 + 2, "(4) BCC (non taken)", &res);
 
   assert(res);
 }
@@ -57,6 +67,19 @@ void test_jump() {
 
 void test_jsr() {
   bool res = true;
+  uint8_t jsr_case[0x200];
+  jsr_case[0x03] = 0x20; // JSR
+  jsr_case[0x04] = 0x22; // $0122
+  jsr_case[0x05] = 0x01; // ^
+  //setup
+  state6502 cpu;
+  TEST_PREPARE(cpu, jsr_case);
+  // test
+  cpu.pc = 0x0003;
+  cpu.sp = 0xff;
+  execute_asm(&cpu);
+  ASSERT_T(cpu.pc == 0x0122, "(1) JSR (pc)", &res);
+  ASSERT_T(cpu.sp == 0xfd && jsr_case[0x1fe] == 0x05 && jsr_case[0x1ff] == 0x00, "(2) JSR (stack)", &res);
 
   assert(res);
 }

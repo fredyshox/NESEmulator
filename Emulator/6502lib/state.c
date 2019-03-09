@@ -29,6 +29,7 @@ void handle_interrupt(state6502 *state, interrupt6502 intnum) {
       vec_addr = 0xfffa;
 
     state->status.interrupt = 1;
+    // TODO check endianess
     STATE6502_STACK_PUSH(state, (uint8_t*) &state->pc, 2);
     STATE6502_STACK_PUSH(state, (uint8_t*) &state->status, 1);
   }
