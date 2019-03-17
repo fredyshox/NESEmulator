@@ -1,0 +1,7 @@
+PPU memory map:
+Tile based rendering - 2 tile buffer, first for tilemap (background) and second for sprites
+pattern table ($0000-$1fff) - contains color data for every tile
+name table ($2000-$2fff) - addresses about how tiles are positioned on screen
+
+Sprites:
+- prority bit defines wether sprite is behind the background

@@ -12,6 +12,7 @@
 #include <assert.h>
 
 struct memory6502;
+struct state6502;
 
 struct flags6502 {
   uint8_t negative : 1;
@@ -35,6 +36,8 @@ enum interrupt6502 {
 
 typedef enum interrupt6502 interrupt6502;
 
+void interrupt6502_handle(struct state6502 *state, enum interrupt6502 intnum);
+
 struct state6502 {
   uint8_t reg_a;
   uint8_t reg_x;
@@ -48,7 +51,6 @@ struct state6502 {
 typedef struct state6502 state6502;
 
 void state6502_create(struct state6502 *state, struct memory6502 *memory);
-void interrupt6502_handle(state6502 *state, interrupt6502 intnum);
 
 #define STATE6502_STACK_PUSH(STATE, BYTES, LEN) \
   for (int i = 0; i < LEN; i++) {  \
@@ -60,7 +62,7 @@ void interrupt6502_handle(state6502 *state, interrupt6502 intnum);
   for (int i = LEN - 1; i >= 0; i--) {  \
     STATE->sp += 1;  \
     *(BYTES + i) = memory6502_load(STATE->memory, (uint16_t) STATE->sp + 0x100);  \
-  } 
+  }
 
 #define MAX_MEM_SIZE UINT16_MAX
 
