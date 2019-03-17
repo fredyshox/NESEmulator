@@ -1,7 +1,50 @@
-PPU memory map:
+PPU notes:
 Tile based rendering - 2 tile buffer, first for tilemap (background) and second for sprites
-pattern table ($0000-$1fff) - contains color data for every tile
-name table ($2000-$2fff) - addresses about how tiles are positioned on screen
+- sprite ram holds sprite attributes
+max 64 sprites each use 4 bytes:
+byte 0 - y-coord of top left minus 1
+byte 1 - index in pattern table
+byte 2:0,1 - msb 2 bits of color
+byte 2:5 - prority bit defines wether sprite is behind the background
+byte 2:6 - set if should flip horizontally
+byte 2:7 - set if should flip vertically
+sprites 8x16: even index - pattern table $0000, uneven index - pattern table $1000
+sprites are given priority based on their position in sprite ram and are drawn in order based on priority.
+- pattern table ($0000-$1fff) - contains color data for every tile
+holds 8x8 pixel tiles (many games use chr-rom but some use ram) for bg and fg (sprites)
+Stores least significant bits of 4-bit palette index.
+- name table ($2000-$2fff)
+Tells how to lay out backgrounds. Each byte is index of 8x8 tile from pattern table.
+There are 32x30 tiles in name table.
+- attributes table
+Info about upper bits of palette index for tiles.
+Each byte is 4x4 group of tiles, and table has 8x8 of these groups (64 bytes).
+That makes 4 tiles in each group have the same palette.
+PPU can store at most 2 name/attribute tables (4 with additional ram on cartridge),
+but can address up to 4 - and special types of mirroring allows for it (controlled by cartridge mapper)
+- color palettes: indexes of supported color
+There are 64 available colors.
+Image palette ($3f00-$3f0f) colors for background.
+Sprite palette ($3f10-$3f1f) colors for sprites.
+Color $3f00 is "transparency color" and is mirrored every 4 bytes ($3f00, $3f04, $3f08, $3f0c, $3f10, $3f14, $3f18, $3f1c).
+So there are 13 colors per palette available in the same time (total 25 colors).
 
-Sprites:
-- prority bit defines wether sprite is behind the background
+Communication:
+via $2000-$2007 registers
+$2000-$2001 ppu control registers
+$2000:7 - disable nmis
+$2000:5 - switch to 8x16 sprites
+$2000:2 - set address increment to 32 (vertical)
+$2001:3 - hide background
+$2001:4 - hide sprite
+$2002 - status register (read only)
+$2002:7 - v-blank is occuring
+$2002:6,5 - relate to sprites ...
+$2002:4 - accept writes to vram
+$2003 - read/write sprite ram address 8-bit
+$2004 - read/write sprite ram data
+$2005 - write scroll position (2 writes x then y)
+$2006 - read/write address 16-bit (2 writes msb then lsb)
+$2007 - read/write data
+$4014 - direct memory access
+more info about registers: https://wiki.nesdev.com/w/index.php/PPU_registers
