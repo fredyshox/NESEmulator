@@ -7,6 +7,7 @@ add_compile_options(${CMAKE_C_FLAGS} -Wall)
 add_compile_options(${CMAKE_C_FLAGS} -pedantic)
 
 add_subdirectory(6502lib)
+add_subdirectory(ppu)
 
 enable_testing()
 add_subdirectory(test)
