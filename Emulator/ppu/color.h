@@ -3,8 +3,8 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#ifndef ppu_color
-#define ppu_color
+#ifndef ppu_color_h
+#define ppu_color_h
 
 #include <stdint.h>
 
@@ -14,9 +14,11 @@ struct ppu_color {
   uint8_t blue;
 };
 
-#define NES_COLOR(IDX) nes_color_pallete[IDX]
+typedef struct ppu_color ppu_color;
+
+#define NES_COLOR(IDX) nes_color_palette[IDX]
 #define NES_COLOR_COUNT 0x40
 
-extern const struct ppu_color nes_color_pallete[];
+extern const struct ppu_color nes_color_palette[];
 
-#endif /* ppu_color */
+#endif /* ppu_color_h */

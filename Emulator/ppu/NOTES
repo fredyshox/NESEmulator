@@ -8,8 +8,10 @@ byte 2:0,1 - msb 2 bits of color
 byte 2:5 - prority bit defines wether sprite is behind the background
 byte 2:6 - set if should flip horizontally
 byte 2:7 - set if should flip vertically
+byte 3 - x-coord of top left
 sprites 8x16: even index - pattern table $0000, uneven index - pattern table $1000
 sprites are given priority based on their position in sprite ram and are drawn in order based on priority.
+(lowest priority first)
 - pattern table ($0000-$1fff) - contains color data for every tile
 holds 8x8 pixel tiles (many games use chr-rom but some use ram) for bg and fg (sprites)
 Stores least significant bits of 4-bit palette index.
@@ -48,3 +50,8 @@ $2006 - read/write address 16-bit (2 writes msb then lsb)
 $2007 - read/write data
 $4014 - direct memory access
 more info about registers: https://wiki.nesdev.com/w/index.php/PPU_registers
+
+Cartidge mapper: circuit on cartridge responsible for flash to vram/ram data mapping.
+Mappers can have registers accessible by writing to cartridge rom addresses, used for bank switching etc.
+
+Rendering process:
