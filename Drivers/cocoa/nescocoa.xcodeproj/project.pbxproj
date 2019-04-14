@@ -11,6 +11,7 @@
 		E279193922616B6D00EB941D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E279193822616B6D00EB941D /* Assets.xcassets */; };
 		E279193C22616B6D00EB941D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E279193A22616B6D00EB941D /* MainMenu.xib */; };
 		E279193F22616B6D00EB941D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E279193E22616B6D00EB941D /* main.m */; };
+		E279194822616CAF00EB941D /* NESView.m in Sources */ = {isa = PBXBuildFile; fileRef = E279194722616CAF00EB941D /* NESView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,8 @@
 		E279193D22616B6D00EB941D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E279193E22616B6D00EB941D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E279194022616B6D00EB941D /* nescocoa.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = nescocoa.entitlements; sourceTree = "<group>"; };
+		E279194622616CAF00EB941D /* NESView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESView.h; sourceTree = "<group>"; };
+		E279194722616CAF00EB941D /* NESView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,7 +41,7 @@
 		E279192922616B6D00EB941D = {
 			isa = PBXGroup;
 			children = (
-				E279193422616B6D00EB941D /* nescocoa */,
+				E279193422616B6D00EB941D /* Sources */,
 				E279193322616B6D00EB941D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -51,9 +54,11 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E279193422616B6D00EB941D /* nescocoa */ = {
+		E279193422616B6D00EB941D /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				E279194622616CAF00EB941D /* NESView.h */,
+				E279194722616CAF00EB941D /* NESView.m */,
 				E279193522616B6D00EB941D /* AppDelegate.h */,
 				E279193622616B6D00EB941D /* AppDelegate.m */,
 				E279193822616B6D00EB941D /* Assets.xcassets */,
@@ -62,7 +67,7 @@
 				E279193E22616B6D00EB941D /* main.m */,
 				E279194022616B6D00EB941D /* nescocoa.entitlements */,
 			);
-			path = nescocoa;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -136,6 +141,7 @@
 			files = (
 				E279193F22616B6D00EB941D /* main.m in Sources */,
 				E279193722616B6D00EB941D /* AppDelegate.m in Sources */,
+				E279194822616CAF00EB941D /* NESView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,11 +274,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = nescocoa/nescocoa.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Sources/nescocoa.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = JE2494MFB5;
-				INFOPLIST_FILE = nescocoa/Info.plist;
+				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -286,11 +292,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = nescocoa/nescocoa.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Sources/nescocoa.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = JE2494MFB5;
-				INFOPLIST_FILE = nescocoa/Info.plist;
+				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
