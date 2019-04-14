@@ -1,7 +1,7 @@
 # 6502 disassebler
 # Copyright (c) 2019 Kacper Rączy
 
-defmodule Disassebler6502 do
+defmodule Disassembler6502 do
 
   defp to_hex(value, bytewidth \\ 2) do
     hexstr = :io_lib.format("~#{bytewidth}.16.0B", [value])
