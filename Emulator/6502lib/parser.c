@@ -5,6 +5,10 @@
 
 #include "parser.h"
 
+void program_loop(state6502* state, int *control) {
+  //TODO
+}
+
 int execute_asm(state6502 *state) {
   asm6502 operation;
   int consumed = parse_asm(&operation, state->memory, state->pc);

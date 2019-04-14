@@ -81,4 +81,6 @@ if format != 2 do
   if ram == 1 do
     pretty_puts.("PRG RAM: ", "#{if prgRamPresence == 1, do: "#{prgRamSize * 8} KB", else: "not present"}")
   end
+else
+  # iNES 2.0 stuff
 end

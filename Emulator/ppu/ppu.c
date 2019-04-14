@@ -93,7 +93,7 @@ void ppu_addr_write(struct ppu_state* state, uint8_t byte) {
 
 void ppu_data_write(struct ppu_state* state, uint8_t byte) {
   // evaluate state->addr
-  // write byte to appropriate location
+  //TODO write byte to appropriate location
   if (state->control.addr_inc32) {
     state->reg_addr += 32;
   } else {
@@ -103,7 +103,7 @@ void ppu_data_write(struct ppu_state* state, uint8_t byte) {
 
 void ppu_data_read(struct ppu_state* state, uint8_t* ptr) {
   // evaluate state->addr
-  // read byte
+  //TODO read byte
   if (state->control.addr_inc32) {
     state->reg_addr += 32;
   } else {

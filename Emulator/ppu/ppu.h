@@ -68,15 +68,25 @@ union ppu_mask {
 #define PPU_SPRRAM_SIZE 64
 #define PPU_SPRRAM_BYTE_SIZE 256
 #define PPU_PALETTE_SIZE 16
+#define PPU_NAMETABLE_SIZE 960
+#define PPU_ATTRTABLE_SIZE 64
+#define PPU_PTTRNTABLE_SIZE 4096
 
 struct ppu_state {
   // vram
-  uint8_t* pttrntable;
-  uint8_t* nametable;
-  uint8_t* attrtable;
-  struct ppu_sprite* sprite_ram;
+  uint8_t* pttrntable0;
+  uint8_t* pttrntable1;
+  uint8_t* nametable0;
+  uint8_t* attrtable0;
+  uint8_t* nametable1;
+  uint8_t* attrtable1;
+  uint8_t* nametable2;
+  uint8_t* attrtable2;
+  uint8_t* nametable3;
+  uint8_t* attrtable3;
   uint8_t* image_palette;
   uint8_t* sprite_palette;
+  struct ppu_sprite* sprite_ram;
   // registers
   // ppustatus, ppumask, ppuctrl
   union ppu_status status;

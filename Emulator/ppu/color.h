@@ -18,6 +18,7 @@ typedef struct ppu_color ppu_color;
 
 #define NES_COLOR(IDX) nes_color_palette[IDX]
 #define NES_COLOR_COUNT 0x40
+#define NES_COLOR_TRANSPARENT(COLOR) (COLOR.red == 0x00 && COLOR.green == 0x00 && COLOR.blue == 0x00)
 
 extern const struct ppu_color nes_color_palette[];
 

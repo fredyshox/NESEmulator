@@ -17,6 +17,7 @@
 #include "handlers/other.h"
 #include "handlers/stack.h"
 
+void program_loop(state6502* state, int *control);
 int execute_asm(state6502 *state);
 int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos);
 

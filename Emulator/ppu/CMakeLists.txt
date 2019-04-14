@@ -4,7 +4,8 @@ project(nesppu)
 
 set(PPU_SOURCES
   color.c
-  ppu.c)
+  ppu.c
+  renderer.c)
 
 add_library(ppu
   STATIC
