@@ -1,5 +1,5 @@
 #!/usr/bin/env elixir
-# *.nes file disassebler script
+# *.nes file disassembler script
 # Copyright (c) 2019 Kacper Rączy
 
 dir = Path.dirname(__ENV__.file)
@@ -16,4 +16,4 @@ end
 
 prgSize = 16384 * prgSize
 <<prgRom :: bytes-size(prgSize), rest :: binary>> = rest
-Disassembler6502.disasseble(prgRom)
+Disassembler6502.disassemble(prgRom)

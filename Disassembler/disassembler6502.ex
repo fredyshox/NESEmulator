@@ -1,4 +1,4 @@
-# 6502 disassebler
+# 6502 disassembler
 # Copyright (c) 2019 Kacper Rączy
 
 defmodule Disassembler6502 do
@@ -8,14 +8,14 @@ defmodule Disassembler6502 do
     to_string(hexstr)
   end
 
-  def disasseble(<<>>), do: :ok
-  def disasseble(bytes) do
-    {asm, rest} = disassebleSingle(bytes)
+  def disassemble(<<>>), do: :ok
+  def disassemble(bytes) do
+    {asm, rest} = disassembleSingle(bytes)
     IO.puts(asm)
-    disasseble(rest)
+    disassemble(rest)
   end
 
-  defp disassebleSingle(bytes) when byte_size(bytes) > 0 do
+  defp disassembleSingle(bytes) when byte_size(bytes) > 0 do
     <<opcode::size(8), rest::binary>> = bytes
     asm =
       case opcode do
