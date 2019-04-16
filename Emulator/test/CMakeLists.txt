@@ -6,6 +6,9 @@ macro(add_test_exec target source libs)
 
   target_link_libraries("test_${target}"
     ${libs})
+   
+  target_include_directories("test_${target}"
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 endmacro()
 
 macro(add_unit_test target name args)
@@ -16,19 +19,19 @@ endmacro()
 
 # test execs
 add_test_exec(memory_op
-  memory.c
+  cpu/memory.c
   6502)
 
 add_test_exec(arithmetic_op
-  arithmetic.c
+  cpu/arithmetic.c
   6502)
 
 add_test_exec(program_counter_op
-  pc.c
+  cpu/pc.c
   6502)
 
 add_test_exec(flags_op
-  flags.c
+  cpu/flags.c
   6502)
 
 # unit tests
