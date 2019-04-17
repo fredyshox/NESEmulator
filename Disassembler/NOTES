@@ -8,4 +8,7 @@ Improvements to 6502 disassembly:
 - start disassebling opcodes from these locations, watch for instructions:
 	- JMP - if not already marked, mark destination and continue marking from there (insert new child)
 	- BEQ/BPL/.../JSR - same as above except, we come back to next instruction after that one
-	- RST/RSI - end of code block
+	- RTS/RTI - end of code block
+
+TODO:
+  - Determine which adjacient vertices in labeled
