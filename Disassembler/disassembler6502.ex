@@ -6,7 +6,7 @@ defmodule Disassembler6502 do
   defmodule Vertex do
 
     @enforce_keys [:instruction]
-    defstruct [:label, :instruction, args: "", :edges]
+    defstruct [:label, :instruction, :edges, args: ""] 
 
     def str_val(vertex = %Vertex{instruction: asm, args: args}) do
       "#{asm}    #{args}"
@@ -14,9 +14,10 @@ defmodule Disassembler6502 do
 
   end
 
-  def disassemble(arr, _, [], asm_graph) do: asm_graph
-  def disassemble(arr, label \\ "start",[position | rest] \\ [0],  asm_graph \\ %{}) do
-    {status, {vertex, newlabel?}} = find_vertex(file, position, asm_graph)
+  def disassemble(arr, label \\ "start", positions \\ [0],  asm_graph \\ %{})
+  def disassemble(_, _, [], asm_graph), do: asm_graph
+  def disassemble(arr, label, [position | rest], asm_graph) do
+    {status, {vertex, new_label?}} = find_vertex(arr, position, asm_graph)
 
     if status == :new do
       if label != nil do
@@ -25,22 +26,27 @@ defmodule Disassembler6502 do
 
       Map.put(asm_graph, position, vertex)
     end
+  
+    new_label =
+      case new_label? do
+        true -> "label#{position}" 
+        false -> nil
+      end
 
-    if newlabel? do
-      new_label = "label#{position}" 
-    else
-      new_label = nil
-    end
-
-    disassemble(file, new_label, rest ++ vertex.edges, asm_graph)
+    disassemble(arr, new_label, rest ++ vertex.edges, asm_graph)
   end
 
   def print(asm_graph, device \\ :stdio) do
     :todo
   end
 
-  defp find_vertex(arr, position, asm_graph) when asm_graph[position] != nil do: {:existing, {asm_graph[position], false}}
-  defp find_vertex(arr, position, asm_graph) do: {:new, disassemble_single(file, position)}
+  defp find_vertex(arr, position, asm_graph) do 
+    if asm_graph[position] != nil do
+      {:existing, {asm_graph[position], false}}
+    else
+      {:new, disassemble_single(arr, position)}
+    end
+  end
 
   defp to_hex(value, bytewidth \\ 2) do
     hexstr = :io_lib.format("~#{bytewidth}.16.0B", [value])
@@ -56,7 +62,7 @@ defmodule Disassembler6502 do
     <<byte>> <> get_bytes(arr, position + 1, count - 1)
   end
 
-  defp disassemble_single(arr, pos) when byte_size(bytes) > 0 do
+  defp disassemble_single(arr, pos) do
     <<opcode::size(8)>> = get_bytes(arr, pos, 1)
     pos = pos + 1
     {vertex, consumed} =
@@ -168,7 +174,7 @@ defmodule Disassembler6502 do
         0x30 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
           {%Vertex{instruction: "BMI",
-                  args: "$#{to_hex(addr)}",
+                  args: "$#{to_hex(offset)}",
                   edges: [pos + 1, pos + offset]}, 1}
         0x31 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
@@ -237,7 +243,7 @@ defmodule Disassembler6502 do
         0x50 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
           {%Vertex{instruction: "BVC",
-                  args: "$#{to_hex(addr)}",
+                  args: "$#{to_hex(offset)}",
                   edges: [pos + 1, pos + offset]}, 1}
         0x51 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
@@ -305,7 +311,7 @@ defmodule Disassembler6502 do
         0x70 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
           {%Vertex{instruction: "BVS",
-                  args: "$#{to_hex(addr)}",
+                  args: "$#{to_hex(offset)}",
                   edges: [pos + 1, pos + offset]}, 1}
         0x71 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
@@ -368,7 +374,7 @@ defmodule Disassembler6502 do
         0x90 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
           {%Vertex{instruction: "BCC",
-                  args: "$#{to_hex(addr)}",
+                  args: "$#{to_hex(offset)}",
                   edges: [pos + 1, pos + offset]}, 1}
         0x91 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
@@ -445,7 +451,7 @@ defmodule Disassembler6502 do
         0xb0 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
           {%Vertex{instruction: "BCS",
-                  args: "$#{to_hex(addr)}",
+                  args: "$#{to_hex(offset)}",
                   edges: [pos + 1, pos + offset]}, 1}
         0xb1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
@@ -526,7 +532,7 @@ defmodule Disassembler6502 do
         0xd0 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
           {%Vertex{instruction: "BNE",
-                  args: "$#{to_hex(addr)}",
+                  args: "$#{to_hex(offset)}",
                   edges: [pos + 1, pos + offset]}, 1}
         0xd1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
@@ -597,7 +603,7 @@ defmodule Disassembler6502 do
         0xf0 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)        
           {%Vertex{instruction: "BEQ",
-                  args: "$#{to_hex(addr)}",
+                  args: "$#{to_hex(offset)}",
                   edges: [pos + 1, pos + offset]}, 1}
         0xf1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
@@ -631,7 +637,7 @@ defmodule Disassembler6502 do
       end
 
       if vertex.edges == nil do
-        %{vertex | :edges => [pos + consumed]}
+        vertex = %{vertex | :edges => [pos + consumed]}
       end
       {vertex, false}
   end
