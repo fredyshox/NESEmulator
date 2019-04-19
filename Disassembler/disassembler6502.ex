@@ -2,7 +2,7 @@
 # Copyright (c) 2019 Kacper Rączy
 
 defmodule Disassembler6502 do
-  
+    
   defmodule Vertex do
 
     @enforce_keys [:instruction]
@@ -16,34 +16,54 @@ defmodule Disassembler6502 do
 
   end
 
-  def write(asm_graph, device \\ :stdio) do
+  @bytes_per_line 8
+  @line_prefix "    "
+
+  def write(asm_graph, bytearr, device \\ :stdio) do
     asm_graph
       |> Enum.sort(&(&1 < &2))
-      |> Enum.reduce({0, nil}, fn kv, acc ->
-        {pointer, label} = acc
-        write(kv, pointer, device, label)
+      |> Enum.reduce({0}, fn kv, acc ->
+        {pointer} = acc
+        write(kv, pointer, bytearr, device)
       end)
   end
-
-  defp write(kv = {position, vertex}, pointer, device, label) when pointer <= position do
-    prefix = "    "
+  
+  defp write({position, vertex}, pointer, _,  _) when pointer > position do
+    IO.puts(:stderr, "Found instruction in strange position: #{position}, pointer: #{pointer}")
+    {pointer}
+  end
+  defp write(kv = {position, vertex}, pointer, bytearr, device) do
     if (pointer < position) do
-      if (label != :data) do
-        IO.puts(device, "section .data:")
-      end
-      IO.puts(device, "#{prefix}.byte $#{to_hex(0xff)}")
-      write(kv, pointer + 1, device, :data)
-    else
-      new_label = 
-        case vertex.label do
-          nil -> label
-          _   ->
-            IO.puts(device, "#{vertex.label}:")
-            :code
-        end
-      IO.puts(device, "#{prefix}#{vertex}")
-      {pointer + vertex.length, new_label}
+      IO.puts(device, "section .data:")
+      :ok = write_bytes(pointer, position, device, bytearr)
     end
+    
+    if vertex.label != nil do
+      IO.puts(device, "#{vertex.label}:")
+    end
+
+    IO.puts(device, "#{@line_prefix}#{vertex}")
+    {position + vertex.length}
+  end
+
+  defp write_bytes(pointer, destination, device, bytearr, bcounter \\ 0) 
+  defp write_bytes(pointer, destination, device, _, bcounter) when pointer >= destination do
+    if rem(bcounter, @bytes_per_line) != 0, do: IO.write(device, "\n")
+    :ok
+  end
+  defp write_bytes(pointer, destination, device, bytearr, bcounter) do
+    bcounter = rem(bcounter, @bytes_per_line)
+    last_idx = @bytes_per_line - 1
+    byte = :array.get(pointer, bytearr)
+    case bcounter do
+      0 -> 
+        IO.write(device, "#{@line_prefix}.db $#{to_hex(byte)}")
+      ^last_idx ->
+        IO.write(device, ", $#{to_hex(byte)}\n")
+      _ ->
+        IO.write(device, ", $#{to_hex(byte)}")
+    end
+    write_bytes(pointer + 1, destination, device, bytearr, bcounter + 1)
   end
 
   def disassemble(arr, mem_offset \\ 0, positions \\ [0], label \\ "start", asm_graph \\ %{})
@@ -68,7 +88,7 @@ defmodule Disassembler6502 do
         false -> nil
       end
     
-    disassemble(arr, mem_offset, rest ++ new_edges, new_label, asm_graph)
+    disassemble(arr, mem_offset, new_edges ++ rest, new_label, asm_graph)
   end
 
   defp find_vertex(arr, position, mem_offset, asm_graph) do 
@@ -125,7 +145,8 @@ defmodule Disassembler6502 do
           {"ASL", "$#{to_hex(addr16, 4)}", nil, 2}
         0x10 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {"BPL", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
+          <<byte::unsigned-integer-size(8)>> = <<offset>>
+          {"BPL", "$#{to_hex(byte)}", [pos + offset + 1, pos + 1], 1}
         0x11 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
           {"ORA", "($#{to_hex(addr)}), Y", nil, 1}
@@ -181,7 +202,8 @@ defmodule Disassembler6502 do
           {"ROL", "$#{to_hex(addr16, 4)}", nil, 2}
         0x30 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {"BMI", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
+          <<byte::unsigned-integer-size(8)>> = <<offset>>
+          {"BMI", "$#{to_hex(byte)}", [pos + offset + 1, pos + 1], 1}
         0x31 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
           {"AND", "($#{to_hex(addr)}), Y", nil, 1}
@@ -234,7 +256,8 @@ defmodule Disassembler6502 do
           {"LSR", "$#{to_hex(addr16, 4)}", nil, 2}
         0x50 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {"BVC", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
+          <<byte::unsigned-integer-size(8)>> = <<offset>>
+          {"BVC", "$#{to_hex(byte)}", [pos + offset + 1, pos + 1], 1}
         0x51 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
           {"EOR", "($#{to_hex(addr)}), Y", nil, 1}
@@ -291,7 +314,8 @@ defmodule Disassembler6502 do
           {"ROR", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x70 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {"BVS", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
+          <<byte::unsigned-integer-size(8)>> = <<offset>>
+          {"BVS", "$#{to_hex(byte)}", [pos + offset + 1, pos + 1], 1}
         0x71 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
           {"ADC", "($#{to_hex(addr)}), Y", nil, 1}
@@ -339,7 +363,8 @@ defmodule Disassembler6502 do
           {"STX", "$#{to_hex(addr16, 4)}", nil, 2}
         0x90 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {"BCC", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
+          <<byte::unsigned-integer-size(8)>> = <<offset>>
+          {"BCC", "$#{to_hex(byte)}", [pos + offset + 1, pos + 1], 1}
         0x91 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
           {"STA", "($#{to_hex(addr)}), Y", nil, 1}
@@ -398,7 +423,8 @@ defmodule Disassembler6502 do
           {"LDX", "$#{to_hex(addr16, 4)}", nil, 2}
         0xb0 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {"BCS", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
+          <<byte::unsigned-integer-size(8)>> = <<offset>>
+          {"BCS", "$#{to_hex(byte)}", [pos + offset + 1, pos + 1], 1}
         0xb1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
           {"LDA", "($#{to_hex(addr)}), Y", nil, 1}
@@ -460,7 +486,8 @@ defmodule Disassembler6502 do
           {"DEC", "$#{to_hex(addr16, 4)}", nil, 2}
         0xd0 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {"BNE", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
+          <<byte::unsigned-integer-size(8)>> = <<offset>>
+          {"BNE", "$#{to_hex(byte)}", [pos + offset + 1, pos + 1], 1}
         0xd1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
           {"CMP", "($#{to_hex(addr)}), Y", nil, 1}
@@ -514,7 +541,8 @@ defmodule Disassembler6502 do
           {"INC", "$#{to_hex(addr16, 4)}", nil, 2}
         0xf0 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)        
-          {"BEQ", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
+          <<byte::unsigned-integer-size(8)>> = <<offset>>
+          {"BEQ", "$#{to_hex(byte)}", [pos + offset + 1, pos + 1], 1}
         0xf1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
           {"SBC", "($#{to_hex(addr)}), Y", nil, 1}

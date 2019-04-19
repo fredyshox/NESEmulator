@@ -20,8 +20,9 @@ bytearr = :array.from_list(:binary.bin_to_list(prgRom))
 offset = 65536 - prgSize
 prefixSize = prgSize - 6
 <<_x :: bytes-size(prefixSize), word1 :: little-integer-size(16), word2 :: little-integer-size(16), word3 :: little-integer-size(16)>> = prgRom
-IO.puts(:stderr, "NMI #{word1}")
-IO.puts(:stderr, "RST #{word2}")
-IO.puts(:stderr, "IRQ #{word3}")
+IO.puts(:stderr, "NMI vector: #{word1}")
+IO.puts(:stderr, "RST vector: #{word2}")
+IO.puts(:stderr, "IRQ vector: #{word3}")
 asmGraph = Disassembler6502.disassemble(bytearr, offset, [word2 - offset, word1 - offset])
-Disassembler6502.write(asmGraph)
+IO.puts(:stderr, "Now writing to file...")
+Disassembler6502.write(asmGraph, bytearr)
