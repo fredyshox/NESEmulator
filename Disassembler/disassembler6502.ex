@@ -26,22 +26,22 @@ defmodule Disassembler6502 do
   end
 
   defp write(kv = {position, vertex}, pointer, device, label) when pointer <= position do
-    prefix = if label != nil, do: "    ", else: ""
+    prefix = "    "
     if (pointer < position) do
       if (label != :data) do
-        IO.puts("section .data:")
+        IO.puts(device, "section .data:")
       end
-      IO.puts("#{prefix}.byte 0x#{to_hex(0xff)}")
+      IO.puts(device, "#{prefix}.byte $#{to_hex(0xff)}")
       write(kv, pointer + 1, device, :data)
     else
       new_label = 
         case vertex.label do
           nil -> label
           _   ->
-            IO.puts("#{vertex.label}:")
-            vertex.label
+            IO.puts(device, "#{vertex.label}:")
+            :code
         end
-      IO.puts("#{prefix}#{vertex}", device)
+      IO.puts(device, "#{prefix}#{vertex}")
       {pointer + vertex.length, new_label}
     end
   end
@@ -68,7 +68,6 @@ defmodule Disassembler6502 do
         false -> nil
       end
     
-    IO.inspect(rest ++ new_edges, [charlists: :as_lists])
     disassemble(arr, mem_offset, rest ++ new_edges, new_label, asm_graph)
   end
 
@@ -98,240 +97,182 @@ defmodule Disassembler6502 do
   defp disassemble_single(arr, pos, mem_offset) do
     <<opcode::size(8)>> = get_bytes(arr, pos, 1)
     pos = pos + 1
-    {vertex, consumed} =
+    {instruction, args, edges, consumed} = 
       case opcode do
         0x00 ->
-          {%Vertex{instruction: "BRK"}, 0}
+          {"BRK", "", nil, 0}
         0x01 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ORA", 
-                  args: "($#{to_hex(addr)}, X)"}, 1}
+          {"ORA", "($#{to_hex(addr)}, X)", nil, 1}
         0x05 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ORA",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"ORA", "$#{to_hex(addr)}", nil, 1}
         0x06 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ASL",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"ASL", "$#{to_hex(addr)}", nil, 1}
         0x08 ->
-          {%Vertex{instruction: "PHP"}, 0}
+          {"PHP", "", nil, 0}
         0x09 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ORA",
-                  args: "#$#{to_hex(addr)}"}, 1}
+          {"ORA", "#$#{to_hex(addr)}", nil, 1}
         0x0a ->
-          {%Vertex{instruction: "ASL",
-                  args: "A"}, 0}
+          {"ASL", "A", nil, 0}
         0x0d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ORA",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"ORA", "$#{to_hex(addr16, 4)}", nil, 2}
         0x0e ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ASL",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"ASL", "$#{to_hex(addr16, 4)}", nil, 2}
         0x10 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "BPL",
-                  args: "$#{to_hex(offset)}",
-                  edges: [pos + 1, pos + offset + 1]}, 1}
+          {"BPL", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
         0x11 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ORA",
-                  args: "($#{to_hex(addr)}), Y"}, 1}
+          {"ORA", "($#{to_hex(addr)}), Y", nil, 1}
         0x15 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ORA",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"ORA", "$#{to_hex(addr)}, X", nil, 1}
         0x16 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ASL",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"ASL", "$#{to_hex(addr)}, X", nil, 1}
         0x18 ->
-          {%Vertex{instruction: "CLC"}, 0}
+          {"CLC", "", nil, 0}
         0x19 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ORA",
-                  args: "$#{to_hex(addr16, 4)}, Y"}, 2}
+          {"ORA", "$#{to_hex(addr16, 4)}, Y", nil, 2}
         0x1d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ORA",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"ORA", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x1e ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ASL",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"ASL", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x20 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          edges = [pos + 2] ++ (if (addr16 - mem_offset < 0), do: [], else: [addr16 - mem_offset])
+          edges = (if (addr16 - mem_offset < 0), do: [], else: [addr16 - mem_offset]) ++ [pos + 2] 
           IO.warn("addr: #{addr16 - mem_offset}")
-          {%Vertex{instruction: "JSR",
-                  args: "$#{to_hex(addr16, 4)}",
-                  edges: edges}, 2}
+          {"JSR", "$#{to_hex(addr16, 4)}", edges, 2}
         0x21 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "AND",
-                  args: "($#{to_hex(addr)}, X)"}, 1}
+          {"AND", "($#{to_hex(addr)}, X)", nil, 1}
         0x24 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "BIT",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"BIT", "$#{to_hex(addr)}", nil, 1}
         0x25 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "AND",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"AND", "$#{to_hex(addr)}", nil, 1}
         0x26 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ROL",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"ROL", "$#{to_hex(addr)}", nil, 1}
         0x28 ->
-          {%Vertex{instruction: "PLP"}, 0}
+          {"PLP", "", nil, 0}
         0x29 ->
           <<val::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "AND",
-                  args: "#$#{to_hex(val)}"}, 1}
+          {"AND", "#$#{to_hex(val)}", nil, 1}
         0x2a ->
-          {%Vertex{instruction: "ROL",
-                  args: "A"}, 0}
+          {"ROL", "A", nil, 0}
         0x2c ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "BIT",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"BIT", "$#{to_hex(addr16, 4)}", nil, 2}
         0x2d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "AND",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"AND", "$#{to_hex(addr16, 4)}", nil, 2}
         0x2e ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ROL",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"ROL", "$#{to_hex(addr16, 4)}", nil, 2}
         0x30 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "BMI",
-                  args: "$#{to_hex(offset)}",
-                  edges: [pos + 1, pos + offset + 1]}, 1}
+          {"BMI", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
         0x31 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "AND",
-                  args: "($#{to_hex(addr)}), Y"}, 1}
+          {"AND", "($#{to_hex(addr)}), Y", nil, 1}
         0x35 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "AND",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"AND", "$#{to_hex(addr)}, X", nil, 1}
         0x36 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ROL",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"ROL", "$#{to_hex(addr)}, X", nil, 1}
         0x38 ->
-          {%Vertex{instruction: "SEC"}, 0}
+          {"SEC", "", nil, 0}
         0x39 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "AND",
-                  args: "$#{to_hex(addr16, 4)}, Y"}, 2}
+          {"AND", "$#{to_hex(addr16, 4)}, Y", nil, 2}
         0x3d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "AND",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"AND", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x3e ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ROL",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"ROL", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x40 ->
-          {%Vertex{instruction: "RTI",
-                  edges: []}, 0}
+          {"RTI", "", [], 0}
         0x41 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "EOR",
-                  args: "($#{to_hex(addr)}, X)"}, 1}
+          {"EOR", "($#{to_hex(addr)}, X)", nil, 1}
         0x45 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "EOR",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"EOR", "$#{to_hex(addr)}", nil, 1}
         0x46 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LSR",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"LSR", "$#{to_hex(addr)}", nil, 1}
         0x48 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "PHA"}, 1}
+          {"PHA", "", nil, 1}
         0x49 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "EOR",
-                  args: "#$#{to_hex(addr)}"}, 1}
+          {"EOR", "#$#{to_hex(addr)}", nil, 1}
         0x4a ->
-          {%Vertex{instruction: "LSR",
-                  args: "A"}, 0}
+          {"LSR", "A", nil, 0}
         0x4c ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
           edges = (if (addr16 - mem_offset < 0), do: [], else: [addr16 - mem_offset])
           IO.warn("addr #{addr16 - mem_offset}")
-          {%Vertex{instruction: "JMP",
-                  args: "$#{to_hex(addr16, 4)}",
-                  edges: edges}, 2}
+          {"JMP", "$#{to_hex(addr16, 4)}", edges, 2}
         0x4d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "EOR",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"EOR", "$#{to_hex(addr16, 4)}", nil, 2}
         0x4e ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "LSR",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"LSR", "$#{to_hex(addr16, 4)}", nil, 2}
         0x50 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "BVC",
-                  args: "$#{to_hex(offset)}",
-                  edges: [pos + 1, pos + offset + 1]}, 1}
+          {"BVC", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
         0x51 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "EOR",
-                  args: "($#{to_hex(addr)}), Y"}, 1}
+          {"EOR", "($#{to_hex(addr)}), Y", nil, 1}
         0x55 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "EOR",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"EOR", "$#{to_hex(addr)}, X", nil, 1}
         0x56 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LSR",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"LSR", "$#{to_hex(addr)}, X", nil, 1}
         0x58 ->
-          {%Vertex{instruction: "CLI"}, 0}
+          {"CLI", "", nil, 0}
         0x59 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "EOR",
-                  args: "$#{to_hex(addr16, 4)}, Y"}, 2}
+          {"EOR", "$#{to_hex(addr16, 4)}, Y", nil, 2}
         0x5d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "EOR",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"EOR", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x5e ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "LSR",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"LSR", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x60 ->
-          {%Vertex{instruction: "RTS",
-                  edges: []}, 0}
+          {"RTS", "", [], 0}
         0x61 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ADC",
-                  args: "($#{to_hex(addr)}, X)"}, 1}
+          {"ADC", "($#{to_hex(addr)}, X)", nil, 1}
         0x65 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ADC",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"ADC", "$#{to_hex(addr)}", nil, 1}
         0x66 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ROR",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"ROR", "$#{to_hex(addr)}", nil, 1}
         0x68 ->
-          {%Vertex{instruction: "PLA"}, 0}
+          {"PLA", "", nil, 0}
         0x69 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ADC",
-                  args: "#$#{to_hex(addr)}"}, 1}
+          {"ADC", "#$#{to_hex(addr)}", nil, 1}
         0x6a ->
-          {%Vertex{instruction: "ROR",
-                  args: "A"}, 0}
+          {"ROR", "A", nil, 0}
         0x6c ->
           <<indirect_addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
           edges = 
@@ -341,348 +282,277 @@ defmodule Disassembler6502 do
                 (if (addr16 - mem_offset < 0), do: [], else: [addr16 - mem_offset])
               true -> []
             end
-          {%Vertex{instruction: "JMP",
-                  args: "($#{to_hex(indirect_addr16)})",
-                  edges: edges}, 2}
+          {"JMP", "($#{to_hex(indirect_addr16)})", edges, 2}
         0x6d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ADC",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"ADC", "$#{to_hex(addr16, 4)}", nil, 2}
         0x6e ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ROR",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"ROR", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x70 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "BVS",
-                  args: "$#{to_hex(offset)}",
-                  edges: [pos + 1, pos + offset + 1]}, 1}
+          {"BVS", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
         0x71 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ADC",
-                  args: "($#{to_hex(addr)}), Y"}, 1}
+          {"ADC", "($#{to_hex(addr)}), Y", nil, 1}
         0x75 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ADC",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"ADC", "$#{to_hex(addr)}, X", nil, 1}
         0x76 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "ROR",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"ROR", "$#{to_hex(addr)}, X", nil, 1}
         0x78 ->
-          {%Vertex{instruction: "SEI"}, 0}
+          {"SEI", "", nil, 0}
         0x79 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ADC",
-                  args: "$#{to_hex(addr16, 4)}, Y"}, 2}
+          {"ADC", "$#{to_hex(addr16, 4)}, Y", nil, 2}
         0x7d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ADC",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"ADC", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x7e ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "ROR",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"ROR", "$#{to_hex(addr16, 4)}", nil, 2}
         0x81 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "STA",
-                  args: "($#{to_hex(addr)}, X)"}, 1}
+          {"STA", "($#{to_hex(addr)}, X)", nil, 1}
         0x84 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "STY",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"STY", "$#{to_hex(addr)}", nil, 1}
         0x85 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "STA",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"STA", "$#{to_hex(addr)}", nil, 1}
         0x86 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "STX",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"STX", "$#{to_hex(addr)}", nil, 1}
         0x88 ->
-          {%Vertex{instruction: "DEY"}, 0}
+          {"DEY", "", nil, 0}
         0x8a ->
-          {%Vertex{instruction: "TXA"}, 0}
+          {"TXA", "", nil, 0}
         0x8c ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "STY",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"STY", "$#{to_hex(addr16, 4)}", nil, 2}
         0x8d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "STA",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"STA", "$#{to_hex(addr16, 4)}", nil, 2}
         0x8e ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "STX",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"STX", "$#{to_hex(addr16, 4)}", nil, 2}
         0x90 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "BCC",
-                  args: "$#{to_hex(offset)}",
-                  edges: [pos + 1, pos + offset + 1]}, 1}
+          {"BCC", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
         0x91 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "STA",
-                  args: "($#{to_hex(addr)}), Y"}, 1}
+          {"STA", "($#{to_hex(addr)}), Y", nil, 1}
         0x94 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "STY",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"STY", "$#{to_hex(addr)}, X", nil, 1}
         0x95 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "STA",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"STA", "$#{to_hex(addr)}, X", nil, 1}
         0x96 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "STX",
-                  args: "$#{to_hex(addr)}, Y"}, 1}
+          {"STX", "$#{to_hex(addr)}, Y", nil, 1}
         0x98 ->
-          {%Vertex{instruction: "TYA"}, 0}
+          {"TYA", "", nil, 0}
         0x99 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "STA",
-                  args: "($#{to_hex(addr16, 4)}), Y"}, 2}
+          {"STA", "($#{to_hex(addr16, 4)}), Y", nil, 2}
         0x9a ->
-          {%Vertex{instruction: "TXS"}, 0}
+          {"TXS", "", nil, 0}
         0x9d ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "STA",
-                  args: "($#{to_hex(addr16, 4)}), X"}, 2}
+          {"STA", "($#{to_hex(addr16, 4)}), X", nil, 2}
         0xa0 ->
           <<val::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDY",
-                  args: "#$#{to_hex(val)}"}, 1}
+          {"LDY", "#$#{to_hex(val)}", nil, 1}
         0xa1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDA",
-                  args: "($#{to_hex(addr)}, X)"}, 1}
+          {"LDA", "($#{to_hex(addr)}, X)", nil, 1}
         0xa2 ->
           <<val::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDX",
-                  args: "#$#{to_hex(val)}"}, 1}
+          {"LDX", "#$#{to_hex(val)}", nil, 1}
         0xa4 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDY",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"LDY", "$#{to_hex(addr)}", nil, 1}
         0xa5 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDA",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"LDA", "$#{to_hex(addr)}", nil, 1}
         0xa6 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDX",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"LDX", "$#{to_hex(addr)}", nil, 1}
         0xa8 ->
-          {%Vertex{instruction: "TAY"}, 0}
+          {"TAY", "", nil, 0}
         0xa9 ->
           <<val::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDA",
-                  args: "#$#{to_hex(val)}"}, 1}
+          {"LDA", "#$#{to_hex(val)}", nil, 1}
         0xaa ->
-          {%Vertex{instruction: "TAX"}, 0}
+          {"TAX", "", nil, 0}
         0xac ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "LDY",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"LDY", "$#{to_hex(addr16, 4)}", nil, 2}
         0xad ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "LDA",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"LDA", "$#{to_hex(addr16, 4)}", nil, 2}
         0xae ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "LDX",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"LDX", "$#{to_hex(addr16, 4)}", nil, 2}
         0xb0 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "BCS",
-                  args: "$#{to_hex(offset)}",
-                  edges: [pos + 1, pos + offset + 1]}, 1}
+          {"BCS", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
         0xb1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDA",
-                  args: "($#{to_hex(addr)}), Y"}, 1}
+          {"LDA", "($#{to_hex(addr)}), Y", nil, 1}
         0xb4 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDY",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"LDY", "$#{to_hex(addr)}, X", nil, 1}
         0xb5 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDA",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"LDA", "$#{to_hex(addr)}, X", nil, 1}
         0xb6 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "LDX",
-                  args: "$#{to_hex(addr)}, Y"}, 1}
+          {"LDX", "$#{to_hex(addr)}, Y", nil, 1}
         0xb8 ->
-          {%Vertex{instruction: "CLV"}, 0}
+          {"CLV", "", nil, 0}
         0xb9 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "LDA",
-                  args: "$#{to_hex(addr16, 4)}, Y"}, 2}
+          {"LDA", "$#{to_hex(addr16, 4)}, Y", nil, 2}
         0xba ->
-          {%Vertex{instruction: "TSX"}, 0}
+          {"TSX", "", nil, 0}
         0xbc ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "LDY",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"LDY", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0xbd ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "LDA",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"LDA", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0xbe ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "LDX",
-                  args: "$#{to_hex(addr16, 4)}, Y"}, 2}
+          {"LDX", "$#{to_hex(addr16, 4)}, Y", nil, 2}
         0xc0 ->
           <<val::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "CPY",
-                  args: "#$#{to_hex(val)}"}, 1}
+          {"CPY", "#$#{to_hex(val)}", nil, 1}
         0xc1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "CMP",
-                  args: "($#{to_hex(addr)}, X)"}, 1}
+          {"CMP", "($#{to_hex(addr)}, X)", nil, 1}
         0xc4 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "CPY",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"CPY", "$#{to_hex(addr)}", nil, 1}
         0xc5 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "CMP",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"CMP", "$#{to_hex(addr)}", nil, 1}
         0xc6 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "DEC",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"DEC", "$#{to_hex(addr)}", nil, 1}
         0xc8 ->
-          {%Vertex{instruction: "INY"}, 0}
+          {"INY", "", nil, 0}
         0xc9 ->
           <<val::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "CMP",
-                  args: "#$#{to_hex(val)}"}, 1}
+          {"CMP", "#$#{to_hex(val)}", nil, 1}
         0xca ->
-          {%Vertex{instruction: "DEX"}, 0}
+          {"DEX", "", nil, 0}
         0xcc ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "CPY",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"CPY", "$#{to_hex(addr16, 4)}", nil, 2}
         0xcd ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "CMP",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"CMP", "$#{to_hex(addr16, 4)}", nil, 2}
         0xce ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "DEC",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"DEC", "$#{to_hex(addr16, 4)}", nil, 2}
         0xd0 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "BNE",
-                  args: "$#{to_hex(offset)}",
-                  edges: [pos + 1, pos + offset + 1]}, 1}
+          {"BNE", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
         0xd1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "CMP",
-                  args: "($#{to_hex(addr)}), Y"}, 1}
+          {"CMP", "($#{to_hex(addr)}), Y", nil, 1}
         0xd5 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "CMP",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"CMP", "$#{to_hex(addr)}, X", nil, 1}
         0xd6 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "DEC",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"DEC", "$#{to_hex(addr)}, X", nil, 1}
         0xd8 ->
-          {%Vertex{instruction: "CLD"}, 0}
+          {"CLD", "", nil, 0}
         0xd9 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "CMP",
-                  args: "$#{to_hex(addr16, 4)}, Y"}, 2}
+          {"CMP", "$#{to_hex(addr16, 4)}, Y", nil, 2}
         0xdd ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "CMP",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"CMP", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0xde ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "DEC",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"DEC", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0xe0 ->
           <<val::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "CPX",
-                  args: "#$#{to_hex(val)}"}, 1}
+          {"CPX", "#$#{to_hex(val)}", nil, 1}
         0xe1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "SBC",
-                  args: "($#{to_hex(addr)}, X)"}, 1}
+          {"SBC", "($#{to_hex(addr)}, X)", nil, 1}
         0xe4 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "CPX",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"CPX", "$#{to_hex(addr)}", nil, 1}
         0xe5 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "SBC",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"SBC", "$#{to_hex(addr)}", nil, 1}
         0xe6 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "INC",
-                  args: "$#{to_hex(addr)}"}, 1}
+          {"INC", "$#{to_hex(addr)}", nil, 1}
         0xe8 ->
-          {%Vertex{instruction: "INX"}, 0}
+          {"INX", "", nil, 0}
         0xe9 ->
           <<val::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "SBC",
-                  args: "#$#{to_hex(val)}"}, 1}
+          {"SBC", "#$#{to_hex(val)}", nil, 1}
         0xea ->
-          {%Vertex{instruction: "NOP"}, 0}
+          {"NOP", "", nil, 0}
         0xec ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "CPX",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"CPX", "$#{to_hex(addr16, 4)}", nil, 2}
         0xed ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "SBC",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"SBC", "$#{to_hex(addr16, 4)}", nil, 2}
         0xee ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "INC",
-                  args: "$#{to_hex(addr16, 4)}"}, 2}
+          {"INC", "$#{to_hex(addr16, 4)}", nil, 2}
         0xf0 ->
           <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)        
-          {%Vertex{instruction: "BEQ",
-                  args: "$#{to_hex(offset)}",
-                  edges: [pos + 1, pos + offset + 1]}, 1}
+          {"BEQ", "$#{to_hex(offset)}", [pos + offset + 1, pos + 1], 1}
         0xf1 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "SBC",
-                  args: "($#{to_hex(addr)}), Y"}, 1}
+          {"SBC", "($#{to_hex(addr)}), Y", nil, 1}
         0xf5 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "SBC",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"SBC", "$#{to_hex(addr)}, X", nil, 1}
         0xf6 ->
           <<addr::size(8)>> = get_bytes(arr, pos, 1)
-          {%Vertex{instruction: "INC",
-                  args: "$#{to_hex(addr)}, X"}, 1}
+          {"INC", "$#{to_hex(addr)}, X", nil, 1}
         0xf8 ->
-          {%Vertex{instruction: "SED"}, 0}
+          {"SED", "", nil, 0}
         0xf9 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "SBC",
-                  args: "$#{to_hex(addr16, 4)}, Y"}, 2}
+          {"SBC", "$#{to_hex(addr16, 4)}, Y", nil, 2}
         0xfd ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "SBC",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"SBC", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0xfe ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          {%Vertex{instruction: "INC",
-                  args: "$#{to_hex(addr16, 4)}, X"}, 2}
+          {"INC", "$#{to_hex(addr16, 4)}, X", nil, 2}
         _ ->
           # Unknown operation (could be data or illegal operation)
-          {%Vertex{instruction: "UNK"}, 0}
+          {"UNK", "", nil, 0}
       end
-      
-      edges = if vertex.edges == nil, do: [pos + consumed], else: vertex.edges
-      vertex = %{vertex | :edges => edges, :length => (1 + consumed)}
-      {vertex, false}
+      following = pos + consumed
+      {edges, label} =  
+        case edges do
+          nil -> {[following], false}
+          []  -> {[], false}
+          [following] -> {edges, false}
+          _   -> {edges, true}
+        end
+
+      vertex = %Vertex{instruction: instruction,
+                      args: args, 
+                      edges: edges, 
+                      length: (1 + consumed)}
+      {vertex, label}
   end
 
 end
