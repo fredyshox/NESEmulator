@@ -6,7 +6,7 @@ macro(add_test_exec target source libs)
 
   target_link_libraries("test_${target}"
     ${libs})
-   
+
   target_include_directories("test_${target}"
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 endmacro()
@@ -34,6 +34,10 @@ add_test_exec(flags_op
   cpu/flags.c
   6502)
 
+add_test_exec(ppu_sprites
+  ppu/sprites.c
+  ppu)
+
 # unit tests
 
 add_unit_test(memory_op load "--load")
@@ -50,3 +54,6 @@ add_unit_test(program_counter_op return "--return")
 
 add_unit_test(flags_op flag "--flag")
 add_unit_test(flags_op cmp "--cmp")
+
+add_unit_test(ppu_sprites eval "--eval")
+add_unit_test(ppu_sprites layout "--layout")

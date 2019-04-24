@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "test.h"
+#include "cputest.h"
 
 uint8_t adc_case[] = {
   /* .org(0x0000) */

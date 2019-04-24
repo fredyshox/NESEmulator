@@ -5,7 +5,7 @@
 
 // TODO test jsr
 
-#include "test.h"
+#include "cputest.h"
 
 uint8_t branch_case[] = {
   /* some garbage */  0x01, 0x01,

@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "test.h"
+#include "cputest.h"
 
 //TODO test flag operation and compares
 
