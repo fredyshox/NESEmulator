@@ -100,23 +100,25 @@ uint8_t fetch_at_byte(uint8_t* at_ptr, int h, int v) {
 int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, int pV) {
   // counters
   int ramc = 0, outc = 0;
-  struct ppu_sprite sprite;
-  while (ramc < PPU_SPRRAM_SIZE && outc < outlen) {
+  struct ppu_sprite sprite; 
+  // go through whole sprite ram or outlen and 1 more for sprite overflow detection
+  while (ramc < PPU_SPRRAM_SIZE && outc <= outlen) {
     sprite = ppu->sprite_ram[ramc];
     if (pV >= sprite.y_coord && pV < (sprite.y_coord + TILE_SIZE)) {
-      output[outc] = sprite;
+      if (outc != outlen)
+        output[outc] = sprite;
       outc += 1;
     }
     ramc += 1;
   }
 
-  if (outc == outlen) {
+  // sprite overflow
+  if (outc > outlen) {
     ppu->status.sprite_ovf = 1;
+    return outlen;
   } else {
-    ppu->status.sprite_ovf = 0;
+    return outc;
   }
-
-  return outc;
 }
 
 void ppu_sprite_pixel_layout(struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize) {
@@ -214,4 +216,5 @@ void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle) {
       }
     }
   }
+  ppu->status.vblank = 1;
 }
