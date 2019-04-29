@@ -86,6 +86,7 @@ enum {
 
 struct asm6502 {
   int type;
+  int cycles;
   struct mem_addr maddr;
   void (*handler)(struct state6502*, struct asm6502);
 };

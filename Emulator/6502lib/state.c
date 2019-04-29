@@ -42,17 +42,15 @@ void memory6502_create(struct memory6502 *memory, uint16_t size) {
   uint8_t *buffer = malloc(size * sizeof(uint8_t));
   memory->mptr = buffer;
   memory->size = size;
+  memory->io = NULL;
   memory->store_handler = NULL;
   memory->load_handler = NULL;
-  memory->load_error_cb = NULL;
-  memory->store_error_cb = NULL;
 }
 
 void memory6502_store(struct memory6502 *memory, uint16_t idx, uint8_t value) {
   if (memory->store_handler == NULL) {
     // default
     if (idx >= memory->size) {
-      __STORE_ERR_NNULL(memory, idx, value);
       return;
     }
 
@@ -67,7 +65,7 @@ uint8_t memory6502_load(struct memory6502 *memory, uint16_t idx) {
   if (memory->load_handler == NULL) {
     // default
     if (idx >= memory->size) {
-      return __LOAD_ERR_NNULL(memory, idx);
+      return 0;
     }
 
     return memory->mptr[idx];

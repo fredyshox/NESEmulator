@@ -10,6 +10,7 @@
 struct asm6502 asm6502_create(int type, struct mem_addr addr, void (*handler)(state6502*, asm6502)) {
   struct asm6502 instruction;
   instruction.type = type;
+  instruction.cycles = 0;
   instruction.maddr = addr;
   instruction.handler = handler;
 

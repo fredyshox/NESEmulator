@@ -5,23 +5,20 @@
 
 #include "parser.h"
 
-void program_loop(state6502* state, int *control) {
-  //TODO
-}
-
 int execute_asm(state6502 *state) {
   asm6502 operation;
   int consumed = parse_asm(&operation, state->memory, state->pc);
   state->pc += (uint16_t) consumed;
   asm6502_execute(operation, state);
-  return 0;
+  return operation.cycles;
 }
 
 int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
   uint8_t opcode = memory6502_load(memory, pos);
   uint16_t mpos = pos + 1;
-  int consumed = 1;
+  int consumed = 1, cycles = 0;
   mem_addr addr;
+  // TODO cycles
   switch (opcode) {
     // ADC - add with carry
     case 0x69:
@@ -661,6 +658,7 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       return 0;
   }
   cmd->maddr = addr;
+  cmd->cycles = cycles;
 
   return consumed;
 }

@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
 
-project(6502lib)
-
 set(6502lib_SOURCES
   addr.c
   asm.c
@@ -16,6 +14,7 @@ set(6502lib_SOURCES
 add_library(6502
   STATIC
   ${6502lib_SOURCES})
+  
 target_include_directories(6502
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
