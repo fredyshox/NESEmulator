@@ -5,6 +5,43 @@
 
 #include "ppu.h"
 
+// PPU memory
+
+void ppu_memory_create(struct ppu_memory* mem) {
+  mem->image_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
+  mem->sprite_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
+  mem->sprite_ram = malloc(PPU_SPRRAM_SIZE * sizeof(struct ppu_sprite));
+  mem->nt_buf = malloc(2 * (PPU_NAMETABLE_SIZE + PPU_ATTRTABLE_SIZE) * sizeof(uint8_t));
+  // memory allocated by user
+  mem->nametable0 = NULL;
+  mem->attrtable0 = NULL;
+  mem->nametable1 = NULL;
+  mem->attrtable1 = NULL;
+  mem->nametable2 = NULL;
+  mem->attrtable2 = NULL;
+  mem->nametable3 = NULL;
+  mem->attrtable3 = NULL;
+  mem->io = NULL;
+  mem->load_handler = NULL;
+  mem->store_handler = NULL;
+}
+
+uint8_t ppu_memory_fetch_pt(struct ppu_memory* mem, uint16_t address, int pt_index) {
+  assert(pt_index == 0 || pt_index == 1);
+  assert(address < 0x1000);
+
+  uint16_t offset = (pt_index == 1) ? 0x1000 : 0x0000;
+  return mem->load_handler(mem, address + offset);
+}
+
+// PPU state
+
+void ppu_state_create(struct ppu_state* ppu, struct ppu_memory* mem) {
+  //TODO
+}
+
+// PPU registers
+
 void ppu_ctrl_write(struct ppu_state* state, uint8_t byte) {
   state->control.byte = byte;
 }
@@ -24,7 +61,7 @@ void ppu_sr_addr_write(struct ppu_state* state, uint8_t addr) {
 void ppu_sr_data_write(struct ppu_state* state, uint8_t byte) {
   uint8_t si = state->reg_sr_addr >> 4; // fast div
   uint8_t bi = state->reg_sr_addr & 0b11; // fast mod
-  struct ppu_sprite* spr = &state->sprite_ram[si];
+  struct ppu_sprite* spr = &state->memory->sprite_ram[si];
   switch (bi) {
     case 0:
       spr->y_coord = byte;
@@ -46,7 +83,7 @@ void ppu_sr_data_write(struct ppu_state* state, uint8_t byte) {
 void ppu_sr_data_read(struct ppu_state* state, uint8_t* ptr) {
   uint8_t si = state->reg_sr_addr >> 2; // fast div
   uint8_t bi = state->reg_sr_addr & 0b11; // fast mod
-  struct ppu_sprite* spr = &state->sprite_ram[si];
+  struct ppu_sprite* spr = &state->memory->sprite_ram[si];
   switch (bi) {
     case 0:
       *ptr = spr->y_coord;
@@ -117,7 +154,7 @@ void ppu_sr_dma_write(struct ppu_state* state, uint8_t* data, int count) {
   struct ppu_sprite* sprite;
   for (uint8_t i = 0; i < count; i++) {
     rem = i & 0b11;
-    sprite = &state->sprite_ram[(i >> 2)];
+    sprite = &state->memory->sprite_ram[(i >> 2)];
     switch (rem) {
       case 1:
         sprite->y_coord = data[i];

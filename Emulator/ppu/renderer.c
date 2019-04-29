@@ -28,38 +28,24 @@ void ppu_render_handle_free(struct ppu_render_handle* handle) {
 void ntat_addr(struct ppu_state* ppu, uint8_t** nt_ptr, uint8_t** at_ptr) {
   switch (ppu->control.nametable_addr) {
     case 0:
-      *nt_ptr = ppu->nametable0;
-      *at_ptr = ppu->attrtable0;
+      *nt_ptr = ppu->memory->nametable0;
+      *at_ptr = ppu->memory->attrtable0;
       break;
     case 1:
-      *nt_ptr = ppu->nametable1;
-      *at_ptr = ppu->attrtable1;
+      *nt_ptr = ppu->memory->nametable1;
+      *at_ptr = ppu->memory->attrtable1;
       break;
     case 2:
-      *nt_ptr = ppu->nametable2;
-      *at_ptr = ppu->attrtable2;
+      *nt_ptr = ppu->memory->nametable2;
+      *at_ptr = ppu->memory->attrtable2;
       break;
     case 3:
-      *nt_ptr = ppu->nametable3;
-      *at_ptr = ppu->attrtable3;
+      *nt_ptr = ppu->memory->nametable3;
+      *at_ptr = ppu->memory->attrtable3;
       break;
     default:
       fputs("WTF! Invalid nt addr!", stderr);
       break;
-  }
-}
-
-void pt_addr(struct ppu_state* ppu, uint8_t** bg_pt, uint8_t** spr_pt) {
-  if (ppu->control.spr_pttrntable) {
-    *spr_pt = ppu->pttrntable1;
-  } else {
-    *spr_pt = ppu->pttrntable0;
-  }
-
-  if (ppu->control.bg_pttrntable) {
-    *bg_pt = ppu->pttrntable1;
-  } else {
-    *bg_pt = ppu->pttrntable0;
   }
 }
 
@@ -95,15 +81,17 @@ uint8_t fetch_at_byte(uint8_t* at_ptr, int h, int v) {
   }
 }
 
+#define FETCH_PT_BYTE(PPU, PTIDX, ADDR) ppu_memory_fetch_pt(PPU->memory, ADDR, PTIDX)
+
 // sprite helpers
 
 int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, int pV) {
   // counters
   int ramc = 0, outc = 0;
-  struct ppu_sprite sprite; 
+  struct ppu_sprite sprite;
   // go through whole sprite ram or outlen and 1 more for sprite overflow detection
   while (ramc < PPU_SPRRAM_SIZE && outc <= outlen) {
-    sprite = ppu->sprite_ram[ramc];
+    sprite = ppu->memory->sprite_ram[ramc];
     if (pV >= sprite.y_coord && pV < (sprite.y_coord + TILE_SIZE)) {
       if (outc != outlen)
         output[outc] = sprite;
@@ -155,7 +143,7 @@ uint8_t ppu_color_idx(uint8_t tile_lower0, uint8_t tile_lower1, uint8_t tile_upp
 void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle) {
   // declarations
   uint8_t *nametable, *attrtable;
-  uint8_t *spr_ptable, *bg_ptable;
+  int spr_ptable = ppu->control.spr_pttrntable, bg_ptable = ppu->control.bg_pttrntable;
   uint8_t bg_color_idx, spr_color_idx;
   struct ppu_color color, spr_color;
   int sprbuf_size, frame_buf_pos = 0;
@@ -165,7 +153,6 @@ void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle) {
   uint8_t* frame = handle->frame;
   // get tables for current ppu state
   ntat_addr(ppu, &nametable, &attrtable);
-  pt_addr(ppu, &bg_ptable, &spr_ptable);
 
   for (int v = 0; v < TILE_VMAX; v++) {
     for (int pV = 0; pV < TILE_SIZE; pV++) {
@@ -179,12 +166,12 @@ void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle) {
         // tile upper bits from attr table
         uint8_t bg_tile_upper = fetch_at_byte(attrtable, h, v);
         // lower bits for each pixel in tile
-        uint8_t bg_tile_lower0 = bg_ptable[(bg_pt_index * 16) + pV];
-        uint8_t bg_tile_lower1 = bg_ptable[(bg_pt_index * 16) + pV + TILE_SIZE];
+        uint8_t bg_tile_lower0 = FETCH_PT_BYTE(ppu, bg_ptable, (bg_pt_index * 16) + pV);
+        uint8_t bg_tile_lower1 = FETCH_PT_BYTE(ppu, bg_ptable, (bg_pt_index * 16) + pV + TILE_SIZE);
         for (int pH = 0; pH < TILE_SIZE; pH++) {
           // background color
           bg_color_idx = ppu_color_idx(bg_tile_lower0, bg_tile_lower1, bg_tile_upper, pV, pH);
-          color = NES_COLOR(ppu->image_palette[bg_color_idx]);
+          color = NES_COLOR(ppu->memory->image_palette[bg_color_idx]);
           // sprites
           uint8_t spx = spr_pixel_buf[h * TILE_SIZE + pH];
           if (spx != 0) {
@@ -192,10 +179,10 @@ void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle) {
             for (int s = 0; s < sprbuf_size; s++) {
               if ((spx & (0x80 >> s)) != 0) {
                 spr = spr_buffer[s];
-                uint8_t sp_tile_lower0 = spr_ptable[(spr.index * 16) + pV];
-                uint8_t sp_tile_lower1 = spr_ptable[(spr.index * 16) + pV + TILE_SIZE];
+                uint8_t sp_tile_lower0 = FETCH_PT_BYTE(ppu, spr_ptable, (spr.index * 16) + pV);
+                uint8_t sp_tile_lower1 = FETCH_PT_BYTE(ppu, spr_ptable, (spr.index * 16) + pV + TILE_SIZE);
                 spr_color_idx = ppu_color_idx(sp_tile_lower0, sp_tile_lower1, spr.palette_msb, pV, pH);
-                spr_color = NES_COLOR(ppu->sprite_palette[spr_color_idx]);
+                spr_color = NES_COLOR(ppu->memory->sprite_palette[spr_color_idx]);
                 if (!NES_COLOR_TRANSPARENT(spr_color)) break;
               }
             }
@@ -217,4 +204,8 @@ void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle) {
     }
   }
   ppu->status.vblank = 1;
+}
+
+void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) {
+
 }

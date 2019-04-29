@@ -6,6 +6,7 @@
 #ifndef ppu_h
 #define ppu_h
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
@@ -72,10 +73,9 @@ union ppu_mask {
 #define PPU_ATTRTABLE_SIZE 64
 #define PPU_PTTRNTABLE_SIZE 4096
 
-struct ppu_state {
-  // vram
-  uint8_t* pttrntable0;
-  uint8_t* pttrntable1;
+struct ppu_memory {
+  // nametables - one buffer and pointers
+  uint8_t* nt_buf;
   uint8_t* nametable0;
   uint8_t* attrtable0;
   uint8_t* nametable1;
@@ -84,9 +84,25 @@ struct ppu_state {
   uint8_t* attrtable2;
   uint8_t* nametable3;
   uint8_t* attrtable3;
+  // palettes
   uint8_t* image_palette;
   uint8_t* sprite_palette;
+  // oam
   struct ppu_sprite* sprite_ram;
+  // rom stuff
+  void* io;
+  uint8_t (*load_handler)(struct ppu_memory*, uint16_t);
+  void (*store_handler)(struct ppu_memory*, uint16_t, uint8_t);
+};
+
+typedef struct ppu_memory ppu_memory;
+
+void ppu_memory_create(struct ppu_memory* mem);
+uint8_t ppu_memory_fetch_pt(struct ppu_memory* mem, uint16_t address, int pt_index);
+
+struct ppu_state {
+  // vram
+  struct ppu_memory* memory;
   // registers
   // ppustatus, ppumask, ppuctrl
   union ppu_status status;
@@ -101,6 +117,8 @@ struct ppu_state {
 };
 
 typedef struct ppu_state ppu_state;
+
+void ppu_state_create(struct ppu_state* ppu, struct ppu_memory* mem);
 
 // PPU Registers
 #define PPUCTRL   0x2000

@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
 
-project(nesppu)
-
 set(PPU_SOURCES
   color.c
   ppu.c

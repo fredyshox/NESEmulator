@@ -122,4 +122,11 @@ uint8_t ppu_color_idx(uint8_t tile_lower0, uint8_t tile_lower1, uint8_t tile_upp
  */
 void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle);
 
+/**
+ * Executes signle ppu cycle
+ * @param ppu    ppu state
+ * @param handle reusable memory for rendering work
+ */
+void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle);
+
 #endif /* renderer_h */

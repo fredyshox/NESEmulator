@@ -8,11 +8,13 @@
 void test_sprite_eval() {
   bool res = true;
   ppu_state ppu;
+  ppu_memory mem;
   ppu_sprite sprites[64];
   ppu_sprite sprbuf[8];
   uint8_t y_coord = 64;
   int spr_count;
-  ppu.sprite_ram = sprites;
+  mem.sprite_ram = sprites;
+  ppu.memory = &mem;
 
   // 6 sprites on y_coord
   for (int i = 10; i < 64; i++) {
