@@ -20,13 +20,13 @@ void state6502_create(struct state6502 *state, struct memory6502 *memory) {
 void handle_interrupt(state6502 *state, interrupt6502 intnum) {
   uint16_t vec_addr;
   if (intnum == RST_INT) {
-    vec_addr = 0xfffc;
+    vec_addr = STATE6502_RESET_VECTOR;
     state->status.interrupt = 1;
   } else {
     if (intnum == IRQ_INT || intnum == BRK_INT)
-      vec_addr = 0xfffe;
+      vec_addr = STATE6502_IRQ_VECTOR;
     else if (intnum == NMI_INT)
-      vec_addr = 0xfffa;
+      vec_addr = STATE6502_NMI_VECTOR;
 
     state->status.interrupt = 1;
     // TODO check endianess

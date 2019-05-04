@@ -52,6 +52,10 @@ typedef struct state6502 state6502;
 
 void state6502_create(struct state6502 *state, struct memory6502 *memory);
 
+#define STATE6502_RESET_VECTOR (0xfffc)
+#define STATE6502_NMI_VECTOR (0xfffa)
+#define STATE6502_IRQ_VECTOR (0xfffe)
+
 #define STATE6502_STACK_PUSH(STATE, BYTES, LEN) \
   for (int i = 0; i < LEN; i++) {  \
     memory6502_store(STATE->memory, (uint16_t) STATE->sp + 0x100, *(BYTES + i));  \
