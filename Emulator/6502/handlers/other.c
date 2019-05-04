@@ -38,6 +38,18 @@ void clear_overflow(state6502 *state, asm6502 cmd) {
   state->status.overflow = 0;
 }
 
+// Affected flags: D (Decimal mode not supported in other areas)
+void clear_decimal(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == CLD_ASM);
+  state->status.decimal = 0;
+}
+
+// Affected flags: D
+void set_decimal(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == SED_ASM);
+  state->status.decimal = 1;
+}
+
 // Comparsion
 
 static void compare_register(state6502 *state, asm6502 cmd, uint8_t reg) {

@@ -15,6 +15,9 @@ void set_carry(state6502 *state, asm6502 cmd);
 void clear_interrupt(state6502 *state, asm6502 cmd);
 void set_interrupt(state6502 *state, asm6502 cmd);
 void clear_overflow(state6502 *state, asm6502 cmd);
+// Decimal mode -  not supported in other areas
+void clear_decimal(state6502 *state, asm6502 cmd);
+void set_decimal(state6502 *state, asm6502 cmd);
 
 // Comparsion
 void compare_accumulator(state6502 *state, asm6502 cmd);

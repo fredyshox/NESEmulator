@@ -188,6 +188,11 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->handler = clear_carry;
       break;
     // CLD
+    case 0xD8:
+      cmd->type = CLD_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = clear_decimal;
+      break;
     // CLI
     case 0x58:
       cmd->type = CLI_ASM;
@@ -659,6 +664,11 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->handler = set_carry;
       break;
     // SED
+    case 0xf8:
+      cmd->type = SED_ASM;
+      addr.type = IMP_ADDR;
+      cmd->handler = set_decimal;
+      break;
     // SEI
     case 0x78:
       cmd->type = SEI_ASM;
