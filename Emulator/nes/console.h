@@ -25,6 +25,7 @@ typedef struct nes_t nes_t;
 int nes_create(nes_t* console);
 void nes_free(nes_t* console);
 int nes_load_rom(nes_t* console, struct cartridge* cartridge);
+void nes_step(nes_t* console);
 // memory handlers
 uint8_t nes_cpu_memory_read(struct memory6502* memory, uint16_t addr);
 void nes_cpu_memory_write(struct memory6502* memory, uint16_t addr, uint8_t byte);

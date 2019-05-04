@@ -12,6 +12,11 @@ struct ppu_render_handle* ppu_render_handle_create() {
   handle->frame = malloc(sizeof(uint8_t) * HORIZONTAL_RES * VERTICAL_RES * 3);
   handle->spr_pixel_buf = malloc(sizeof(uint8_t) * HORIZONTAL_RES);
   handle->spr_buffer = malloc(sizeof(struct ppu_sprite) * MAX_SPRITES_PER_LINE);
+  handle->frame_buf_pos = 0;
+  handle->h = 0;
+  handle->v = 0;
+  handle->pH = 0;
+  handle->pV = 0;
 
   return handle;
 }
@@ -44,7 +49,7 @@ void ntat_addr(struct ppu_state* ppu, uint8_t** nt_ptr, uint8_t** at_ptr) {
       *at_ptr = ppu->memory->attrtable3;
       break;
     default:
-      fputs("WTF! Invalid nt addr!", stderr);
+      fputs("WTF! Invalid nt addr!", stderr); /* Never should happen */
       break;
   }
 }
@@ -140,6 +145,92 @@ uint8_t ppu_color_idx(uint8_t tile_lower0, uint8_t tile_lower1, uint8_t tile_upp
   return index;
 }
 
+void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) {
+  int h = handle->h, v = handle->v, pH = handle->pH, pV = handle->pV;
+  uint8_t bg_color_idx, spr_color_idx;
+  uint8_t *nametable, *attrtable;
+  uint8_t *frame = handle->frame;
+  int frame_buf_pos;
+  uint8_t spx;
+  struct ppu_color color, spr_color;
+  struct ppu_sprite spr;
+
+  if (NEW_FRAME(handle)) {
+    handle->spr_ptable = ppu->control.spr_pttrntable;
+    handle->bg_ptable = ppu->control.bg_pttrntable;
+    handle->frame_buf_pos = 0;
+    ntat_addr(ppu, &handle->nametable, &handle->attrtable);
+  }
+
+  nametable = handle->nametable;
+  attrtable = handle->attrtable;
+  frame_buf_pos = handle->frame_buf_pos;
+
+  if (NEW_SCANLINE(handle)) {
+    handle->sprbuf_size = ppu_evaluate_sprites(ppu, handle->spr_buffer, MAX_SPRITES_PER_LINE, v * TILE_SIZE + pV);
+    ppu_sprite_pixel_layout(handle->spr_buffer, handle->sprbuf_size, handle->spr_pixel_buf, HORIZONTAL_RES);
+  }
+
+  if (NEW_TILE(handle)) {
+    // background
+    // index in pattern table for bg tile
+    uint8_t bg_pt_index = fetch_nt_byte(nametable, h, v);
+    // tile upper bits from attr table
+    handle->bg_tile_upper = fetch_at_byte(attrtable, h, v);
+    // lower bits for each pixel in tile
+    handle->bg_tile_lower0 = FETCH_PT_BYTE(ppu, handle->bg_ptable, (bg_pt_index * 16) + pV);
+    handle->bg_tile_lower1 = FETCH_PT_BYTE(ppu, handle->bg_ptable, (bg_pt_index * 16) + pV + TILE_SIZE);
+  }
+
+  // background color
+  bg_color_idx = ppu_color_idx(handle->bg_tile_lower0, handle->bg_tile_lower1, handle->bg_tile_upper, pV, pH);
+  color = NES_COLOR(ppu->memory->image_palette[bg_color_idx]);
+  // sprites
+  spx = handle->spr_pixel_buf[h * TILE_SIZE + pH];
+  if (spx != 0) {
+    // check sprite pixel color
+    for (int s = 0; s < handle->sprbuf_size; s++) {
+      if ((spx & (0x80 >> s)) != 0) {
+        spr = handle->spr_buffer[s];
+        uint8_t sp_tile_lower0 = FETCH_PT_BYTE(ppu, handle->spr_ptable, (spr.index * 16) + pV);
+        uint8_t sp_tile_lower1 = FETCH_PT_BYTE(ppu, handle->spr_ptable, (spr.index * 16) + pV + TILE_SIZE);
+        spr_color_idx = ppu_color_idx(sp_tile_lower0, sp_tile_lower1, spr.palette_msb, pV, pH);
+        spr_color = NES_COLOR(ppu->memory->sprite_palette[spr_color_idx]);
+        if (!NES_COLOR_TRANSPARENT(spr_color)) break;
+      }
+    }
+
+    // bg non trans and spr back -> bg color
+    // bg trans and spr back -> spr
+    // bg non trans and spr front -> spr
+    // bg trans and spr front -> spr
+    if (spr.priority == 0 && !NES_COLOR_TRANSPARENT(spr_color)) {
+      color = spr_color;
+    } else if (spr.priority != 0 && NES_COLOR_TRANSPARENT(color)) {
+      color = spr_color;
+    }
+  }
+
+  handle->frame_buf_pos += ppu_update_frame(frame, color, frame_buf_pos);
+
+  if (VBLANK(handle)) {
+    ppu->status.vblank = 1;
+  }
+
+  handle->pH = (pH + 1) % TILE_SIZE;
+  if (handle->pH == 0) {
+    // next h tile
+    handle->h = (h + 1) % TILE_HMAX;
+    if (handle->h == 0) {
+      // next scanline
+      handle->pV = (pV + 1) % TILE_SIZE;
+      if (handle->pV == 0) {
+        handle->v = (v + 1) % TILE_VMAX;
+      }
+    }
+  }
+}
+
 void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle) {
   // declarations
   uint8_t *nametable, *attrtable;
@@ -204,8 +295,4 @@ void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle) {
     }
   }
   ppu->status.vblank = 1;
-}
-
-void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) {
-
 }

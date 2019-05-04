@@ -112,6 +112,14 @@ int nes_load_rom(nes_t* console, struct cartridge* cartridge) {
   return (!m);
 }
 
+void nes_step(nes_t* console) {
+  int cpu_cycles;
+  cpu_cycles = execute_asm(console->cpu);
+  for (int i = 0; i < cpu_cycles * 3; i++) {
+    ppu_execute_cycle(console->ppu, console->ppu_handle);
+  }
+}
+
 // memory handlers
 
 uint8_t nes_cpu_memory_read(struct memory6502* memory, uint16_t addr) {

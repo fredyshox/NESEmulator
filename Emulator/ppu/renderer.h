@@ -25,9 +25,26 @@
  * Should be reused between rendering calls.
  */
 struct ppu_render_handle {
+  int frame_buf_pos;
   uint8_t* frame;
   uint8_t* spr_pixel_buf;
+  int sprbuf_size;
   struct ppu_sprite* spr_buffer;
+  // tables for scanline
+  int spr_ptable;
+  int bg_ptable;
+  uint8_t* nametable;
+  uint8_t* attrtable;
+  // tile coordinates
+  int h;
+  int v;
+  // coordinates within tile (0..8)
+  int pH;
+  int pV;
+  // current tile buffer
+  uint8_t bg_tile_upper;
+  uint8_t bg_tile_lower0;
+  uint8_t bg_tile_lower1;
 };
 
 typedef struct ppu_render_handle ppu_render_handle;
@@ -42,6 +59,15 @@ struct ppu_render_handle* ppu_render_handle_create();
  * Frees handle
  */
 void ppu_render_handle_free(struct ppu_render_handle* handle);
+
+// Utility macros
+#define NEW_FRAME(HANDLE) (HANDLE->h == 0 && HANDLE->v == 0 && HANDLE->pH == 0 && HANDLE->pV == 0)
+#define VBLANK(HANDLE) (HANDLE->h == TILE_HMAX - 1 && \
+                         HANDLE->v == TILE_VMAX - 1 && \
+                         HANDLE->pH == TILE_SIZE - 1 && \
+                         HANDLE->pV == TILE_SIZE - 1)
+#define NEW_SCANLINE(HANDLE) (HANDLE->h == 0 && HANDLE->pH == 0)
+#define NEW_TILE(HANDLE) (HANDLE->pH == 0)
 
 /**
  * Gets nametable and attribute table addresses according to ppu control flag
@@ -123,7 +149,7 @@ uint8_t ppu_color_idx(uint8_t tile_lower0, uint8_t tile_lower1, uint8_t tile_upp
 void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle);
 
 /**
- * Executes signle ppu cycle
+ * Executes signle ppu cycle (currently renders single pixel)
  * @param ppu    ppu state
  * @param handle reusable memory for rendering work
  */
