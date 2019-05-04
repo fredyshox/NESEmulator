@@ -11,7 +11,8 @@ void ppu_memory_create(struct ppu_memory* mem) {
   mem->image_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
   mem->sprite_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
   mem->sprite_ram = malloc(PPU_SPRRAM_SIZE * sizeof(struct ppu_sprite));
-  mem->nt_buf = malloc(2 * (PPU_NAMETABLE_SIZE + PPU_ATTRTABLE_SIZE) * sizeof(uint8_t));
+  // alloc memory for 4 nametables (normally ppu has vram for only 2)
+  mem->nt_buf = malloc(4 * (PPU_NTAT_SIZE) * sizeof(uint8_t));
   // memory allocated by user
   mem->nametable0 = NULL;
   mem->attrtable0 = NULL;
@@ -37,7 +38,12 @@ uint8_t ppu_memory_fetch_pt(struct ppu_memory* mem, uint16_t address, int pt_ind
 // PPU state
 
 void ppu_state_create(struct ppu_state* ppu, struct ppu_memory* mem) {
-  //TODO
+  assert(ppu != NULL && mem != NULL);
+  ppu->memory = mem;
+  ppu->status.byte = 0x00;
+  ppu->mask.byte = 0x00;
+  ppu->control.byte = 0x00;
+  // setup
 }
 
 // PPU registers
@@ -130,7 +136,9 @@ void ppu_addr_write(struct ppu_state* state, uint8_t byte) {
 
 void ppu_data_write(struct ppu_state* state, uint8_t byte) {
   // evaluate state->addr
-  //TODO write byte to appropriate location
+  struct ppu_memory* mem = state->memory;
+  mem->store_handler(mem, state->reg_addr, byte);
+
   if (state->control.addr_inc32) {
     state->reg_addr += 32;
   } else {
@@ -140,7 +148,9 @@ void ppu_data_write(struct ppu_state* state, uint8_t byte) {
 
 void ppu_data_read(struct ppu_state* state, uint8_t* ptr) {
   // evaluate state->addr
-  //TODO read byte
+  struct ppu_memory* mem = state->memory;
+  *ptr = mem->load_handler(mem, state->reg_addr);
+
   if (state->control.addr_inc32) {
     state->reg_addr += 32;
   } else {

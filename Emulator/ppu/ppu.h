@@ -71,6 +71,7 @@ union ppu_mask {
 #define PPU_PALETTE_SIZE 16
 #define PPU_NAMETABLE_SIZE 960
 #define PPU_ATTRTABLE_SIZE 64
+#define PPU_NTAT_SIZE (PPU_NAMETABLE_SIZE + PPU_ATTRTABLE_SIZE)
 #define PPU_PTTRNTABLE_SIZE 4096
 
 struct ppu_memory {
