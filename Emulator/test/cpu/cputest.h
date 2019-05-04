@@ -6,13 +6,13 @@
 #define CPUTEST_H
 
 #include "test.h"
-#include "parser.h"
-#include "state.h"
+#include "6502/parser.h"
+#include "6502/state.h"
 
 #define TEST_PREPARE(CPU, PROGRAM) memset(&CPU, 0, sizeof(state6502)); \
                                    memory6502 memory = {0, 0, NULL, NULL, NULL, NULL}; \
                                    memory.mptr = PROGRAM; \
                                    memory.size = sizeof(PROGRAM) / sizeof(uint8_t); \
-                                   cpu.memory = &memory; 
+                                   cpu.memory = &memory;
 
 #endif /* CPUTEST_H */
