@@ -14,8 +14,11 @@ set(6502lib_SOURCES
 add_library(6502
   STATIC
   ${6502lib_SOURCES})
-  
+
+export_headers(6502 ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/include/6502)
+
 target_include_directories(6502
+  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 install(TARGETS 6502 DESTINATION lib)
