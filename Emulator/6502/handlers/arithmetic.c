@@ -3,8 +3,8 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "arithmetic.h"
-#include "addr.h"
+#include "6502/handlers/arithmetic.h"
+#include "6502/addr.h"
 #include <stdbool.h>
 
 // Add value to accumulator with carry

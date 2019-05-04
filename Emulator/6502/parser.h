@@ -8,14 +8,14 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "asm.h"
-#include "addr.h"
-#include "state.h"
-#include "handlers/arithmetic.h"
-#include "handlers/branch.h"
-#include "handlers/memory.h"
-#include "handlers/other.h"
-#include "handlers/stack.h"
+#include "6502/asm.h"
+#include "6502/addr.h"
+#include "6502/state.h"
+#include "6502/handlers/arithmetic.h"
+#include "6502/handlers/branch.h"
+#include "6502/handlers/memory.h"
+#include "6502/handlers/other.h"
+#include "6502/handlers/stack.h"
 
 int execute_asm(state6502 *state);
 int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos);

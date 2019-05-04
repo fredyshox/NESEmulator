@@ -20,7 +20,7 @@ struct flags6502 {
   uint8_t unused : 1;
   uint8_t brk : 1;
   uint8_t decimal : 1;
-  uint8_t interrupt : 1;
+  uint8_t int_disable : 1;
   uint8_t zero : 1;
   uint8_t carry : 1;
 };
@@ -28,6 +28,7 @@ struct flags6502 {
 typedef struct flags6502 flags6502;
 
 enum interrupt6502 {
+  NONE_INT,
   IRQ_INT,
   BRK_INT,
   NMI_INT,
@@ -36,7 +37,7 @@ enum interrupt6502 {
 
 typedef enum interrupt6502 interrupt6502;
 
-void interrupt6502_handle(struct state6502 *state, enum interrupt6502 intnum);
+void interrupt6502_handle(struct state6502 *state);
 
 struct state6502 {
   uint8_t reg_a;
@@ -46,11 +47,14 @@ struct state6502 {
   uint16_t pc;
   struct flags6502 status;
   struct memory6502 *memory;
+  // interrupts
+  enum interrupt6502 incoming_int;
 };
 
 typedef struct state6502 state6502;
 
 void state6502_create(struct state6502 *state, struct memory6502 *memory);
+void state6502_request_interrupt(struct state6502* state, enum interrupt6502 i);
 
 #define STATE6502_RESET_VECTOR (0xfffc)
 #define STATE6502_NMI_VECTOR (0xfffa)

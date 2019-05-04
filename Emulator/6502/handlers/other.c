@@ -3,8 +3,8 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "other.h"
-#include "addr.h"
+#include "6502/handlers/other.h"
+#include "6502/addr.h"
 
 // Flags
 
@@ -23,13 +23,13 @@ void set_carry(state6502 *state, asm6502 cmd) {
 // Affected flags: I
 void clear_interrupt(state6502 *state, asm6502 cmd) {
   assert(cmd.type == SEI_ASM);
-  state->status.interrupt = 0;
+  state->status.int_disable = 0;
 }
 
 // Affected flags: I
 void set_interrupt(state6502 *state, asm6502 cmd) {
   assert(cmd.type == CLI_ASM);
-  state->status.interrupt = 1;
+  state->status.int_disable = 1;
 }
 
 // Affected flags: V

@@ -6,7 +6,7 @@
 #ifndef asm_h
 #define asm_h
 
-#include "addr.h"
+#include "6502/addr.h"
 
 #define ASM_ARITHMETIC(CMD) ((CMD >> 8) == 0)
 #define ASM_BITWISE(CMD)    ((CMD >> 8) == 1)

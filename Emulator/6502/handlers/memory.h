@@ -6,8 +6,8 @@
 #ifndef asm_memory_h
 #define asm_memory_h
 
-#include "asm.h"
-#include "state.h"
+#include "6502/asm.h"
+#include "6502/state.h"
 
 void load_accumulator(state6502 *state, asm6502 cmd);
 void load_xreg(state6502 *state, asm6502 cmd);

@@ -4,8 +4,8 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "branch.h"
-#include "addr.h"
+#include "6502/handlers/branch.h"
+#include "6502/addr.h"
 
 #define BRANCH_IF(condition) if (condition) { \
                                uint16_t addr = handle_addr(state, cmd.maddr); \
@@ -77,5 +77,6 @@ void return_interrupt(state6502* state, asm6502 cmd) {
 
 void break_interrupt(state6502 *state, asm6502 cmd) {
   state->status.brk = 1;
+  state->incoming_int = BRK_INT;
   state->pc += 1;
 }

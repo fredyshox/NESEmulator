@@ -3,8 +3,8 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "stack.h"
-#include "addr.h"
+#include "6502/handlers/stack.h"
+#include "6502/addr.h"
 
 void transfer_x2sptr(state6502 *state, asm6502 cmd) {
   state->sp = state->reg_x;

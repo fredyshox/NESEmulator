@@ -3,10 +3,15 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "parser.h"
+#include "6502/parser.h"
 
 int execute_asm(state6502 *state) {
-  // handle interrupt (change pc) here
+  if (state->incoming_int != NONE_INT) {
+    //TODO what about handle interrupt cpu cycles?
+    interrupt6502_handle(state);
+    state->incoming_int = NONE_INT;
+  }
+
   asm6502 operation;
   int consumed = parse_asm(&operation, state->memory, state->pc);
   state->pc += (uint16_t) consumed;

@@ -6,8 +6,8 @@
 #ifndef asm_stack_h
 #define asm_stack_h
 
-#include "asm.h"
-#include "state.h"
+#include "6502/asm.h"
+#include "6502/state.h"
 
 struct asm6502;
 

@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "asm.h"
+#include "6502/asm.h"
 #include <stdbool.h>
 #include <assert.h>
 

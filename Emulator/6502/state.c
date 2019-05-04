@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "state.h"
+#include "6502/state.h"
 
 void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   assert(memory != NULL && state != NULL);
@@ -13,22 +13,32 @@ void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   state->reg_y = 0x00;
   state->sp = 0xff;
   state->pc = 0x0000;
+  state->incoming_int = NONE_INT;
   memset(&state->status, 0x00, sizeof(struct flags6502));
   state->memory = memory;
 }
 
-void handle_interrupt(state6502 *state, interrupt6502 intnum) {
+void state6502_request_interrupt(struct state6502* state, enum interrupt6502 i) {
+  state->incoming_int = i;
+}
+
+void interrupt6502_handle(struct state6502 *state) {
+  enum interrupt6502 intnum = state->incoming_int;
   uint16_t vec_addr;
+
+  if ((state->status.int_disable == 1 && intnum != NMI_INT) || intnum == NONE_INT)
+    return;
+
   if (intnum == RST_INT) {
     vec_addr = STATE6502_RESET_VECTOR;
-    state->status.interrupt = 1;
+    state->status.int_disable = 1; // ?
   } else {
     if (intnum == IRQ_INT || intnum == BRK_INT)
       vec_addr = STATE6502_IRQ_VECTOR;
     else if (intnum == NMI_INT)
       vec_addr = STATE6502_NMI_VECTOR;
 
-    state->status.interrupt = 1;
+    state->status.int_disable = 1; // ?
     // TODO check endianess
     STATE6502_STACK_PUSH(state, (uint8_t*) &state->pc, 2);
     STATE6502_STACK_PUSH(state, (uint8_t*) &state->status, 1);

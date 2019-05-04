@@ -7,7 +7,7 @@
 #define addr_h
 
 #include <stdint.h>
-#include "state.h"
+#include "6502/state.h"
 
 #define IMM_ADDR  0x0
 #define ZP_ADDR   0x1

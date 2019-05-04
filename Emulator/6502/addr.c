@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "addr.h"
+#include "6502/addr.h"
 
 static int full_value(struct mem_addr *maddr, struct memory6502 *memory, uint16_t pos) {
   // little endian

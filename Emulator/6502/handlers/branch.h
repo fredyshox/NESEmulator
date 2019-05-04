@@ -7,9 +7,9 @@
 #ifndef asm_branch_h
 #define asm_branch_h
 
-#include "addr.h"
-#include "asm.h"
-#include "state.h"
+#include "6502/addr.h"
+#include "6502/asm.h"
+#include "6502/state.h"
 
 #define JUMP_SIZE 3
 #define BRANCH_SIZE 2

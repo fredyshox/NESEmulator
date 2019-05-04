@@ -6,8 +6,8 @@
 #ifndef asm_other_h
 #define asm_other_h
 
-#include "asm.h"
-#include "state.h"
+#include "6502/asm.h"
+#include "6502/state.h"
 
 // Flags
 void clear_carry(state6502 *state, asm6502 cmd);

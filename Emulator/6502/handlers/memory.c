@@ -3,8 +3,8 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "memory.h"
-#include "addr.h"
+#include "6502/handlers/memory.h"
+#include "6502/addr.h"
 
 // Affected flags: Z, N
 static uint8_t load_value(state6502 *state, asm6502 cmd) {
