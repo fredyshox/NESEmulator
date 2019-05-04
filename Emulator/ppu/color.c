@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "color.h"
+#include "ppu/color.h"
 
 const struct ppu_color nes_color_palette[] = {
   {0x75, 0x75, 0x75},

@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "mapper.h"
+#include "nes/mapper.h"
 #include <stdio.h>
 
 void mapper_write(struct mapper* m, uint16_t address, uint8_t byte) {

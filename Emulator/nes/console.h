@@ -10,8 +10,8 @@
 #include "6502/state.h"
 #include "ppu/ppu.h"
 #include "ppu/renderer.h"
-#include "mapper.h"
-#include "cartridge.h"
+#include "nes/mapper.h"
+#include "nes/cartridge.h"
 
 struct nes_t {
   state6502* cpu;

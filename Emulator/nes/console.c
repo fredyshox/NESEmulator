@@ -2,7 +2,7 @@
 // NES console emulator
 //
 
-#include "console.h"
+#include "nes/console.h"
 
 // emulator setup
 

@@ -2,7 +2,7 @@
 // iNES mapper 0
 //
 
-#include "mapper0.h"
+#include "nes/mappers/mapper0.h"
 
 mapper* mapper0_create(struct cartridge* cartridge) {
   mapper* m = malloc(sizeof(mapper));

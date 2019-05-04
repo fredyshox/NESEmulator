@@ -6,7 +6,7 @@
 #ifndef mapper_h
 #define mapper_h
 
-#include "cartridge.h"
+#include "nes/cartridge.h"
 
 /**
  * Abstract mapper struct
@@ -28,8 +28,8 @@ void mapper_read(struct mapper* m, uint16_t address, uint8_t* dest);
 void mapper_free(struct mapper* m);
 
 // mapper factory
-#include "mappers/mapper0.h"
-#include "mappers/mapper3.h"
+#include "nes/mappers/mapper0.h"
+#include "nes/mappers/mapper3.h"
 
 struct mapper* mapper_from_id(struct cartridge* c, int id);
 

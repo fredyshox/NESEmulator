@@ -3,7 +3,7 @@
 // CNROM
 //
 
-#include "mapper3.h"
+#include "nes/mappers/mapper3.h"
 
 mapper* mapper3_create(struct cartridge* cartridge) {
   mapper* m = malloc(sizeof(mapper));

@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "renderer.h"
+#include "ppu/renderer.h"
 
 // ppu_render_handle funcitons
 

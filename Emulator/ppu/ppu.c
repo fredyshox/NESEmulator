@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "ppu.h"
+#include "ppu/ppu.h"
 
 // PPU memory
 

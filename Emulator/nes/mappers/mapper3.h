@@ -13,8 +13,8 @@
 #ifndef mapper3_h
 #define mapper3_h
 
-#include "mapper.h"
-#include "mapper0.h"
+#include "nes/mapper.h"
+#include "nes/mappers/mapper0.h"
 #include <stdlib.h>
 
 mapper* mapper3_create(struct cartridge* cartridge);

@@ -11,7 +11,7 @@
 #ifndef mapper0_h
 #define mapper0_h
 
-#include "mapper.h"
+#include "nes/mapper.h"
 #include <stdlib.h>
 #include <stdio.h>
 

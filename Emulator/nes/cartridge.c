@@ -3,7 +3,7 @@
 // Copyright (c) 2019 Kacper Rączy
 //
 
-#include "cartridge.h"
+#include "nes/cartridge.h"
 
 int cartridge_from_file(struct cartridge* c, char* path) {
   uint8_t header[INES_HEADER_SIZE];

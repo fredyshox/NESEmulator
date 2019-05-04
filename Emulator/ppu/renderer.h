@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ppu.h"
-#include "color.h"
+#include "ppu/ppu.h"
+#include "ppu/color.h"
 
 #define HORIZONTAL_RES 256
 #define VERTICAL_RES 240

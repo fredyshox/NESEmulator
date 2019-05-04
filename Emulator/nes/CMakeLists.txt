@@ -14,8 +14,7 @@ add_library(nes
 export_headers(nes ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/include/nes)
 
 target_include_directories(nes
-  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 target_link_libraries(nes
   ppu
