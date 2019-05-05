@@ -12,6 +12,7 @@ erl_crash.dump
 *.beam
 /config/*.secret.exs
 .elixir_ls/
+Playground.exs
 
 # vim
 *.swp
@@ -23,6 +24,7 @@ erl_crash.dump
 *.asm
 *.gch
 build/
+install/
 
 # roms
 *.nes

@@ -14,10 +14,14 @@ add_library(nes
 export_headers(nes ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/include/nes)
 
 target_include_directories(nes
-  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 target_link_libraries(nes
   ppu
   6502)
 
 install(TARGETS nes DESTINATION lib)
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h*")

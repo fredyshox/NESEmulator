@@ -14,18 +14,21 @@
 struct memory6502;
 struct state6502;
 
-struct flags6502 {
-  uint8_t negative : 1;
-  uint8_t overflow : 1;
-  uint8_t unused : 1;
-  uint8_t brk : 1;
-  uint8_t decimal : 1;
-  uint8_t int_disable : 1;
-  uint8_t zero : 1;
-  uint8_t carry : 1;
+union flags6502 {
+  struct {
+    uint8_t negative : 1;
+    uint8_t overflow : 1;
+    uint8_t unused : 1;
+    uint8_t brk : 1;
+    uint8_t decimal : 1;
+    uint8_t int_disable : 1;
+    uint8_t zero : 1;
+    uint8_t carry : 1;
+  };
+  uint8_t byte;
 };
 
-typedef struct flags6502 flags6502;
+typedef union flags6502 flags6502;
 
 enum interrupt6502 {
   NONE_INT,
@@ -45,7 +48,7 @@ struct state6502 {
   uint8_t reg_y;
   uint8_t sp;
   uint16_t pc;
-  struct flags6502 status;
+  union flags6502 status;
   struct memory6502 *memory;
   // interrupts
   enum interrupt6502 incoming_int;

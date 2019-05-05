@@ -13,6 +13,8 @@
 #include "nes/mapper.h"
 #include "nes/cartridge.h"
 
+#define NES_CPU_FREQ 1.79E6
+
 struct nes_t {
   state6502* cpu;
   ppu_state* ppu;

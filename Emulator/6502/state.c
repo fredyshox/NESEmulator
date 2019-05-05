@@ -14,7 +14,7 @@ void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   state->sp = 0xff;
   state->pc = 0x0000;
   state->incoming_int = NONE_INT;
-  memset(&state->status, 0x00, sizeof(struct flags6502));
+  state->status.byte = 0x00;
   state->memory = memory;
 }
 
@@ -31,20 +31,19 @@ void interrupt6502_handle(struct state6502 *state) {
 
   if (intnum == RST_INT) {
     vec_addr = STATE6502_RESET_VECTOR;
-    state->status.int_disable = 1; // ?
   } else {
     if (intnum == IRQ_INT || intnum == BRK_INT)
       vec_addr = STATE6502_IRQ_VECTOR;
     else if (intnum == NMI_INT)
       vec_addr = STATE6502_NMI_VECTOR;
 
-    state->status.int_disable = 1; // ?
     // TODO check endianess
     STATE6502_STACK_PUSH(state, (uint8_t*) &state->pc, 2);
-    STATE6502_STACK_PUSH(state, (uint8_t*) &state->status, 1);
+    STATE6502_STACK_PUSH(state, &state->status.byte, 1);
   }
 
   uint16_t vector = (uint16_t) memory6502_load(state->memory, vec_addr) | ((uint16_t) memory6502_load(state->memory, vec_addr + 1) << 8);
+  state->status.int_disable = 1; // ?
   state->pc = vector;
 }
 

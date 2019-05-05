@@ -28,12 +28,12 @@ void pull_accumulator(state6502 *state, asm6502 cmd) {
 }
 
 void push_cpu_status(state6502 *state, asm6502 cmd) {
-  uint8_t cpu_status = *((uint8_t*) &state->status);
+  uint8_t cpu_status = state->status.byte;
   STATE6502_STACK_PUSH(state, &cpu_status, 1);
 }
 
 void pull_cpu_status(state6502 *state, asm6502 cmd) {
   uint8_t cpu_status;
   STATE6502_STACK_PULL(state, &cpu_status, 1);
-  state->status = *((flags6502*) &cpu_status);
+  state->status.byte = cpu_status;
 }
