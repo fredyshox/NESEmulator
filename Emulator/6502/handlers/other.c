@@ -61,7 +61,7 @@ static void compare_register(state6502 *state, asm6502 cmd, uint8_t reg) {
     value = memory6502_load(state->memory, addr);
   }
 
-  int16_t result = (int16_t) reg - (int16_t) value;
+  int8_t result = (int8_t) reg - (int8_t) value;
   state->status.carry = (result >= 0);
   state->status.zero = (result == 0);
   state->status.negative = (result < 0);
@@ -70,9 +70,10 @@ static void compare_register(state6502 *state, asm6502 cmd, uint8_t reg) {
 void compare_accumulator(state6502 *state, asm6502 cmd) {
   assert(cmd.type == CMP_ASM);
   compare_register(state, cmd, state->reg_a);
-  if (state->reg_a & 0x80) {
-    state->status.negative = 1;
-  }
+  // sign of acc?
+  // if (state->reg_a & 0x80) {
+  //   state->status.negative = 1;
+  // }
 }
 
 void compare_xreg(state6502 *state, asm6502 cmd) {

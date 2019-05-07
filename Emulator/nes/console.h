@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "6502/state.h"
+#include "6502/parser.h"
 #include "ppu/ppu.h"
 #include "ppu/renderer.h"
 #include "nes/mapper.h"

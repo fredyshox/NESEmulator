@@ -118,6 +118,10 @@ void nes_step(nes_t* console) {
   for (int i = 0; i < cpu_cycles * 3; i++) {
     ppu_execute_cycle(console->ppu, console->ppu_handle);
   }
+
+  if (console->ppu->status.vblank) {
+    console->cpu->incoming_int = NMI_INT;
+  }
 }
 
 // memory handlers

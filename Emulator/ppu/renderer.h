@@ -78,14 +78,6 @@ void ppu_render_handle_free(struct ppu_render_handle* handle);
 void ntat_addr(struct ppu_state* ppu, uint8_t** nt_ptr, uint8_t** at_ptr);
 
 /**
- * Gets sprite and background pattern tables according to ppu control flag
- * @param ppu    ppu state struct
- * @param bg_pt pointer to save background pattern table addr
- * @param spr_pt pointer to save sprite pattern table addr
- */
-void pt_addr(struct ppu_state* ppu, uint8_t** bg_pt, uint8_t** spr_pt);
-
-/**
  * Fetches byte from name table - which is index of 8x8 tile in pattern table
  * @param nt_ptr - pointer to name table
  * @param h - horizontal index
