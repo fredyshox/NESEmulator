@@ -2,11 +2,11 @@
 # Copyright (c) 2019 Kacper Rączy
 
 defmodule Disassembler6502 do
-    
+
   defmodule Vertex do
 
     @enforce_keys [:instruction]
-    defstruct [:label, :instruction, :edges, length: 1, args: ""] 
+    defstruct [:label, :instruction, :edges, length: 1, args: ""]
 
     defimpl String.Chars do
       def to_string(%Vertex{instruction: asm, args: args}) do
@@ -27,7 +27,7 @@ defmodule Disassembler6502 do
         write(kv, pointer, bytearr, device)
       end)
   end
-  
+
   defp write({position, vertex}, pointer, _,  _) when pointer > position do
     IO.puts(:stderr, "Found instruction in strange position: #{position}, pointer: #{pointer}")
     {pointer}
@@ -37,7 +37,7 @@ defmodule Disassembler6502 do
       IO.puts(device, "section .data:")
       :ok = write_bytes(pointer, position, device, bytearr)
     end
-    
+
     if vertex.label != nil do
       IO.puts(device, "#{vertex.label}:")
     end
@@ -46,7 +46,7 @@ defmodule Disassembler6502 do
     {position + vertex.length}
   end
 
-  defp write_bytes(pointer, destination, device, bytearr, bcounter \\ 0) 
+  defp write_bytes(pointer, destination, device, bytearr, bcounter \\ 0)
   defp write_bytes(pointer, destination, device, _, bcounter) when pointer >= destination do
     if rem(bcounter, @bytes_per_line) != 0, do: IO.write(device, "\n")
     :ok
@@ -56,7 +56,7 @@ defmodule Disassembler6502 do
     last_idx = @bytes_per_line - 1
     byte = :array.get(pointer, bytearr)
     case bcounter do
-      0 -> 
+      0 ->
         IO.write(device, "#{@line_prefix}.db $#{to_hex(byte)}")
       ^last_idx ->
         IO.write(device, ", $#{to_hex(byte)}\n")
@@ -73,7 +73,7 @@ defmodule Disassembler6502 do
 
     {new_edges, asm_graph} =
       case status do
-        :new -> 
+        :new ->
           if label != nil do
             vertex = %{vertex | :label => label}
           end
@@ -81,17 +81,17 @@ defmodule Disassembler6502 do
         :existing ->
           {[], asm_graph}
       end
-  
+
     new_label =
       case new_label? do
-        true -> "label#{position}" 
+        true -> "label#{position}"
         false -> nil
       end
-    
+
     disassemble(arr, mem_offset, new_edges ++ rest, new_label, asm_graph)
   end
 
-  defp find_vertex(arr, position, mem_offset, asm_graph) do 
+  defp find_vertex(arr, position, mem_offset, asm_graph) do
     if asm_graph[position] != nil do
       {:existing, {asm_graph[position], false}}
     else
@@ -117,7 +117,7 @@ defmodule Disassembler6502 do
   defp disassemble_single(arr, pos, mem_offset) do
     <<opcode::size(8)>> = get_bytes(arr, pos, 1)
     pos = pos + 1
-    {instruction, args, edges, consumed} = 
+    {instruction, args, edges, consumed} =
       case opcode do
         0x00 ->
           {"BRK", "", nil, 0}
@@ -169,7 +169,7 @@ defmodule Disassembler6502 do
           {"ASL", "$#{to_hex(addr16, 4)}, X", nil, 2}
         0x20 ->
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          edges = (if (addr16 - mem_offset < 0), do: [], else: [addr16 - mem_offset]) ++ [pos + 2] 
+          edges = (if (addr16 - mem_offset < 0), do: [], else: [addr16 - mem_offset]) ++ [pos + 2]
           IO.warn("addr: #{addr16 - mem_offset}")
           {"JSR", "$#{to_hex(addr16, 4)}", edges, 2}
         0x21 ->
@@ -298,7 +298,7 @@ defmodule Disassembler6502 do
           {"ROR", "A", nil, 0}
         0x6c ->
           <<indirect_addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
-          edges = 
+          edges =
             cond do
               (indirect_addr16 - mem_offset) >= 0 ->
                 <<addr16::little-integer-size(16)>> = get_bytes(arr, indirect_addr16 - mem_offset, 2)
@@ -540,7 +540,7 @@ defmodule Disassembler6502 do
           <<addr16::little-integer-size(16)>> = get_bytes(arr, pos, 2)
           {"INC", "$#{to_hex(addr16, 4)}", nil, 2}
         0xf0 ->
-          <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)        
+          <<offset::signed-integer-size(8)>> = get_bytes(arr, pos, 1)
           <<byte::unsigned-integer-size(8)>> = <<offset>>
           {"BEQ", "$#{to_hex(byte)}", [pos + offset + 1, pos + 1], 1}
         0xf1 ->
@@ -565,10 +565,10 @@ defmodule Disassembler6502 do
           {"INC", "$#{to_hex(addr16, 4)}, X", nil, 2}
         _ ->
           # Unknown operation (could be data or illegal operation)
-          {"UNK", "", nil, 0}
+          {"UNK", "[$#{to_hex(opcode, 2)}]", nil, 0}
       end
       following = pos + consumed
-      {edges, label} =  
+      {edges, label} =
         case edges do
           nil -> {[following], false}
           []  -> {[], false}
@@ -577,8 +577,8 @@ defmodule Disassembler6502 do
         end
 
       vertex = %Vertex{instruction: instruction,
-                      args: args, 
-                      edges: edges, 
+                      args: args,
+                      edges: edges,
                       length: (1 + consumed)}
       {vertex, label}
   end
