@@ -10,7 +10,7 @@ pretty_puts =
   end
 
 if length(System.argv) < 1 do
-  IO.puts("Usage: nes-dasm <path_to_file>")
+  IO.puts("Usage: rom-info <path_to_file>")
   exit(:shutdown)
 end
 

@@ -2,7 +2,7 @@
 # PRG Rom extractor
 
 if length(System.argv) < 2 do
-  IO.puts("Usage: nes-dasm <path_to_rom> <path_to_outfile>")
+  IO.puts("Usage: extract-rom <path_to_rom> <path_to_outfile>")
   exit(:shutdown)
 end
 
