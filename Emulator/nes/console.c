@@ -13,6 +13,7 @@ int setup_mapper(nes_t* console, cartridge* cartridge) {
   }
 
   console->mapper = m;
+  console->cartridge = cartridge;
   return 0;
 }
 
@@ -32,6 +33,8 @@ int setup_cpu(nes_t* console) {
 int setup_ppu(nes_t* console) {
   ppu_state* ppu = malloc(sizeof(ppu_state));
   ppu_memory* mem = malloc(sizeof(ppu_memory));
+  ppu_render_handle* handle = ppu_render_handle_create();
+  console->ppu_handle = handle;
   ppu_memory_create(mem);
   mem->io = console;
   mem->load_handler = nes_ppu_memory_read;
@@ -109,10 +112,14 @@ int nes_load_rom(nes_t* console, struct cartridge* cartridge) {
       break;
   }
 
-  return (!m);
+  return m;
 }
 
-void nes_step(nes_t* console) {
+bool nes_is_loaded(nes_t* console) {
+  return (console->cartridge != NULL && console->mapper != NULL);
+}
+
+int nes_step(nes_t* console) {
   int cpu_cycles;
   cpu_cycles = execute_asm(console->cpu);
   for (int i = 0; i < cpu_cycles * 3; i++) {
@@ -121,6 +128,15 @@ void nes_step(nes_t* console) {
 
   if (console->ppu->status.vblank) {
     console->cpu->incoming_int = NMI_INT;
+  }
+
+  return cpu_cycles;
+}
+
+void nes_step_time(nes_t* console, double seconds) {
+  double cpu_cycles = NES_CPU_FREQ * seconds;
+  while (cpu_cycles > 0) {
+    cpu_cycles -= nes_step(console);
   }
 }
 
@@ -152,7 +168,7 @@ uint8_t nes_cpu_memory_read(struct memory6502* memory, uint16_t addr) {
     }
 
     return out;
-  } else if (addr < 0x4020 && addr < 0x6000) {
+  } else if (addr < 0x4020 || addr < 0x6000) {
     // other io
     return 0;
   } else {
@@ -195,8 +211,20 @@ void nes_cpu_memory_write(struct memory6502* memory, uint16_t addr, uint8_t byte
         fprintf(stderr, "Warning: CPU write access on %d\n", addr);
         break;
     }
-  } else if (addr < 0x4020 && addr < 0x6000) {
+  } else if (addr < 0x4020 || addr < 0x6000) {
     // io
+    uint8_t oam[0xff];
+    uint16_t base_addr = (uint16_t) byte << 8;
+    switch (addr) {
+      case OAMDMA:
+        for (uint16_t i = 0; i <= 0xff; i++) {
+          oam[i] = nes_cpu_memory_read(console->cpu->memory, base_addr + i);
+        }
+        ppu_sr_dma_write(console->ppu, oam, 0xff);
+      default:
+        fprintf(stderr, "Warning: Not implemented - write on %d\n", addr);
+        break;
+    }
   } else {
     mapper_write(console->mapper, addr, byte);
   }

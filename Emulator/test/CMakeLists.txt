@@ -9,6 +9,8 @@ macro(add_test_exec target source libs)
 
   target_include_directories("test_${target}"
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  install(TARGETS "test_${target}" DESTINATION test)
 endmacro()
 
 macro(add_unit_test target name args)
@@ -42,6 +44,10 @@ add_test_exec(ppu_sprites
   ppu/sprites.c
   ppu)
 
+add_test_exec(cartridge
+  nes/cartridge.c
+  nes)
+
 # unit tests
 
 add_unit_test(memory_op load "--load")
@@ -63,3 +69,5 @@ add_unit_test(ints interrupts "")
 
 add_unit_test(ppu_sprites eval "--eval")
 add_unit_test(ppu_sprites layout "--layout")
+
+add_unit_test(cartridge loading "")

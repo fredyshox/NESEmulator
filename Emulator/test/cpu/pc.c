@@ -99,7 +99,7 @@ void test_returns() {
   test[0x1ff] = 0xff;
   test[0x1fe] = 0x11;
   execute_asm(&cpu);
-  ASSERT_T(cpu.pc == 0x11ff + 1 && cpu.sp == 0xff, "(1) RTS (stack: 0xfe : 0x11, 0xff : 0xff)", &res);
+  ASSERT_T(cpu.pc == 0xff11 + 1 && cpu.sp == 0xff, "(1) RTS (stack: 0xfe : 0x11, 0xff : 0xff)", &res);
   // RTI test
   cpu.pc = 1;
   cpu.sp = 0xfc;

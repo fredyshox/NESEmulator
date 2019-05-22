@@ -7,7 +7,8 @@
 
 int cartridge_from_file(struct cartridge* c, char* path) {
   uint8_t header[INES_HEADER_SIZE];
-  uint8_t prg_rom_size, chr_rom_size, flags6, flags7, flags8, flags9, flags10;
+  uint8_t flags6, flags7, flags8, flags9, flags10;
+  int prg_rom_size, chr_rom_size;
   uint8_t *prg_rom = NULL, *chr_rom = NULL, *trainer = NULL;
   int err = 0;
   FILE *file = fopen(path, "rb");
@@ -26,8 +27,8 @@ int cartridge_from_file(struct cartridge* c, char* path) {
     return 2;
   }
 
-  prg_rom_size = header[4] * INES_PRG_BLOCK;
-  chr_rom_size = header[5] * INES_CHR_BLOCK;
+  prg_rom_size = (int) header[4] * INES_PRG_BLOCK;
+  chr_rom_size = (int) header[5] * INES_CHR_BLOCK;
   flags6 = header[6];
   flags7 = header[7];
   flags8 = header[8];

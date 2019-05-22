@@ -76,8 +76,32 @@ void test_load_flags() {
   // TODO
 }
 
+uint8_t store_case[] = {
+  0x00, 0x00, 0x00, 0x00,
+  // just few addressing modes
+  // .org(0x0004)
+  0x85, 0x00,  // LDA $00
+  // .org(0x0006)
+  0x8d, 0x0003 // LDA $0003
+};
+
 void test_store() {
-  // TODO
+  bool res = true;
+  // prepare case
+  state6502 cpu;
+  TEST_PREPARE(cpu, store_case);
+  // zp test
+  cpu.pc = 0x0004;
+  cpu.reg_a = 0xfe;
+  execute_asm(&cpu);
+  ASSERT_T(store_case[0x0000] == 0xfe, "STA zp", &res);
+  // abs test
+  cpu.pc = 0x0006;
+  cpu.reg_a = 0x91;
+  execute_asm(&cpu);
+  ASSERT_T(store_case[0x0003] == 0x91, "STA abs", &res);
+
+  assert(res);
 }
 
 void test_store_flags() {

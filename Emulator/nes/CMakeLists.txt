@@ -22,6 +22,6 @@ target_link_libraries(nes
   6502)
 
 install(TARGETS nes DESTINATION lib)
-INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DESTINATION include
         FILES_MATCHING PATTERN "*.h*")
