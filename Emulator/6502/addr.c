@@ -9,7 +9,7 @@ static int full_value(struct mem_addr *maddr, struct memory6502 *memory, uint16_
   // little endian
   uint8_t lsb = memory6502_load(memory, pos);
   uint8_t msb = memory6502_load(memory, pos + 1);
-  uint16_t value = lsb | (uint16_t) msb << 8;
+  uint16_t value = (uint16_t) lsb | ((uint16_t) msb << 8);
   maddr->value = value;
   return 2;
 }

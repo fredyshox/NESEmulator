@@ -60,9 +60,10 @@ void jump_subroutine(state6502* state, asm6502 cmd) {
 }
 
 void return_subroutine(state6502* state, asm6502 cmd) {
-  uint16_t addr;
-  // TODO check endianess
-  STATE6502_STACK_PULL(state, (uint8_t*) &addr, 2);
+  uint8_t lsb, msb;
+  STATE6502_STACK_PULL(state, &lsb, 1);
+  STATE6502_STACK_PULL(state, &msb, 1);
+  uint16_t addr = (uint16_t) msb << 8 | (uint16_t) lsb;
   state->pc = addr + 1;
 }
 
@@ -78,5 +79,4 @@ void return_interrupt(state6502* state, asm6502 cmd) {
 void break_interrupt(state6502 *state, asm6502 cmd) {
   state->status.brk = 1;
   state->incoming_int = BRK_INT;
-  state->pc += 1;
 }

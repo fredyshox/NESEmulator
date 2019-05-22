@@ -22,13 +22,13 @@ void set_carry(state6502 *state, asm6502 cmd) {
 
 // Affected flags: I
 void clear_interrupt(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == SEI_ASM);
+  assert(cmd.type == CLI_ASM);
   state->status.int_disable = 0;
 }
 
 // Affected flags: I
 void set_interrupt(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CLI_ASM);
+  assert(cmd.type == SEI_ASM);
   state->status.int_disable = 1;
 }
 

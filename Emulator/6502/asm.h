@@ -124,8 +124,8 @@ static inline void eval_carry_flag(state6502 *state, uint16_t value) {
 // Portable conversions
 
 static inline void uint_16_to_8(uint16_t src, uint8_t *dest) {
-  dest[0] = (uint8_t) (src >> 8) & 0xff;
-  dest[1] = (uint8_t) (src) & 0xff;
+  dest[0] = (uint8_t) ((src >> 8) & 0xff);
+  dest[1] = (uint8_t) ((src) & 0xff);
 }
 
 #endif /* asm_h */
