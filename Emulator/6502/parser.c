@@ -14,6 +14,8 @@ int execute_asm(state6502 *state) {
 
   asm6502 operation;
   int consumed = parse_asm(&operation, state->memory, state->pc);
+  debug_print_cpu(state, operation);
+  //execution
   state->pc += (uint16_t) consumed;
   asm6502_execute(operation, state);
   return operation.cycles;
@@ -781,7 +783,7 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->handler = transfer_x2sptr;
       break;
     default:
-      fprintf(stderr, "Error: unsupported opcode %x\n", opcode);
+      debug_print("ERROR: unsupported opcode %x at %x\n", opcode, pos);
       return 0;
   }
   cmd->maddr = addr;

@@ -29,3 +29,4 @@ install/
 # roms
 *.nes
 *.png
+testsuite/

@@ -14,7 +14,7 @@ void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   state->sp = 0xff;
   state->pc = 0x0000;
   state->incoming_int = NONE_INT;
-  state->status.byte = 0x30;
+  state->status.byte = 0x34;
   state->memory = memory;
 }
 
@@ -24,6 +24,8 @@ void state6502_request_interrupt(struct state6502* state, enum interrupt6502 i) 
 
 void interrupt6502_handle(struct state6502 *state) {
   enum interrupt6502 intnum = state->incoming_int;
+  debug_print("Interrupt happend %d disable %d\n", intnum, state->status.int_disable);
+
   uint16_t vec_addr;
   // vars for pc addr
   uint8_t msb, lsb;
@@ -40,7 +42,7 @@ void interrupt6502_handle(struct state6502 *state) {
       vec_addr = STATE6502_NMI_VECTOR;
 
     // TODO Use uint_16_to_8
-    msb = (state->pc >> 8); lsb = (uint8_t) (state->pc & 0xff);
+    msb = (uint8_t) (state->pc >> 8); lsb = (uint8_t) (state->pc & 0xff);
     STATE6502_STACK_PUSH(state, &msb, 1);
     STATE6502_STACK_PUSH(state, &lsb, 1);
     STATE6502_STACK_PUSH(state, &state->status.byte, 1);

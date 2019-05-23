@@ -35,7 +35,6 @@ function(export_headers TARGET HEADER_SOURCE_DIR HEADER_DEST_DIR)
 
         endif()
 
-
     endforeach(HEADER)
 
 endfunction()
@@ -46,6 +45,7 @@ add_compile_options(${CMAKE_C_FLAGS} -std=c11)
 add_compile_options(${CMAKE_C_FLAGS} -Wall)
 add_compile_options(${CMAKE_C_FLAGS} -pedantic)
 add_compile_options(${CMAKE_C_FLAGS} -Wno-gnu-binary-literal)
+add_compile_options(${CMAKE_C_FLAGS} -Wno-gnu-zero-variadic-macro-arguments)
 
 add_subdirectory(ppu)
 add_subdirectory(6502)

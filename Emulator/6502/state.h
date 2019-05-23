@@ -7,9 +7,21 @@
 #define state_h
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+
+#ifdef DEBUG
+#define DEBUG_MODE 1
+#else
+#define DEBUG_MODE 0
+#endif
+
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+#define debug_print(fmt, ...) \
+  do { if (DEBUG_MODE) fprintf(stderr, "%s:%d:%s(): " fmt, __FILENAME__, __LINE__, __func__, ##__VA_ARGS__); } while (0)
 
 struct memory6502;
 struct state6502;
@@ -59,8 +71,8 @@ typedef struct state6502 state6502;
 void state6502_create(struct state6502 *state, struct memory6502 *memory);
 void state6502_request_interrupt(struct state6502* state, enum interrupt6502 i);
 
-#define STATE6502_RESET_VECTOR (0xfffc)
 #define STATE6502_NMI_VECTOR (0xfffa)
+#define STATE6502_RESET_VECTOR (0xfffc)
 #define STATE6502_IRQ_VECTOR (0xfffe)
 
 #define STATE6502_STACK_PUSH(STATE, BYTES, LEN) \

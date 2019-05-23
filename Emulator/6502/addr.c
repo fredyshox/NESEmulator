@@ -110,3 +110,52 @@ uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr) {
 
   return value;
 }
+
+char* addr_to_string(struct mem_addr maddr, char* buf, int bufsize)  {
+  if (bufsize < 8)
+    return NULL;
+
+  switch (maddr.type) {
+    case IMM_ADDR:
+      sprintf(buf, "#%02x", maddr.lval);
+      break;
+    case ZP_ADDR:
+      sprintf(buf, "$%02x", maddr.lval);
+      break;
+    case ZPX_ADDR:
+      sprintf(buf, "$%02x,X", maddr.lval);
+      break;
+    case ZPY_ADDR:
+      sprintf(buf, "$%02x,Y", maddr.lval);
+      break;
+    case REL_ADDR:
+      sprintf(buf, "");
+      break;
+    case ABS_ADDR:
+      sprintf(buf, "$%04x", maddr.value);
+      break;
+    case ABX_ADDR:
+      sprintf(buf, "$%04x,X", maddr.value);
+      break;
+    case ABY_ADDR:
+      sprintf(buf, "$%04x,Y", maddr.value);
+      break;
+    case IND_ADDR:
+      sprintf(buf, "($%04x)", maddr.value);
+      break;
+    case IZX_ADDR:
+      sprintf(buf, "($%02x,X)", maddr.lval);
+      break;
+    case IZY_ADDR:
+      sprintf(buf, "($%02x),Y", maddr.lval);
+      break;
+    case ACC_ADDR:
+      buf[0] = 'A'; buf[1] = '\0';
+      break;
+    default:
+      buf[0] = '\0';
+      break;
+  }
+
+  return buf;
+}

@@ -21,6 +21,9 @@ target_include_directories(6502
   PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
+# TEMPORARY
+target_compile_definitions(6502 PUBLIC DEBUG=1)
+
 install(TARGETS 6502 DESTINATION lib)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DESTINATION include

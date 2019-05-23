@@ -48,6 +48,15 @@ add_test_exec(cartridge
   nes/cartridge.c
   nes)
 
+# debugger
+
+add_executable(debugger
+  nes/debug.c)
+target_compile_definitions(debugger PUBLIC DEBUG=1)
+target_link_libraries(debugger
+  nes 6502)
+install(TARGETS debugger DESTINATION test)
+
 # unit tests
 
 add_unit_test(memory_op load "--load")

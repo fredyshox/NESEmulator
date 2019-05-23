@@ -17,72 +17,80 @@
 #define ASM_STACK(CMD)      ((CMD >> 8) == 6)
 #define ASM_OTHER(CMD)      ((CMD >> 8) == 7)
 
+#define FOREACH_ASM(ASM)  \
+  /* Arithmetic */  \
+  ASM(ADC)  \
+  ASM(DEC)  \
+  ASM(DEX)  \
+  ASM(DEY)  \
+  ASM(INC)  \
+  ASM(INX)  \
+  ASM(INY)  \
+  ASM(SBC)  \
+  /* Bitwise */ \
+  ASM(AND)  \
+  ASM(ASL)  \
+  ASM(BIT)  \
+  ASM(EOR)  \
+  ASM(LSR)  \
+  ASM(ORA)  \
+  ASM(ROL)  \
+  ASM(ROR)  \
+  /* Flags */   \
+  ASM(CLC)  \
+  ASM(CLD)  \
+  ASM(CLI)  \
+  ASM(CLV)  \
+  ASM(SEC)  \
+  ASM(SED)  \
+  ASM(SEI)  \
+  /* Memory */  \
+  ASM(LDA)  \
+  ASM(LDX)  \
+  ASM(LDY)  \
+  ASM(STA)  \
+  ASM(STX)  \
+  ASM(STY)  \
+  ASM(TAX)  \
+  ASM(TAY)  \
+  ASM(TXA)  \
+  ASM(TYA)  \
+  /* Branch */  \
+  ASM(BCC)  \
+  ASM(BCS)  \
+  ASM(BEQ)  \
+  ASM(BMI)  \
+  ASM(BNE)  \
+  ASM(BPL)  \
+  ASM(BVC)  \
+  ASM(BVS)  \
+  /* Jump */    \
+  ASM(JMP)  \
+  ASM(JSR)  \
+  ASM(RTI)  \
+  ASM(RTS)  \
+  ASM(BRK)  \
+  /* Stack */   \
+  ASM(PHA)  \
+  ASM(PHP)  \
+  ASM(PLA)  \
+  ASM(PLP)  \
+  ASM(TSX)  \
+  ASM(TXS)  \
+  /* Other */   \
+  ASM(CMP)  \
+  ASM(CPX)  \
+  ASM(CPY)  \
+  ASM(NOP)  \
+
+#define GENERATE_ENUM(ENUM) ENUM ## _ASM,
+#define GENERATE_ASM_STRING(STRING) #STRING,
+
 enum {
-  // Arithmetic
-  ADC_ASM = 0x001,
-  DEC_ASM = 0x015,
-  DEX_ASM = 0x016,
-  DEY_ASM = 0x017,
-  INC_ASM = 0x019,
-  INX_ASM = 0x01a,
-  INY_ASM = 0x01b,
-  SBC_ASM = 0x02c,
-  // Bitwise
-  AND_ASM = 0x102,
-  ASL_ASM = 0x103,
-  BIT_ASM = 0x107,
-  EOR_ASM = 0x118,
-  LSR_ASM = 0x121,
-  ORA_ASM = 0x123,
-  ROL_ASM = 0x128,
-  ROR_ASM = 0x129,
-  // Flags
-  CLC_ASM = 0x20e,
-  CLD_ASM = 0x20f,
-  CLI_ASM = 0x210,
-  CLV_ASM = 0x211,
-  SEC_ASM = 0x22d,
-  SED_ASM = 0x22e,
-  SEI_ASM = 0x22f,
-  // Memory
-  LDA_ASM = 0x31e,
-  LDX_ASM = 0x31f,
-  LDY_ASM = 0x320,
-  STA_ASM = 0x330,
-  STX_ASM = 0x331,
-  STY_ASM = 0x332,
-  TAX_ASM = 0x333,
-  TAY_ASM = 0x334,
-  TXA_ASM = 0x336,
-  TYA_ASM = 0x338,
-  // Branch
-  BCC_ASM = 0x404,
-  BCS_ASM = 0x405,
-  BEQ_ASM = 0x406,
-  BMI_ASM = 0x408,
-  BNE_ASM = 0x409,
-  BPL_ASM = 0x40a,
-  BVC_ASM = 0x40c,
-  BVS_ASM = 0x40d,
-  // Jump
-  JMP_ASM = 0x51c,
-  JSR_ASM = 0x51d,
-  RTI_ASM = 0x52a,
-  RTS_ASM = 0x52b,
-  BRK_ASM = 0x50b,
-  // Stack
-  PHA_ASM = 0x624,
-  PHP_ASM = 0x625,
-  PLA_ASM = 0x626,
-  PLP_ASM = 0x627,
-  TSX_ASM = 0x635,
-  TXS_ASM = 0x637,
-  // Other
-  CMP_ASM = 0x712,
-  CPX_ASM = 0x713,
-  CPY_ASM = 0x714,
-  NOP_ASM = 0x722,
+  FOREACH_ASM(GENERATE_ENUM)
 };
+
+extern const char* ASM_STRING[];
 
 struct asm6502 {
   int type;
