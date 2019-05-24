@@ -12,6 +12,8 @@ void transfer_x2sptr(state6502 *state, asm6502 cmd) {
 
 void transfer_sptr2x(state6502 *state, asm6502 cmd) {
   state->reg_x = state->sp;
+  eval_sign_flag(state, state->reg_x);
+  eval_zero_flag(state, state->reg_x);
 }
 
 void push_accumulator(state6502 *state, asm6502 cmd) {

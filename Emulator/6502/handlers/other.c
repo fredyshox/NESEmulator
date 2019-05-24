@@ -62,7 +62,7 @@ static void compare_register(state6502 *state, asm6502 cmd, uint8_t reg) {
   }
 
   int8_t result = (int8_t) reg - (int8_t) value;
-  state->status.carry = (result >= 0);
+  state->status.carry = (reg >= value);
   state->status.zero = (result == 0);
   state->status.negative = (result < 0);
 }

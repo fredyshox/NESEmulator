@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "nes/console.h"
 #include "6502/parser.h"
 #include "6502/state.h"
@@ -43,16 +44,33 @@ void debug_execute_step(nes_t* console, int iters) {
   }
 }
 
+void print_usage() {
+  fprintf(stderr, "Usage: program [-s,r] <path_to_dot_nes_file>\n");
+}
+
 int main(int argc, char** argv) {
-  if (argc != 2) {
-    fprintf(stderr, "Usage: program <path_to_dot_nes_file>\n");
+  char *testfile;
+  int itcount = 0, opt, current_optind;
+  while ((opt = getopt(argc, argv, "s:r:")) != -1) {
+    current_optind = optind ? optind : 1;
+    switch (opt) {
+      case 's':
+        itcount = atoi(optarg);
+        itcount = itcount > 0 ? itcount : 0;
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (optind < argc) {
+    testfile = argv[optind++];
+  } else {
+    print_usage();
     return 1;
   }
 
-  char* testfile = argv[1];
-  char input[MAXSIZE], *res, *pos;
   nes_create(&console);
-
   if (cartridge_from_file(&cart, testfile) != 0 || nes_load_rom(&console, &cart) != 0) {
     fprintf(stderr, "Error: cartridge error\n");
     return 2;
@@ -63,9 +81,12 @@ int main(int argc, char** argv) {
   console.cpu->status.byte = 0x24;
   console.cpu->sp = 0xfd;
 
-  debug_execute_step(&console, 4896);
-  return 0;
+  if (itcount > 0) {
+    debug_execute_step(&console, itcount);
+    return 0;
+  }
 
+  char input[MAXSIZE], *res, *pos;
   while (1) {
       printf("debugger> ");
       res = fgets(input, MAXSIZE, stdin);

@@ -28,7 +28,7 @@ void test_compares() {
   cpu.reg_a = 0x00;
   cpu.pc = 0x0000;
   execute_asm(&cpu);
-  ASSERT_T(cpu.status.negative == 0 && cpu.status.zero == 0 && cpu.status.carry == 1, "(1) (a) CMP (reg a is greater)", &res);
+  ASSERT_T(cpu.status.negative == 0 && cpu.status.zero == 0 && cpu.status.carry == 0, "(1) (a) CMP (reg a is greater)", &res);
   PRINT_STATUS(cpu, stderr);
   // test1b cmp eq
   cpu.reg_a = 0x00;
@@ -42,7 +42,7 @@ void test_compares() {
   execute_asm(&cpu);
   ASSERT_T(cpu.status.negative == 1 && cpu.status.zero == 0 && cpu.status.carry == 0, "(1) (c) CMP (reg a is lesser)", &res);
   PRINT_STATUS(cpu, stderr);
-  
+
   assert(res);
 }
 

@@ -7,19 +7,8 @@
 #include "6502/addr.h"
 #include <stdbool.h>
 
-// Add value to accumulator with carry
-// Affected flags: Z, N, C, V
-void add_with_carry(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == ADC_ASM);
-  uint16_t value;
-  if (cmd.maddr.type == IMM_ADDR) {
-    value = cmd.maddr.value;
-  } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
-    value = memory6502_load(state->memory, addr);
-  }
-
-  uint16_t result = (uint16_t) state->reg_a + value + state->status.carry;
+void add_with_carry_handler(state6502* state, uint8_t value) {
+  uint16_t result = (uint16_t) state->reg_a + (uint16_t) value + state->status.carry;
 
   //flags
   eval_zero_flag(state, result);
@@ -38,6 +27,21 @@ void add_with_carry(state6502 *state, asm6502 cmd) {
   }
 
   state->reg_a = (uint8_t) result;
+}
+
+// Add value to accumulator with carry
+// Affected flags: Z, N, C, V
+void add_with_carry(state6502 *state, asm6502 cmd) {
+  assert(cmd.type == ADC_ASM);
+  uint8_t value;
+  if (cmd.maddr.type == IMM_ADDR) {
+    value = cmd.maddr.value;
+  } else {
+    uint16_t addr = handle_addr(state, cmd.maddr);
+    value = memory6502_load(state->memory, addr);
+  }
+
+  add_with_carry_handler(state, value);
 }
 
 void increment_memory(state6502 *state, asm6502 cmd) {
@@ -79,7 +83,7 @@ void increment_y(state6502 *state, asm6502 cmd) {
 
 void subtract_with_carry(state6502 *state, asm6502 cmd) {
   assert(cmd.type == SBC_ASM);
-  uint16_t value;
+  uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.value;
   } else {
@@ -87,25 +91,7 @@ void subtract_with_carry(state6502 *state, asm6502 cmd) {
     value = memory6502_load(state->memory, addr);
   }
 
-  uint16_t result = (uint16_t) state->reg_a - value - (!state->status.carry);
-
-  // flags
-  eval_zero_flag(state, result);
-  eval_sign_flag(state, result);
-  eval_carry_flag(state, result);
-  // evaluate overflow flag
-  // set if operand1 is negative, operand2 is positive and result positive or
-  // operand1 is positive, operand2 is negative and result is negative
-  bool neg = state->status.negative;
-  bool a_neg = (state->reg_a > 0x7f);
-  bool op_neg = (value > 0x7f);
-  if ((a_neg && !op_neg && !neg) || (!a_neg && op_neg && neg)) {
-    state->status.overflow = 1;
-  } else {
-    state->status.overflow = 0;
-  }
-
-  state->reg_a = (uint8_t) result;
+  add_with_carry_handler(state, ~value /* -value + 1 */);
 }
 
 void decrement_memory(state6502 *state, asm6502 cmd) {
@@ -256,8 +242,7 @@ void bitwise_rotate_l(state6502 *state, asm6502 cmd) {
 }
 
 void bitwise_rotate_r(state6502 *state, asm6502 cmd) {
-  uint16_t value;
-  uint16_t addr;
+  uint16_t value, addr, result;
   if (cmd.maddr.type == ACC_ADDR) {
     value = state->reg_a;
   } else {
@@ -265,16 +250,15 @@ void bitwise_rotate_r(state6502 *state, asm6502 cmd) {
     value = memory6502_load(state->memory, addr);
   }
 
-  value = value + (state->status.carry) ? 0x0100 : 0;
+  result = (value + ((state->status.carry) ? 0x0100 : 0)) >> 1;
   state->status.carry = value & 0x0001;
-  value = value >> 1;
-  eval_zero_flag(state, value);
-  eval_sign_flag(state, value);
+  eval_zero_flag(state, result);
+  eval_sign_flag(state, result);
 
   if (cmd.maddr.type == ACC_ADDR) {
-    state->reg_a = (uint8_t) value;
+    state->reg_a = (uint8_t) result;
   } else {
-    memory6502_store(state->memory, addr, (uint8_t) value);
+    memory6502_store(state->memory, addr, (uint8_t) result);
   }
 }
 
