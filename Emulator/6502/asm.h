@@ -8,14 +8,14 @@
 
 #include "6502/addr.h"
 
-#define ASM_ARITHMETIC(CMD) ((CMD >> 8) == 0)
-#define ASM_BITWISE(CMD)    ((CMD >> 8) == 1)
-#define ASM_FLAGS(CMD)      ((CMD >> 8) == 2)
-#define ASM_MEMORY(CMD)     ((CMD >> 8) == 3)
-#define ASM_BRANCH(CMD)     ((CMD >> 8) == 4)
-#define ASM_JUMP(CMD)       ((CMD >> 8) == 5)
-#define ASM_STACK(CMD)      ((CMD >> 8) == 6)
-#define ASM_OTHER(CMD)      ((CMD >> 8) == 7)
+// #define ASM_ARITHMETIC(CMD) ((CMD >> 8) == 0)
+// #define ASM_BITWISE(CMD)    ((CMD >> 8) == 1)
+// #define ASM_FLAGS(CMD)      ((CMD >> 8) == 2)
+// #define ASM_MEMORY(CMD)     ((CMD >> 8) == 3)
+// #define ASM_BRANCH(CMD)     ((CMD >> 8) == 4)
+// #define ASM_JUMP(CMD)       ((CMD >> 8) == 5)
+// #define ASM_STACK(CMD)      ((CMD >> 8) == 6)
+// #define ASM_OTHER(CMD)      ((CMD >> 8) == 7)
 
 #define FOREACH_ASM(ASM)  \
   /* Arithmetic */  \

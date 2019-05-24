@@ -74,9 +74,10 @@ void return_interrupt(state6502* state, asm6502 cmd) {
   // ^pulls in reverse order
   state->pc = (uint16_t) data[0] << 8 | (uint16_t) data[1];
   state->status.byte = *(data + 2);
+  state->status.bflag4 = 0;
+  state->status.bflag5 = 1;
 }
 
 void break_interrupt(state6502 *state, asm6502 cmd) {
-  state->status.brk = 1;
   state->incoming_int = BRK_INT;
 }

@@ -28,14 +28,14 @@ struct state6502;
 
 union flags6502 {
   struct {
-    uint8_t negative : 1;
-    uint8_t overflow : 1;
-    uint8_t unused : 1;
-    uint8_t brk : 1;
-    uint8_t decimal : 1;
-    uint8_t int_disable : 1;
-    uint8_t zero : 1;
     uint8_t carry : 1;
+    uint8_t zero : 1;
+    uint8_t int_disable : 1;
+    uint8_t decimal : 1;
+    uint8_t bflag4 : 1;
+    uint8_t bflag5 : 1;
+    uint8_t overflow : 1;
+    uint8_t negative : 1;
   };
   uint8_t byte;
 };

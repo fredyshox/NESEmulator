@@ -4,6 +4,8 @@
 
 #define DEBUG 1
 #define CYCLES 0
+#define STATUS 0
+#define MEMORY 0
 
 #include <stdio.h>
 #include <string.h>
@@ -18,14 +20,27 @@ cartridge cart;
 nes_t console;
 
 void debug_execute_step(nes_t* console, int iters) {
-  uint8_t err1, err2;
-  cycles_total += execute_asm(console->cpu);
-  if (CYCLES)
-    debug_print("Cycles: %d\n", cycles_total);
-  // for nestest
-  err1 = memory6502_load(console->cpu->memory, 0x0002);
-  err2 = memory6502_load(console->cpu->memory, 0x0003);
-  debug_print("Memory: $0002 : %02x, $0003 : %02x\n", err1, err2);
+  for (int i = 0; i < iters; i++) {
+    if (CYCLES) {
+      debug_print("Cycles - %d\n", cycles_total);
+    }
+    if (STATUS) {
+      flags6502 status = console->cpu->status;
+      debug_print("Status - N: %d, V: %d, B5: %d, B4: %d, D: %d, I: %d, Z: %d, C: %d\n",
+                  status.negative, status.overflow, status.bflag5, status.bflag4,
+                  status.decimal, status.int_disable, status.zero, status.carry);
+    }
+
+    cycles_total += execute_asm(console->cpu);
+
+    if (MEMORY) {
+      // for nestest
+      uint8_t err1, err2;
+      err1 = memory6502_load(console->cpu->memory, 0x0002);
+      err2 = memory6502_load(console->cpu->memory, 0x0003);
+      debug_print("Memory - $0002 : %02x, $0003 : %02x\n", err1, err2);
+    }
+  }
 }
 
 int main(int argc, char** argv) {
@@ -45,6 +60,11 @@ int main(int argc, char** argv) {
 
   // for nestest
   console.cpu->pc = 0xc000;
+  console.cpu->status.byte = 0x24;
+  console.cpu->sp = 0xfd;
+
+  debug_execute_step(&console, 4896);
+  return 0;
 
   while (1) {
       printf("debugger> ");

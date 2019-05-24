@@ -79,4 +79,4 @@ add_unit_test(ints interrupts "")
 add_unit_test(ppu_sprites eval "--eval")
 add_unit_test(ppu_sprites layout "--layout")
 
-add_unit_test(cartridge loading "")
+add_unit_test(cartridge loading "${CMAKE_CURRENT_SOURCE_DIR}/../../testsuite/Donkey\ Kong\ Classics\ \(U\).nes")

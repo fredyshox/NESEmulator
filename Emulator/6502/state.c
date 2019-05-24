@@ -24,6 +24,7 @@ void state6502_request_interrupt(struct state6502* state, enum interrupt6502 i) 
 
 void interrupt6502_handle(struct state6502 *state) {
   enum interrupt6502 intnum = state->incoming_int;
+  union flags6502 status = state->status;
   debug_print("Interrupt happend %d disable %d\n", intnum, state->status.int_disable);
 
   uint16_t vec_addr;
@@ -36,20 +37,27 @@ void interrupt6502_handle(struct state6502 *state) {
   if (intnum == RST_INT) {
     vec_addr = STATE6502_RESET_VECTOR;
   } else {
-    if (intnum == IRQ_INT || intnum == BRK_INT)
+    status.bflag5 = 1;
+    if (intnum == IRQ_INT) {
+      status.bflag4 = 0;
       vec_addr = STATE6502_IRQ_VECTOR;
-    else if (intnum == NMI_INT)
+    } else if (intnum == BRK_INT) {
+      status.bflag4 = 1;
+      vec_addr = STATE6502_IRQ_VECTOR;
+    } else if (intnum == NMI_INT) {
+      status.bflag4 = 0;
       vec_addr = STATE6502_NMI_VECTOR;
+    }
 
     // TODO Use uint_16_to_8
     msb = (uint8_t) (state->pc >> 8); lsb = (uint8_t) (state->pc & 0xff);
     STATE6502_STACK_PUSH(state, &msb, 1);
     STATE6502_STACK_PUSH(state, &lsb, 1);
-    STATE6502_STACK_PUSH(state, &state->status.byte, 1);
+    STATE6502_STACK_PUSH(state, &status.byte, 1);
+    state->status.int_disable = 1;
   }
 
   uint16_t vector = (uint16_t) memory6502_load(state->memory, vec_addr) | ((uint16_t) memory6502_load(state->memory, vec_addr + 1) << 8);
-  state->status.int_disable = 1; // ?
   state->pc = vector;
 }
 

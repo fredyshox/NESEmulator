@@ -107,7 +107,8 @@ void test_returns() {
   test[0x1fd] = 0x01;
   execute_asm(&cpu);
   ASSERT_T(cpu.pc == 0xff11 && cpu.sp == 0xff, "(2) RTI (program counter)", &res);
-  ASSERT_T((*(uint8_t*) &cpu.status) == 0x01, "(2) RTI (cpu status)", &res);
+  // bflag5 always 1 (not used)
+  ASSERT_T(cpu.status.byte == 0x21, "(2) RTI (cpu status)", &res);
 
   assert(res);
 }

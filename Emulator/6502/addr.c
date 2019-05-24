@@ -129,7 +129,7 @@ char* addr_to_string(struct mem_addr maddr, char* buf, int bufsize)  {
       sprintf(buf, "$%02x,Y", maddr.lval);
       break;
     case REL_ADDR:
-      sprintf(buf, "");
+      sprintf(buf, "*%+d", (int8_t) maddr.lval);
       break;
     case ABS_ADDR:
       sprintf(buf, "$%04x", maddr.value);

@@ -17,7 +17,8 @@
 
 #define PRINT_STATUS(CPU, DEVICE) fprintf(DEVICE, "CPU N: %d, ", CPU.status.negative); \
                                   fprintf(DEVICE, "V: %d, ", CPU.status.overflow); \
-                                  fprintf(DEVICE, "B: %d, ", CPU.status.brk); \
+                                  fprintf(DEVICE, "B5: %d, ", CPU.status.bflag5); \
+                                  fprintf(DEVICE, "B4: %d, ", CPU.status.bflag4); \
                                   fprintf(DEVICE, "D: %d, ", CPU.status.decimal); \
                                   fprintf(DEVICE, "I: %d, ", CPU.status.int_disable); \
                                   fprintf(DEVICE, "Z: %d, ", CPU.status.zero); \
