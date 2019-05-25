@@ -80,10 +80,10 @@ uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr) {
   uint16_t value;
   switch (maddr.type) {
     case ZPX_ADDR:
-      value = maddr.lval + state->reg_x;
+      value = (maddr.lval + state->reg_x) & 0xff;
       break;
     case ZPY_ADDR:
-      value = maddr.lval + state->reg_y;
+      value = (maddr.lval + state->reg_y) & 0xff;
       break;
     case REL_ADDR:
       value = state->pc + (int8_t) maddr.lval;

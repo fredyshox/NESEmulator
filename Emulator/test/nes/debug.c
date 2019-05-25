@@ -45,18 +45,24 @@ void debug_execute_step(nes_t* console, int iters) {
 }
 
 void print_usage() {
-  fprintf(stderr, "Usage: program [-s,r] <path_to_dot_nes_file>\n");
+  fprintf(stderr, "Usage: program [-s,c] <path_to_dot_nes_file>\n");
 }
 
 int main(int argc, char** argv) {
   char *testfile;
-  int itcount = 0, opt, current_optind;
-  while ((opt = getopt(argc, argv, "s:r:")) != -1) {
-    current_optind = optind ? optind : 1;
+  int itcount = 0, opt;
+  uint32_t config, dconfig = 1;
+  while ((opt = getopt(argc, argv, "s:c:")) != -1) {
     switch (opt) {
       case 's':
         itcount = atoi(optarg);
         itcount = itcount > 0 ? itcount : 0;
+        break;
+      case 'c':
+        // config = 0xppppffss
+        // p - pc, f - status, s - sp
+        config = strtol(optarg, NULL, 16);
+        dconfig = 0;
         break;
       default:
         break;
@@ -77,9 +83,11 @@ int main(int argc, char** argv) {
   }
 
   // for nestest
-  console.cpu->pc = 0xc000;
-  console.cpu->status.byte = 0x24;
-  console.cpu->sp = 0xfd;
+  if (dconfig == 0) {
+    console.cpu->pc = (uint16_t) (config >> 16) & 0xffff;
+    console.cpu->status.byte = (uint8_t) (config >> 8) & 0xff;
+    console.cpu->sp = (uint8_t) (config & 0xff);
+  }
 
   if (itcount > 0) {
     debug_execute_step(&console, itcount);
