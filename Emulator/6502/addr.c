@@ -95,13 +95,14 @@ uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr) {
       value = maddr.value + state->reg_y;
       break;
     case IND_ADDR:
-      value = memory6502_load(state->memory, maddr.value) | memory6502_load(state->memory, maddr.value + 1) << 8;
+      value = (uint16_t) memory6502_load(state->memory, maddr.value) | ((uint16_t) memory6502_load(state->memory, maddr.value + 1) << 8);
       break;
+    // zero page wrapping below
     case IZX_ADDR:
-      value = memory6502_load(state->memory, maddr.value + state->reg_x) | memory6502_load(state->memory, maddr.value + state->reg_x + 1) << 8;
+      value = (uint16_t) memory6502_load(state->memory, (maddr.lval + state->reg_x) & 0xff) | ((uint16_t) memory6502_load(state->memory, (maddr.lval + state->reg_x + 1) & 0xff) << 8);
       break;
     case IZY_ADDR:
-      value = memory6502_load(state->memory, maddr.value) | memory6502_load(state->memory, maddr.value + 1) << 8;
+      value = (uint16_t) memory6502_load(state->memory, maddr.value) | ((uint16_t) memory6502_load(state->memory, (maddr.value + 1) & 0xff) << 8);
       value += state->reg_y;
       break;
     default:

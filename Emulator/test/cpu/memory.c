@@ -72,6 +72,38 @@ void test_load() {
   assert(res);
 }
 
+void test_load_edge_cases() {
+  bool res = true;
+  // prepare case
+  state6502 cpu;
+  memory6502 mem = {0, 0, NULL, NULL, NULL};
+  mem.size = 0x200;
+  cpu.memory = &mem;
+  // indexed indirect zero page wrap
+  uint8_t* mptr = malloc(sizeof(uint8_t) * 0x200);
+  mem.mptr = mptr;
+  mptr[0xff] = 0x10;
+  mptr[0x00] = 0x01;
+  mptr[0x100] = 0xa1; // LDA ($ff, X)
+  mptr[0x101] = 0xff; // ^
+  mptr[0x110] = 0xde;
+  cpu.pc = 0x0100;
+  cpu.reg_x = 0;
+  execute_asm(&cpu);
+  ASSERT_EQ(0xde, cpu.reg_a, "LDA ($ff,X) - zero page wrap", &res);
+
+  // indirect indexed zero page wrap
+  mptr[0x102] = 0xb1; // LDA ($ff), Y
+  mptr[0x103] = 0xff; // ^
+  mptr[0x112] = 0xab;
+  cpu.pc = 0x0102;
+  cpu.reg_y = 0x02;
+  execute_asm(&cpu);
+  ASSERT_EQ(0xab, cpu.reg_a, "LDA ($ff),Y - zero page wrap", &res);
+
+  assert(res);
+}
+
 void test_load_flags() {
   // TODO
 }
@@ -119,6 +151,7 @@ int main(int argc, char** argv) {
   if (strcmp(argv[1], "--load") == 0) {
     test_load();
     test_load_flags();
+    test_load_edge_cases();
   } else if (strcmp(argv[1], "--store") == 0) {
     test_store();
     test_store_flags();

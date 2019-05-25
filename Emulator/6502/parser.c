@@ -596,11 +596,11 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
     case 0x6a:
       addr.type = ACC_ADDR;
       goto ror;
-    case 0x7e:
+    case 0x6e:
       consumed += absolute_addr(&addr, memory, mpos);
       cycles = 6;
       goto ror;
-    case 0x6e:
+    case 0x7e:
       consumed += absolute_x_addr(&addr, memory, mpos);
       cycles = 7;
       goto ror;
