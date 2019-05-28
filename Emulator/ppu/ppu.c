@@ -49,22 +49,34 @@ void ppu_state_create(struct ppu_state* ppu, struct ppu_memory* mem) {
 // PPU registers
 
 void ppu_ctrl_write(struct ppu_state* state, uint8_t byte) {
+  debug_print("PPUCTRL W: ");
+  debug_print_ppu(state);
   state->control.byte = byte;
 }
 
 void ppu_mask_write(struct ppu_state* state, uint8_t byte) {
+  debug_print("PPUMASK W: ");
+  debug_print_ppu(state);
   state->mask.byte = byte;
 }
 
 void ppu_status_read(struct ppu_state* state, uint8_t* ptr) {
+  debug_print("PPUSTATUS R: ");
+  debug_print_ppu(state);
   *ptr = state->status.byte;
+  if (state->status.vblank)
+    state->status.vblank = 0;
 }
 
 void ppu_sr_addr_write(struct ppu_state* state, uint8_t addr) {
+  debug_print("OAMADDR W: ");
+  debug_print_ppu(state);
   state->reg_sr_addr = addr;
 }
 
 void ppu_sr_data_write(struct ppu_state* state, uint8_t byte) {
+  debug_print("OAMDATA W: ");
+  debug_print_ppu(state);
   uint8_t si = state->reg_sr_addr >> 4; // fast div
   uint8_t bi = state->reg_sr_addr & 0b11; // fast mod
   struct ppu_sprite* spr = &state->memory->sprite_ram[si];
@@ -87,6 +99,8 @@ void ppu_sr_data_write(struct ppu_state* state, uint8_t byte) {
 }
 
 void ppu_sr_data_read(struct ppu_state* state, uint8_t* ptr) {
+  debug_print("OAMDATA R: ");
+  debug_print_ppu(state);
   uint8_t si = state->reg_sr_addr >> 2; // fast div
   uint8_t bi = state->reg_sr_addr & 0b11; // fast mod
   struct ppu_sprite* spr = &state->memory->sprite_ram[si];
@@ -108,6 +122,8 @@ void ppu_sr_data_read(struct ppu_state* state, uint8_t* ptr) {
 }
 
 void ppu_scroll_write(struct ppu_state* state, uint8_t coord) {
+  debug_print("PPUSCROLL W: ");
+  debug_print_ppu(state);
   static bool y_mode = false;
   if (y_mode)
     state->scroll_y = coord;
@@ -118,6 +134,8 @@ void ppu_scroll_write(struct ppu_state* state, uint8_t coord) {
 }
 
 void ppu_addr_write(struct ppu_state* state, uint8_t byte) {
+  debug_print("PPUADDR W: ");
+  debug_print_ppu(state);
   // flag which determine wether msb or lsb
   // of ppuaddr will be written
   static bool lsb_mode = false;
@@ -135,7 +153,9 @@ void ppu_addr_write(struct ppu_state* state, uint8_t byte) {
 }
 
 void ppu_data_write(struct ppu_state* state, uint8_t byte) {
-  // evaluate state->addr
+  debug_print("PPUDATA W: ");
+  debug_print_ppu(state);
+
   struct ppu_memory* mem = state->memory;
   mem->store_handler(mem, state->reg_addr, byte);
 
@@ -147,7 +167,9 @@ void ppu_data_write(struct ppu_state* state, uint8_t byte) {
 }
 
 void ppu_data_read(struct ppu_state* state, uint8_t* ptr) {
-  // evaluate state->addr
+  debug_print("PPUDATA R: ");
+  debug_print_ppu(state);
+
   struct ppu_memory* mem = state->memory;
   *ptr = mem->load_handler(mem, state->reg_addr);
 
@@ -159,6 +181,8 @@ void ppu_data_read(struct ppu_state* state, uint8_t* ptr) {
 }
 
 void ppu_sr_dma_write(struct ppu_state* state, uint8_t* data, int count) {
+  debug_print("OAMDMA W: ");
+  debug_print_ppu(state);
   assert(count > 0 && count <= PPU_SPRRAM_BYTE_SIZE);
   uint8_t rem;
   struct ppu_sprite* sprite;

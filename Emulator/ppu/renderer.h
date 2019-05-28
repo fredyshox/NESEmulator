@@ -55,6 +55,11 @@ typedef struct ppu_render_handle ppu_render_handle;
  */
 struct ppu_render_handle* ppu_render_handle_create();
 
+#define debug_print_handle(handle) \
+  debug_print("V:%02d pV:%d H:%02d pH:%d FPOS:%04x SBUF:%d SPT:%d BPT:%d\n", \
+              handle->v, handle->pV, handle->h, handle->pH, handle->frame_buf_pos, \
+              handle->sprbuf_size, handle->spr_ptable, handle->bg_ptable);
+
 /**
  * Frees handle
  */
@@ -132,13 +137,6 @@ int ppu_update_frame(uint8_t* frame, struct ppu_color color, int pos);
  * @return             index in palette
  */
 uint8_t ppu_color_idx(uint8_t tile_lower0, uint8_t tile_lower1, uint8_t tile_upper, int pV, int pH);
-
-/**
- * Renders single frame based on ppu state
- * @param ppu   ppu state
- * @param handle reusable memory for rendering work
- */
-void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle);
 
 /**
  * Executes signle ppu cycle (currently renders single pixel)

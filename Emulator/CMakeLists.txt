@@ -45,6 +45,8 @@ add_compile_options(${CMAKE_C_FLAGS} -std=c11)
 add_compile_options(${CMAKE_C_FLAGS} -Wall)
 add_compile_options(${CMAKE_C_FLAGS} -pedantic)
 add_compile_options(${CMAKE_C_FLAGS} -Wno-gnu-binary-literal)
+add_compile_options(${CMAKE_C_FLAGS} -Wno-gnu-anonymous-struct)
+add_compile_options(${CMAKE_C_FLAGS} -Wno-nested-anon-types)
 add_compile_options(${CMAKE_C_FLAGS} -Wno-gnu-zero-variadic-macro-arguments)
 
 add_subdirectory(ppu)

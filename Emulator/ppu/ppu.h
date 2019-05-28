@@ -9,7 +9,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdio.h>
 #include <assert.h>
+
+#ifdef DEBUG
+#define DEBUG_MODE 1
+#else
+#define DEBUG_MODE 0
+#endif
+
+// Move this to some common place
+
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+#define debug_print(fmt, ...) \
+  do { if (DEBUG_MODE) fprintf(stderr, "%s:%d:%s(): " fmt, __FILENAME__, __LINE__, __func__, ##__VA_ARGS__); } while (0)
+
+#define debug_print_ppu(ppu) \
+  debug_print("PPUCTRL:%02x PPUSTATUS:%02x PPUMASK:%02x PPUSCROLL:(%02x,%02x) PPUADDR:%04x OAMADDR:%02x\n", \
+              ppu->control.byte, ppu->status.byte, ppu->mask.byte, \
+              ppu->scroll_x, ppu->scroll_y, ppu->reg_addr, ppu->reg_sr_addr);
 
 struct ppu_sprite {
   uint8_t y_coord;

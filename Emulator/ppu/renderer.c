@@ -138,9 +138,9 @@ int ppu_update_frame(uint8_t* frame, struct ppu_color color, int pos) {
 }
 
 uint8_t ppu_color_idx(uint8_t tile_lower0, uint8_t tile_lower1, uint8_t tile_upper, int pV, int pH) {
-  uint8_t index = (tile_upper << 2);
-  index &= ((tile_lower1 >> (TILE_SIZE - pH - 1)) << 1);
-  index &= 0x0e & ((tile_lower0 >> (TILE_SIZE - pH - 1)));
+  uint8_t index = (tile_upper << 2) & 0x0c;
+  index |= (((tile_lower1 >> (TILE_SIZE - pH - 1)) << 1) & 0x02);
+  index |= ((tile_lower0 >> (TILE_SIZE - pH - 1)) & 0x01);
 
   return index;
 }
@@ -154,6 +154,10 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
   uint8_t spx;
   struct ppu_color color, spr_color;
   struct ppu_sprite spr;
+
+  // debugging
+  // debug_print_ppu(ppu);
+  debug_print_handle(handle);
 
   if (NEW_FRAME(handle)) {
     handle->spr_ptable = ppu->control.spr_pttrntable;
@@ -182,7 +186,6 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
     handle->bg_tile_lower0 = FETCH_PT_BYTE(ppu, handle->bg_ptable, (bg_pt_index * 16) + pV);
     handle->bg_tile_lower1 = FETCH_PT_BYTE(ppu, handle->bg_ptable, (bg_pt_index * 16) + pV + TILE_SIZE);
   }
-
   // background color
   bg_color_idx = ppu_color_idx(handle->bg_tile_lower0, handle->bg_tile_lower1, handle->bg_tile_upper, pV, pH);
   color = NES_COLOR(ppu->memory->image_palette[bg_color_idx]);
@@ -200,7 +203,6 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
         if (!NES_COLOR_TRANSPARENT(spr_color)) break;
       }
     }
-
     // bg non trans and spr back -> bg color
     // bg trans and spr back -> spr
     // bg non trans and spr front -> spr
@@ -230,70 +232,4 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
       }
     }
   }
-}
-
-void ppu_render(struct ppu_state* ppu, struct ppu_render_handle* handle) {
-  // declarations
-  uint8_t *nametable, *attrtable;
-  int spr_ptable = ppu->control.spr_pttrntable, bg_ptable = ppu->control.bg_pttrntable;
-  uint8_t bg_color_idx, spr_color_idx;
-  struct ppu_color color, spr_color;
-  int sprbuf_size, frame_buf_pos = 0;
-  struct ppu_sprite spr;
-  struct ppu_sprite* spr_buffer = handle->spr_buffer;
-  uint8_t* spr_pixel_buf = handle->spr_pixel_buf;
-  uint8_t* frame = handle->frame;
-  // get tables for current ppu state
-  ntat_addr(ppu, &nametable, &attrtable);
-
-  for (int v = 0; v < TILE_VMAX; v++) {
-    for (int pV = 0; pV < TILE_SIZE; pV++) {
-      // evaluate which sprites are visible on this line
-      sprbuf_size = ppu_evaluate_sprites(ppu, spr_buffer, MAX_SPRITES_PER_LINE, v * TILE_SIZE + pV);
-      ppu_sprite_pixel_layout(spr_buffer, sprbuf_size, spr_pixel_buf, HORIZONTAL_RES);
-      for (int h = 0; h < TILE_HMAX; h++) {
-        // background
-        // index in pattern table for bg tile
-        uint8_t bg_pt_index = fetch_nt_byte(nametable, h, v);
-        // tile upper bits from attr table
-        uint8_t bg_tile_upper = fetch_at_byte(attrtable, h, v);
-        // lower bits for each pixel in tile
-        uint8_t bg_tile_lower0 = FETCH_PT_BYTE(ppu, bg_ptable, (bg_pt_index * 16) + pV);
-        uint8_t bg_tile_lower1 = FETCH_PT_BYTE(ppu, bg_ptable, (bg_pt_index * 16) + pV + TILE_SIZE);
-        for (int pH = 0; pH < TILE_SIZE; pH++) {
-          // background color
-          bg_color_idx = ppu_color_idx(bg_tile_lower0, bg_tile_lower1, bg_tile_upper, pV, pH);
-          color = NES_COLOR(ppu->memory->image_palette[bg_color_idx]);
-          // sprites
-          uint8_t spx = spr_pixel_buf[h * TILE_SIZE + pH];
-          if (spx != 0) {
-            // check sprite pixel color
-            for (int s = 0; s < sprbuf_size; s++) {
-              if ((spx & (0x80 >> s)) != 0) {
-                spr = spr_buffer[s];
-                uint8_t sp_tile_lower0 = FETCH_PT_BYTE(ppu, spr_ptable, (spr.index * 16) + pV);
-                uint8_t sp_tile_lower1 = FETCH_PT_BYTE(ppu, spr_ptable, (spr.index * 16) + pV + TILE_SIZE);
-                spr_color_idx = ppu_color_idx(sp_tile_lower0, sp_tile_lower1, spr.palette_msb, pV, pH);
-                spr_color = NES_COLOR(ppu->memory->sprite_palette[spr_color_idx]);
-                if (!NES_COLOR_TRANSPARENT(spr_color)) break;
-              }
-            }
-
-            // bg non trans and spr back -> bg color
-            // bg trans and spr back -> spr
-            // bg non trans and spr front -> spr
-            // bg trans and spr front -> spr
-            if (spr.priority == 0 && !NES_COLOR_TRANSPARENT(spr_color)) {
-              color = spr_color;
-            } else if (spr.priority != 0 && NES_COLOR_TRANSPARENT(color)) {
-              color = spr_color;
-            }
-          }
-
-          frame_buf_pos += ppu_update_frame(frame, color, frame_buf_pos);
-        }
-      }
-    }
-  }
-  ppu->status.vblank = 1;
 }
