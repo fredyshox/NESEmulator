@@ -164,6 +164,8 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
     handle->bg_ptable = ppu->control.bg_pttrntable;
     handle->frame_buf_pos = 0;
     ppu->status.vblank = 0;
+    ppu->status.sprite_ovf = 0;
+    ppu->status.sprite_zhit = 0;
     ntat_addr(ppu, &handle->nametable, &handle->attrtable);
   }
 
