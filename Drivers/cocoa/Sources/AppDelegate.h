@@ -7,8 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <ppu/renderer.h>
+#import "GameViewController.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
+
+@property (strong) GameViewController* gameViewController;
 
 
 @end

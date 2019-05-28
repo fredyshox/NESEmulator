@@ -7,10 +7,25 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <stdint.h>
+#import <ppu/renderer.h>
+#import <nes/console.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NESView : NSView
+@interface NESView : NSView {
+    // private fields
+    NSTimer *frameTimer;
+    CGContextRef bitmapContext;
+    uint8_t *bitmapBuffer;
+}
+
+@property unsigned int fps;
+@property (nullable) ppu_render_handle* renderingHandle;
+
+- (instancetype)initWithPPUHandle:(nullable ppu_render_handle*) handle;
+-(void)renderFrame:(id) sender;
+-(void)start;
 
 @end
 

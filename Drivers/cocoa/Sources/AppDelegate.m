@@ -15,14 +15,18 @@
 
 @implementation AppDelegate
 
+- (void)awakeFromNib {
+    if (_window != nil) {
+        [_window setAspectRatio: NSMakeSize(HORIZONTAL_RES, VERTICAL_RES)];
+    }
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    // Insert code here to initialize your application
+    _gameViewController = [[GameViewController alloc] init];
+    [_gameViewController.view setFrame: _window.frame];
+    NSLog(@"Window frame %f %f", _window.frame.size.width, _window.frame.size.height);
+    [_window setContentViewController: _gameViewController];
+    [_window makeKeyWindow];
 }
-
-
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
-}
-
 
 @end

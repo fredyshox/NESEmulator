@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E21985F6227FA0100024EB70 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E21985F5227FA0100024EB70 /* GameViewController.m */; };
+		E220B7B4227F7AAC00590FCE /* libppu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E220B7B1227F7AAC00590FCE /* libppu.a */; };
+		E220B7B5227F7AAC00590FCE /* lib6502.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E220B7B2227F7AAC00590FCE /* lib6502.a */; };
+		E220B7B6227F7AAC00590FCE /* libnes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E220B7B3227F7AAC00590FCE /* libnes.a */; };
 		E279193722616B6D00EB941D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E279193622616B6D00EB941D /* AppDelegate.m */; };
 		E279193922616B6D00EB941D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E279193822616B6D00EB941D /* Assets.xcassets */; };
 		E279193C22616B6D00EB941D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E279193A22616B6D00EB941D /* MainMenu.xib */; };
@@ -15,6 +19,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E21985F4227FA0100024EB70 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
+		E21985F5227FA0100024EB70 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
+		E220B7B1227F7AAC00590FCE /* libppu.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libppu.a; path = ../../Emulator/install/lib/libppu.a; sourceTree = "<group>"; };
+		E220B7B2227F7AAC00590FCE /* lib6502.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = lib6502.a; path = ../../Emulator/install/lib/lib6502.a; sourceTree = "<group>"; };
+		E220B7B3227F7AAC00590FCE /* libnes.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnes.a; path = ../../Emulator/install/lib/libnes.a; sourceTree = "<group>"; };
 		E279193222616B6D00EB941D /* nescocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nescocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E279193522616B6D00EB941D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E279193622616B6D00EB941D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -32,17 +41,31 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E220B7B4227F7AAC00590FCE /* libppu.a in Frameworks */,
+				E220B7B5227F7AAC00590FCE /* lib6502.a in Frameworks */,
+				E220B7B6227F7AAC00590FCE /* libnes.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E220B7B0227F7AAC00590FCE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E220B7B2227F7AAC00590FCE /* lib6502.a */,
+				E220B7B3227F7AAC00590FCE /* libnes.a */,
+				E220B7B1227F7AAC00590FCE /* libppu.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E279192922616B6D00EB941D = {
 			isa = PBXGroup;
 			children = (
 				E279193422616B6D00EB941D /* Sources */,
 				E279193322616B6D00EB941D /* Products */,
+				E220B7B0227F7AAC00590FCE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -59,6 +82,8 @@
 			children = (
 				E279194622616CAF00EB941D /* NESView.h */,
 				E279194722616CAF00EB941D /* NESView.m */,
+				E21985F4227FA0100024EB70 /* GameViewController.h */,
+				E21985F5227FA0100024EB70 /* GameViewController.m */,
 				E279193522616B6D00EB941D /* AppDelegate.h */,
 				E279193622616B6D00EB941D /* AppDelegate.m */,
 				E279193822616B6D00EB941D /* Assets.xcassets */,
@@ -139,6 +164,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E21985F6227FA0100024EB70 /* GameViewController.m in Sources */,
 				E279193F22616B6D00EB941D /* main.m in Sources */,
 				E279193722616B6D00EB941D /* AppDelegate.m in Sources */,
 				E279194822616CAF00EB941D /* NESView.m in Sources */,
@@ -278,11 +304,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = JE2494MFB5;
+				HEADER_SEARCH_PATHS = ../../Emulator/install/include;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = ../../Emulator/install/lib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.raczy.nescocoa;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -296,11 +324,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = JE2494MFB5;
+				HEADER_SEARCH_PATHS = ../../Emulator/install/include;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = ../../Emulator/install/lib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.raczy.nescocoa;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
