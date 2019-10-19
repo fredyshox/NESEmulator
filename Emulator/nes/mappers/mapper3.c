@@ -22,7 +22,7 @@ void mapper3_write(struct mapper* m, uint16_t address, uint8_t byte) {
     int* bank_ptr = (int*) m->data;
     *bank_ptr = (int) (byte & 0x03);
   } else {
-    fprintf(stderr, "Warning: Mapper3 write at %d!\n", address);
+    debug_print("Warning: Mapper3 write at %d!\n", address);
   }
 }
 
@@ -34,7 +34,7 @@ void mapper3_read(struct mapper* m, uint16_t address, uint8_t* dest) {
     if (chr_addr < m->cartridge->chr_rom_size) {
       *dest = m->cartridge->chr_rom[chr_addr];
     } else {
-      fprintf(stderr, "Error: Mapper3 CHR rom address out of bounds: %x\n", chr_addr);
+      debug_print("Error: Mapper3 CHR rom address out of bounds: %x\n", chr_addr);
     }
   } else if (address >= 0x8000) {
     // prg rom
@@ -47,6 +47,6 @@ void mapper3_read(struct mapper* m, uint16_t address, uint8_t* dest) {
       *dest = m->cartridge->prg_rom[address - 0x8000];
     }
   } else {
-    fprintf(stderr, "Warning: Mapper3 read at %x!\n", address);
+    debug_print("Warning: Mapper3 read at %x!\n", address);
   }
 }

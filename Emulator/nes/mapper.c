@@ -27,7 +27,7 @@ struct mapper* mapper_from_id(struct cartridge* c, int id) {
     case 3:
       return mapper3_create(c);
     default:
-      fprintf(stderr, "Error: Mapper %d is not supported!\n", id);
+      debug_print("Error: Mapper %d is not supported!\n", id);
       return NULL;
   }
 }

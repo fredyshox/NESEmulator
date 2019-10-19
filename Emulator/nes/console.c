@@ -163,7 +163,7 @@ uint8_t nes_cpu_memory_read(struct memory6502* memory, uint16_t addr) {
         ppu_data_read(console->ppu, &out);
         break;
       default:
-        fprintf(stderr, "Warning: CPU read access on %d\n", addr);
+        debug_print("Warning: CPU read access on %d\n", addr);
         out = 0;
         break;
     }
@@ -209,7 +209,7 @@ void nes_cpu_memory_write(struct memory6502* memory, uint16_t addr, uint8_t byte
         ppu_data_write(console->ppu, byte);
         break;
       default:
-        fprintf(stderr, "Warning: CPU write access on %d\n", addr);
+        debug_print("Warning: CPU write access on %d\n", addr);
         break;
     }
   } else if (addr < 0x4020 || addr < 0x6000) {
@@ -223,7 +223,7 @@ void nes_cpu_memory_write(struct memory6502* memory, uint16_t addr, uint8_t byte
         }
         ppu_sr_dma_write(console->ppu, oam, 0xff);
       default:
-        fprintf(stderr, "Warning: Not implemented - write on %d\n", addr);
+        debug_print("Warning: Not implemented - write on %d\n", addr);
         break;
     }
   } else {

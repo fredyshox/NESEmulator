@@ -12,6 +12,7 @@
 #include <assert.h>
 #include "ppu/ppu.h"
 #include "ppu/color.h"
+#include "common/utility.h"
 
 #define HORIZONTAL_RES 256
 #define VERTICAL_RES 240

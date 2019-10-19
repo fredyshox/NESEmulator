@@ -17,6 +17,8 @@ target_include_directories(nes
   PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
+#target_compile_definitions(nes PUBLIC DEBUG=1)
+
 target_link_libraries(nes
   ppu
   6502)

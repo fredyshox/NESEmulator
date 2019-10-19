@@ -16,6 +16,8 @@ Playground.exs
 
 # vim
 *.swp
+.vscode/*
+*.code-workspace
 
 # build
 *.o

@@ -49,6 +49,7 @@ add_compile_options(${CMAKE_C_FLAGS} -Wno-gnu-anonymous-struct)
 add_compile_options(${CMAKE_C_FLAGS} -Wno-nested-anon-types)
 add_compile_options(${CMAKE_C_FLAGS} -Wno-gnu-zero-variadic-macro-arguments)
 
+add_subdirectory(common)
 add_subdirectory(ppu)
 add_subdirectory(6502)
 add_subdirectory(nes)

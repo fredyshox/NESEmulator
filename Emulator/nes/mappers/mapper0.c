@@ -21,7 +21,7 @@ void mapper0_read(struct mapper* m, uint16_t address, uint8_t* dest) {
     if (m->cartridge->chr_rom_size > address) {
       *dest = m->cartridge->chr_rom[address];
     } else {
-      fprintf(stderr, "Error: Mapper0 CHR rom address out of bounds: %x\n", address);
+      debug_print("Error: Mapper0 CHR rom address out of bounds: %x\n", address);
     }
   } else if (address >= 0x8000) {
     // prg rom
@@ -36,6 +36,6 @@ void mapper0_read(struct mapper* m, uint16_t address, uint8_t* dest) {
   } else if (address >= 0x6000) {
     //TODO prg ram
   } else {
-    fprintf(stderr, "Warning: Mapper0 read at %x!\n", address);
+    debug_print("Warning: Mapper0 read at %x!\n", address);
   }
 }

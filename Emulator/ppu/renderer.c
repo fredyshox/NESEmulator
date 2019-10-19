@@ -198,8 +198,18 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
     for (int s = 0; s < handle->sprbuf_size; s++) {
       if ((spx & (0x80 >> s)) != 0) {
         spr = handle->spr_buffer[s];
-        uint8_t sp_tile_lower0 = FETCH_PT_BYTE(ppu, handle->spr_ptable, (spr.index * 16) + pV);
-        uint8_t sp_tile_lower1 = FETCH_PT_BYTE(ppu, handle->spr_ptable, (spr.index * 16) + pV + TILE_SIZE);
+        // vertical flip
+        uint16_t spr_pt_addr = (spr.vflip) ? (spr.index * 16) + (TILE_SIZE - 1 - pV) : (spr.index * 16) + pV;
+        // fetch bytes from pt
+        uint8_t sp_tile_lower0 = FETCH_PT_BYTE(ppu, handle->spr_ptable, spr_pt_addr);
+        uint8_t sp_tile_lower1 = FETCH_PT_BYTE(ppu, handle->spr_ptable, spr_pt_addr + TILE_SIZE);
+        // horizontal flip
+        if (spr.hflip) {
+          sp_tile_lower0 = utility_bit_reverse(sp_tile_lower0);
+          sp_tile_lower1 = utility_bit_reverse(sp_tile_lower1);
+        }
+
+        // get color
         spr_color_idx = ppu_color_idx(sp_tile_lower0, sp_tile_lower1, spr.palette_msb, pV, pH);
         spr_color = NES_COLOR(ppu->memory->sprite_palette[spr_color_idx]);
         if (!NES_COLOR_TRANSPARENT(spr_color)) break;

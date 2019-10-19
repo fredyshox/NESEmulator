@@ -15,7 +15,10 @@ target_include_directories(ppu
   PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-target_compile_definitions(ppu PUBLIC DEBUG=1)
+target_link_libraries(ppu
+  common)
+
+#target_compile_definitions(ppu PUBLIC DEBUG=1)
 
 install(TARGETS ppu DESTINATION lib)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
