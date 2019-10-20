@@ -26,6 +26,6 @@ void jump(state6502* state, asm6502 cmd);
 void jump_subroutine(state6502* state, asm6502 cmd);
 void return_subroutine(state6502* state, asm6502 cmd);
 void return_interrupt(state6502* state, asm6502 cmd);
-void break_interrupt(state6502 *state, asm6502 cmd);
+void break_interrupt(state6502* state, asm6502 cmd);
 
 #endif /* asm_branch_h */

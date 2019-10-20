@@ -78,6 +78,6 @@ void return_interrupt(state6502* state, asm6502 cmd) {
   state->status.bflag5 = 1;
 }
 
-void break_interrupt(state6502 *state, asm6502 cmd) {
+void break_interrupt(state6502* state, asm6502 cmd) {
   state->incoming_int = BRK_INT;
 }

@@ -67,6 +67,7 @@ int nes_load_rom(nes_t* console, struct cartridge* cartridge) {
   reset_low = (uint16_t) memory6502_load(console->cpu->memory, STATE6502_RESET_VECTOR);
   reset_high = (uint16_t) memory6502_load(console->cpu->memory, STATE6502_RESET_VECTOR + 1);
   console->cpu->pc = (reset_high << 8) | reset_low;
+  debug_print("ROM reset vector: %04x\n", console->cpu->pc);
   // init ppu (set nametable addr)
   mem = console->ppu->memory;
   switch (cartridge->mirroring_type) {

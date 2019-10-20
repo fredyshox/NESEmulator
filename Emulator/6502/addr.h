@@ -29,7 +29,6 @@ struct mem_addr {
   union {
     uint16_t value;
     uint8_t lval;
-    uint8_t hval;
   };
 };
 

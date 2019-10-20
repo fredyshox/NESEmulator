@@ -31,7 +31,7 @@ void mapper0_read(struct mapper* m, uint16_t address, uint8_t* dest) {
       *dest = m->cartridge->prg_rom[address - offset];
     } else {
       // 32KB bank
-      *dest = m->cartridge->prg_rom[address];
+      *dest = m->cartridge->prg_rom[address - 0x8000];
     }
   } else if (address >= 0x6000) {
     //TODO prg ram

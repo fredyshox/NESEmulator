@@ -7,6 +7,10 @@ all:
 * test flags, store, stack, bitwise
 * fix endianess issues
 ppu:
+* sprite flips
+* sprite priority bit
+* sprite zero hit
+* 8x16 sprites
 * tests
 * scrolling
 mappers:

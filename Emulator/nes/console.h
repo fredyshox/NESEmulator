@@ -16,7 +16,7 @@
 #include "nes/mapper.h"
 #include "nes/cartridge.h"
 
-#define NES_CPU_FREQ 1.79E6
+#define NES_CPU_FREQ 1.79E4
 
 struct nes_t {
   state6502* cpu;

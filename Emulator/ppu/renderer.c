@@ -114,6 +114,12 @@ int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int o
   }
 }
 
+/**
+ * Pixel layout for sprite:
+ * Each pixel is represented by a byte with bits arrangement:
+ * Low Priority: X X X X X X X X :High priority
+ * Where each bit represents sprite based on its index.
+ */
 void ppu_sprite_pixel_layout(struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize) {
   struct ppu_sprite spr;
   for (int i = 0; i < bufsize; i++) {
@@ -195,8 +201,9 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
   spx = handle->spr_pixel_buf[h * TILE_SIZE + pH];
   if (spx != 0) {
     // check sprite pixel color
+    // from high priority to low priority, until the opaque color is found
     for (int s = 0; s < handle->sprbuf_size; s++) {
-      if ((spx & (0x80 >> s)) != 0) {
+      if ((spx & (0x01 << s)) != 0) {
         spr = handle->spr_buffer[s];
         // vertical flip
         uint16_t spr_pt_addr = (spr.vflip) ? (spr.index * 16) + (TILE_SIZE - 1 - pV) : (spr.index * 16) + pV;
@@ -219,9 +226,7 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
     // bg trans and spr back -> spr
     // bg non trans and spr front -> spr
     // bg trans and spr front -> spr
-    if (spr.priority == 0 && !NES_COLOR_TRANSPARENT(spr_color)) {
-      color = spr_color;
-    } else if (spr.priority != 0 && NES_COLOR_TRANSPARENT(color)) {
+    if (!NES_COLOR_TRANSPARENT(spr_color) && (NES_COLOR_TRANSPARENT(color) || spr.priority == 0)) {
       color = spr_color;
     }
   }
