@@ -13,10 +13,12 @@ struct ppu_render_handle* ppu_render_handle_create() {
   handle->spr_pixel_buf = malloc(sizeof(uint8_t) * HORIZONTAL_RES);
   handle->spr_buffer = malloc(sizeof(struct ppu_sprite) * MAX_SPRITES_PER_LINE);
   handle->frame_buf_pos = 0;
-  handle->h = 0;
-  handle->v = 0;
-  handle->pH = 0;
-  handle->pV = 0;
+  handle->cycle = 340;
+  handle->line = 240;
+  handle->x_fine = 0;
+  handle->y_fine = 0;
+  handle->v.address = 0x0000;
+  handle->t.address = 0x0000;
 
   return handle;
 }
@@ -28,65 +30,26 @@ void ppu_render_handle_free(struct ppu_render_handle* handle) {
   free(handle);
 }
 
-// nametable/attrtable/pttrntable pickers
+// memory helpers
 
-void ntat_addr(struct ppu_state* ppu, uint8_t** nt_ptr, uint8_t** at_ptr) {
-  switch (ppu->control.nametable_addr) {
-    case 0:
-      *nt_ptr = ppu->memory->nametable0;
-      *at_ptr = ppu->memory->attrtable0;
-      break;
-    case 1:
-      *nt_ptr = ppu->memory->nametable1;
-      *at_ptr = ppu->memory->attrtable1;
-      break;
-    case 2:
-      *nt_ptr = ppu->memory->nametable2;
-      *at_ptr = ppu->memory->attrtable2;
-      break;
-    case 3:
-      *nt_ptr = ppu->memory->nametable3;
-      *at_ptr = ppu->memory->attrtable3;
-      break;
-    default:
-      fputs("WTF! Invalid nt addr!", stderr); /* Never should happen */
-      break;
-  }
+uint8_t ppu_memory_fetch_pt(struct ppu_memory* mem, uint16_t address, int pt_index) {
+  assert(pt_index == 0 || pt_index == 1);
+  assert(address < 0x1000);
+
+  uint16_t offset = (pt_index == 1) ? 0x1000 : 0x0000;
+  return mem->load_handler(mem, address + offset);
 }
 
-// nametable/attrtable fetchers
-
-uint8_t fetch_nt_byte(uint8_t* nt_ptr, int h, int v) {
-  assert(h >= 0 && h < TILE_HMAX);
-  assert(v >= 0 && v < TILE_VMAX);
-
-  int index = (TILE_HMAX * v) + h;
-  return nt_ptr[index];
+// cool trick for fetching from attr blocks
+uint8_t ppu_memory_fetch_at(struct ppu_memory* mem, union ppu_internal_register v) {
+  uint16_t attr_address = 0x23C0 | (v.address & 0x0c00) | ((v.address >> 4) & 0x38) | ((v.address >> 2) & 0x07);
+  return ppu_memory_load(mem, attr_address);
 }
 
-uint8_t fetch_at_byte(uint8_t* at_ptr, int h, int v) {
-  assert(h >= 0 && h < TILE_HMAX);
-  assert(v >= 0 && v < TILE_VMAX);
-
-  // 4x4 group of tiles, 8 each row
-  int index = (v / 4) * 8 + (h / 4);
-  uint8_t attr = at_ptr[index]; // 0x33221100
-  if ((v & 0b11) < 2 && (h & 0b11) < 2) {
-    // bits 0, 1
-    return attr & 0x03;
-  } else if ((v & 0b11) < 2) {
-    // bits 2, 3
-    return (attr >> 2) & 0x03;
-  } else if ((v & 0b11) >= 2 && (h & 0b11) < 2) {
-    // bits 4, 5
-    return (attr >> 4) & 0x03;
-  } else {
-    // bits 6, 7
-    return (attr >> 6);
-  }
+uint8_t ppu_memory_fetch_nt(struct ppu_memory* mem, union ppu_internal_register v) {
+  uint16_t nt_addr = 0x2000 | (v.address & 0x0fff);
+  return ppu_memory_load(mem, nt_addr);
 }
-
-#define FETCH_PT_BYTE(PPU, PTIDX, ADDR) ppu_memory_fetch_pt(PPU->memory, ADDR, PTIDX)
 
 // sprite helpers
 
@@ -249,4 +212,110 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
       }
     }
   }
+}
+
+void ppu_render_pixel(struct ppu_state* ppu, struct ppu_render_handle* handle) {
+  
+}
+
+void ppu_increment_x(struct ppu_state* ppu) {
+  ppu->v.x_scroll += 1;
+  if (!ppu->v.x_scroll) {
+    ppu->v.nametable_addr ^= 1;
+  }
+}
+
+void ppu_increment_y(struct ppu_state* ppu) {
+  if (ppu->fine_y < 7) {
+    ppu->fine_x += 1;
+  } else {
+    ppu->fine_y = 0;
+    uint8_t y = ppu->v.y_scroll;
+    if (y == 29) {
+      ppu->v.y_scroll = 0;
+      ppu->v.nametable_addr ^= 2;
+    } else {
+      ppu->v.y_scroll += 1;
+    }
+  }
+}
+
+void ppu_copy_x(struct ppu_state* ppu) {
+  ppu->v.x_scroll = ppu->t.x_scroll;
+  ppu->v.nametable_addr = ((ppu->v.nametable_addr & 0x02) | (ppu->t.nametable_addr & 0x01));
+}
+
+void ppu_copy_y(struct ppu_state* ppu) {
+  ppu->v.y_scroll = ppu->t.y_scroll;
+  ppu->v.nametable_addr = ((ppu->v.nametable_addr & 0x01) | (ppu->t.nametable_addr & 0x02));
+  //TODO y fine scroll copy
+}
+
+void ppu_execute_cycle2(struct ppu_state* ppu, struct ppu_render_handle* handle) {
+  handle->cycle += 1;
+  if (handle->cycle > 340) {
+    handle->cycle = 0;
+    handle->line += 1;
+    if (handle->line > 261) {
+      handle->line = 0;
+    }
+  }
+
+  bool visibleFrame  = handle->line >= 0 && handle->line <= 239;
+  bool visibleCycle  = handle->cycle >= 1 && handle->cycle <= 256;
+  bool preFetchCycle = handle->cycle >= 321 && handle->cycle <= 336;
+  bool preRenderLine = handle->line == 261;
+  bool fetchCycle = visibleCycle || preFetchCycle;
+  
+  // check if rendering is enabled 
+  int bg_ptable = ppu->control.bg_pttrntable;
+  if (ppu->mask.show_bg || ppu->mask.show_spr) {
+    if (visibleFrame && visibleCycle) {
+      // just draw stuff
+      ppu_render_pixel(ppu, handle);
+    }
+    if ((visibleFrame || preRenderLine) && fetchCycle) {
+      switch (handle->cycle & 0b111) {
+        case 1:
+          handle->bg_pt_index = ppu_memory_fetch_nt(ppu->memory, ppu->v);
+          break;
+        case 3:
+          handle->bg_tile_upper = ppu_memory_fetch_at(ppu->memory, ppu->v);
+          break;
+        // lower bits for each pixel in tile
+        case 5:
+          handle->bg_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, handle->bg_pt_index * 16 + ppu->fine_y, bg_ptable);
+          break;
+        case 7:
+          handle->bg_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, handle->bg_pt_index * 16 + ppu->fine_y + TILE_SIZE, bg_ptable);
+          break;
+        default: break;
+      }
+    }
+    if (visibleFrame || preRenderLine) {
+      if (fetchCycle && (handle->cycle & 0b111) == 0) {
+        // inc x
+        ppu_increment_x(ppu);
+      } 
+
+      if (handle->cycle == 256) {
+        // inc y
+        ppu_increment_y(ppu);
+      }
+
+      if (handle->cycle == 257) {
+        // copy x
+        ppu_copy_x(ppu);
+      }
+    }
+
+    if (preRenderLine && handle->cycle >= 280 && handle->cycle <= 304) {
+      // copy y
+      ppu_copy_y(ppu);
+    } 
+  }
+
+  // evaluate sprites on 257
+
+  // vblanks
 }

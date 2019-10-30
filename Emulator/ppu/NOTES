@@ -37,6 +37,7 @@ $2000-$2001 ppu control registers
 $2000:7 - disable nmis
 $2000:5 - switch to 8x16 sprites
 $2000:2 - set address increment to 32 (vertical)
+$2000:1,0 - base nametable addr
 $2001:3 - hide background
 $2001:4 - hide sprite
 $2002 - status register (read only)
@@ -54,4 +55,50 @@ more info about registers: https://wiki.nesdev.com/w/index.php/PPU_registers
 Cartidge mapper: circuit on cartridge responsible for flash to vram/ram data mapping.
 Mappers can have registers accessible by writing to cartridge rom addresses, used for bank switching etc.
 
-Rendering process:
+Internal registers:
+PPU has set of internal registers, which are accesses/modified using normal registers and during rendering process.
+v - current VRAM address (15 bit)
+t - temporary VRAM address, address of top left onscreen tile (15 bit)
+x - fine X-scroll, X location in tile (0-7) (3 bit)
+w - first/second write toggle
+
+t/v register structure:
+yyy NN YYYYY XXXXX 
+y: fine Y-scroll, Y location in tile (0-7) (3 bit)
+N: nametable select
+Y: y-scroll, incremented at the end of each line,
+when incremented from 29, it wraps to 0 and msb of N is switched
+X: x-scroll, incremented as line is drawn,
+when incremented from 31, it wraps to 0 and lsb of N is switched
+
+$2000 write - changes N of t 
+$2002 read  - w := 0
+$2005 write when w == 0
+    - X of t is set to bits 7-3 of byte
+    - x is set to bits 0-2 of byte
+    - w := 1
+$2005 write when w == 1
+    - y (bits 0-2) and Y (bits 7-3) is set to byte 
+    - w := 0
+$2006 write when w == 0
+    - bits 13-8 of t set to bits 5-0 of byte
+    - bit 14 of t set to 0
+    - w := 1
+$2006 write when w == 1
+    - first 8 bits of t set to byte
+    - v := t
+    - w := 0
+$2007 read/write - add 1/32 to v (not pre-render scanline or 0-239 visible scanlines)
+    X and Y is incremented (during rendering^)
+
+
+- 256 ppu cycle: Y of v is incremented
+- 257 ppy cycle: bit 10 and bits 0-4 of t are copied to v
+- 280-304 cycles of pre-render scanline:
+    bits 11-14 and 5-9 of t are copied to v
+- each 8th from 0-256 and 320-340: 
+    X of v is incremented
+
+
+
+

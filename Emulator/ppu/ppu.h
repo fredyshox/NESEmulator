@@ -29,7 +29,7 @@
 #define debug_print_ppu(ppu) \
   debug_print("PPUCTRL:%02x PPUSTATUS:%02x PPUMASK:%02x PPUSCROLL:(%02x,%02x) PPUADDR:%04x OAMADDR:%02x\n", \
               ppu->control.byte, ppu->status.byte, ppu->mask.byte, \
-              ppu->scroll_x, ppu->scroll_y, ppu->reg_addr, ppu->reg_sr_addr);
+              ppu->fine_x, ppu->fine_y, ppu->v.address, ppu->reg_sr_addr);
 
 struct ppu_sprite {
   uint8_t y_coord;
@@ -59,17 +59,14 @@ union ppu_status {
   };
 };
 
-union ppu_control {
+struct ppu_control {
+  bool addr_inc32;
+  uint8_t spr_pttrntable;
+  uint8_t bg_pttrntable;
+  bool spr_size_16x8;
+  bool ms_select;
+  bool gen_nmi;
   uint8_t byte;
-  struct {
-    uint8_t nametable_addr : 2;
-    uint8_t addr_inc32     : 1;
-    uint8_t spr_pttrntable : 1;
-    uint8_t bg_pttrntable  : 1;
-    uint8_t spr_size       : 1;
-    uint8_t ms_select      : 1;
-    uint8_t gen_nmi        : 1;
-  };
 };
 
 union ppu_mask {
@@ -86,6 +83,15 @@ union ppu_mask {
   };
 };
 
+union ppu_internal_register {
+  struct {
+    uint8_t x_scroll : 5;
+    uint8_t y_scroll : 5;
+    uint8_t nametable_addr : 2;
+  };
+  uint16_t address;
+};
+
 #define PPU_SPRRAM_SIZE 64
 #define PPU_SPRRAM_BYTE_SIZE 256
 #define PPU_PALETTE_SIZE 16
@@ -94,17 +100,24 @@ union ppu_mask {
 #define PPU_NTAT_SIZE (PPU_NAMETABLE_SIZE + PPU_ATTRTABLE_SIZE)
 #define PPU_PTTRNTABLE_SIZE 4096
 
+enum ppu_mirroring {
+  HORIZONTAL = 0,
+  VERTICAL,
+  FOUR_SCREEN,
+  SINGLE_SCREEN
+};
+
+typedef enum ppu_mirroring ppu_mirroring;
+
 struct ppu_memory {
-  // nametables - one buffer and pointers
+  // nametable/attribute table buffer
   uint8_t* nt_buf;
-  uint8_t* nametable0;
-  uint8_t* attrtable0;
-  uint8_t* nametable1;
-  uint8_t* attrtable1;
-  uint8_t* nametable2;
-  uint8_t* attrtable2;
-  uint8_t* nametable3;
-  uint8_t* attrtable3;
+  int nt_buf_size;
+  // pointers to nametable/attribute-table blocks
+  uint8_t* ntat_block0;
+  uint8_t* ntat_block1;
+  uint8_t* ntat_block2;
+  uint8_t* ntat_block3;
   // palettes
   uint8_t* image_palette;
   uint8_t* sprite_palette;
@@ -118,8 +131,10 @@ struct ppu_memory {
 
 typedef struct ppu_memory ppu_memory;
 
-void ppu_memory_create(struct ppu_memory* mem);
-uint8_t ppu_memory_fetch_pt(struct ppu_memory* mem, uint16_t address, int pt_index);
+void ppu_memory_create(struct ppu_memory* mem, enum ppu_mirroring mirroring_type);
+void ppy_memory_free(struct ppu_memory* mem);
+uint8_t ppu_memory_load(struct ppu_memory* mem, uint16_t idx);
+void ppu_memory_store(struct ppu_memory* mem, uint16_t idx, uint8_t value);
 
 struct ppu_state {
   // vram
@@ -128,13 +143,17 @@ struct ppu_state {
   // ppustatus, ppumask, ppuctrl
   union ppu_status status;
   union ppu_mask mask;
-  union ppu_control control;
+  struct ppu_control control;
   // ppu address register
-  uint16_t reg_addr;
   uint8_t reg_sr_addr;
-  // scrolling storage
-  uint8_t scroll_x;
-  uint8_t scroll_y;
+  // internal registers
+  union ppu_internal_register v;
+  union ppu_internal_register t;
+  // first/second write register
+  bool w;
+  // x/t fine scroll - coordinates within tile
+  uint8_t fine_x;
+  uint8_t fine_y;
 };
 
 typedef struct ppu_state ppu_state;

@@ -32,6 +32,7 @@ int nes_create(nes_t* console);
 void nes_free(nes_t* console);
 int nes_load_rom(nes_t* console, struct cartridge* cartridge);
 bool nes_is_loaded(nes_t* console);
+void nes_reset(nes_t* console);
 int nes_step(nes_t* console);
 void nes_step_time(nes_t* console, double seconds);
 // memory handlers

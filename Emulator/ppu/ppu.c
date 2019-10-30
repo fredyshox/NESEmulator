@@ -7,32 +7,86 @@
 
 // PPU memory
 
-void ppu_memory_create(struct ppu_memory* mem) {
+void ppu_memory_create(struct ppu_memory* mem, enum ppu_mirroring mirroring_type) {
   mem->image_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
   mem->sprite_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
   mem->sprite_ram = malloc(PPU_SPRRAM_SIZE * sizeof(struct ppu_sprite));
   // alloc memory for 4 nametables (normally ppu has vram for only 2)
   mem->nt_buf = malloc(4 * (PPU_NTAT_SIZE) * sizeof(uint8_t));
+  mem->nt_buf_size = 4 * (PPU_NTAT_SIZE);
+  switch (mirroring_type) {
+    case HORIZONTAL:
+      mem->ntat_block0 = mem->nt_buf;
+      mem->ntat_block1 = mem->ntat_block0;
+      mem->ntat_block2 = (mem->nt_buf + PPU_NTAT_SIZE);
+      mem->ntat_block3 = mem->ntat_block2;
+      break;
+    case VERTICAL:
+      mem->ntat_block0 = mem->nt_buf;
+      mem->ntat_block1 = (mem->nt_buf + PPU_NTAT_SIZE);
+      mem->ntat_block2 = mem->ntat_block0;
+      mem->ntat_block3 = mem->ntat_block1;
+      break;
+    case FOUR_SCREEN:
+      mem->ntat_block0 = mem->nt_buf;
+      mem->ntat_block1 = (mem->ntat_block0 + PPU_NTAT_SIZE);
+      mem->ntat_block2 = (mem->ntat_block1 + PPU_NTAT_SIZE);
+      mem->ntat_block3 = (mem->ntat_block2 + PPU_NTAT_SIZE);
+      break;
+    case SINGLE_SCREEN:
+      mem->ntat_block0 = mem->nt_buf;
+      mem->ntat_block1 = mem->ntat_block0;
+      mem->ntat_block2 = mem->ntat_block0;
+      mem->ntat_block3 = mem->ntat_block0;
+      break;
+  }
   // memory allocated by user
-  mem->nametable0 = NULL;
-  mem->attrtable0 = NULL;
-  mem->nametable1 = NULL;
-  mem->attrtable1 = NULL;
-  mem->nametable2 = NULL;
-  mem->attrtable2 = NULL;
-  mem->nametable3 = NULL;
-  mem->attrtable3 = NULL;
   mem->io = NULL;
   mem->load_handler = NULL;
   mem->store_handler = NULL;
 }
 
-uint8_t ppu_memory_fetch_pt(struct ppu_memory* mem, uint16_t address, int pt_index) {
-  assert(pt_index == 0 || pt_index == 1);
-  assert(address < 0x1000);
+uint8_t ppu_memory_load(struct ppu_memory* mem, uint16_t idx) {
+  if (idx >= 0x2000 && idx < 0x3f00) {
+    int address = idx & 0x03ff;
+    int block_index = (idx >> 10) & 0x0003; 
+    switch (block_index) {
+      case 0: 
+        return mem->ntat_block0[address];
+      case 1:
+        return mem->ntat_block1[address];
+      case 2:
+        return mem->ntat_block2[address];
+      case 3:
+        return mem->ntat_block3[address];
+      default: break; /* never gonna happen */
+    }
+  }
+  return mem->load_handler(mem, idx);
+}
 
-  uint16_t offset = (pt_index == 1) ? 0x1000 : 0x0000;
-  return mem->load_handler(mem, address + offset);
+void ppu_memory_store(struct ppu_memory* mem, uint16_t idx, uint8_t value) {
+  if (idx >= 0x2000 && idx < 0x3f00) {
+    int address = idx & 0x03ff;
+    int block_index = (idx >> 10) & 0x0003;
+    switch (block_index) {
+      case 0:
+        mem->ntat_block0[address] = value;
+        break;
+      case 1:
+        mem->ntat_block1[address] = value;
+        break;
+      case 2:
+        mem->ntat_block2[address] = value;
+        break;
+      case 3:
+        mem->ntat_block3[address] = value;
+        break;
+      default: break; /* never gonna happen */
+    }
+  } else {
+    mem->store_handler(mem, idx, value);
+  }
 }
 
 // PPU state
@@ -43,6 +97,8 @@ void ppu_state_create(struct ppu_state* ppu, struct ppu_memory* mem) {
   ppu->status.byte = 0x00;
   ppu->mask.byte = 0x00;
   ppu->control.byte = 0x00;
+  ppu->v.address = 0x0000;
+  ppu->t.address = 0x0000;
   // setup
 }
 
@@ -52,6 +108,19 @@ void ppu_ctrl_write(struct ppu_state* state, uint8_t byte) {
   debug_print("PPUCTRL W: ");
   debug_print_ppu(state);
   state->control.byte = byte;
+  state->t.nametable_addr = (byte & 0x03);
+  byte >>= 2;
+  state->control.addr_inc32 = (byte & 0x01);
+  byte >>= 1;
+  state->control.spr_pttrntable = (byte & 0x01);
+  byte >>= 1;
+  state->control.bg_pttrntable = (byte & 0x01);
+  byte >>= 1;
+  state->control.spr_size_16x8 = (byte & 0x01);
+  byte >>= 1;
+  state->control.ms_select = (byte & 0x01);
+  byte >>= 1;
+  state->control.gen_nmi = (byte & 0x01);
 }
 
 void ppu_mask_write(struct ppu_state* state, uint8_t byte) {
@@ -63,6 +132,7 @@ void ppu_mask_write(struct ppu_state* state, uint8_t byte) {
 void ppu_status_read(struct ppu_state* state, uint8_t* ptr) {
   debug_print("PPUSTATUS R: ");
   debug_print_ppu(state);
+  state->w = false;
   *ptr = state->status.byte;
   if (state->status.vblank)
     state->status.vblank = 0;
@@ -124,13 +194,16 @@ void ppu_sr_data_read(struct ppu_state* state, uint8_t* ptr) {
 void ppu_scroll_write(struct ppu_state* state, uint8_t coord) {
   debug_print("PPUSCROLL W: ");
   debug_print_ppu(state);
-  static bool y_mode = false;
-  if (y_mode)
-    state->scroll_y = coord;
-  else
-    state->scroll_x = coord;
 
-  y_mode = !y_mode;
+  if (!state->w) {
+    state->fine_x = (coord & 0x07);
+    state->t.x_scroll = (coord >> 3);
+    state->w = true;
+  } else {
+    state->fine_y = (coord & 0x07);
+    state->t.y_scroll = (coord >> 3);
+    state->w = false;
+  }
 }
 
 void ppu_addr_write(struct ppu_state* state, uint8_t byte) {
@@ -138,18 +211,19 @@ void ppu_addr_write(struct ppu_state* state, uint8_t byte) {
   debug_print_ppu(state);
   // flag which determine wether msb or lsb
   // of ppuaddr will be written
-  static bool lsb_mode = false;
-  uint16_t addr = state->reg_addr;
-  if (lsb_mode) {
-    addr = addr & 0xff00;
-    addr = addr | byte;
+  uint16_t value = state->t.address;
+  if (!state->w) {
+    value &= 0xc0ff;
+    value |= ((uint16_t) (byte & 0x3f)) << 8;
+    state->t.address = value;
+    state->w = true;
   } else {
-    addr = addr & 0x00ff;
-    addr = addr | (uint16_t) byte << 8;
+    value &= 0xff00;
+    value |= (uint16_t) byte;
+    state->t.address = value;
+    state->v.address = value;
+    state->w = false;
   }
-
-  state->reg_addr = addr;
-  lsb_mode = !lsb_mode;
 }
 
 void ppu_data_write(struct ppu_state* state, uint8_t byte) {
@@ -157,12 +231,12 @@ void ppu_data_write(struct ppu_state* state, uint8_t byte) {
   debug_print_ppu(state);
 
   struct ppu_memory* mem = state->memory;
-  mem->store_handler(mem, state->reg_addr, byte);
-
+  ppu_memory_store(mem, state->v.address, byte);
+  //TODO v address during rendering
   if (state->control.addr_inc32) {
-    state->reg_addr += 32;
+    state->v.address += 32;
   } else {
-    state->reg_addr += 1;
+    state->v.address += 1;
   }
 }
 
@@ -171,12 +245,12 @@ void ppu_data_read(struct ppu_state* state, uint8_t* ptr) {
   debug_print_ppu(state);
 
   struct ppu_memory* mem = state->memory;
-  *ptr = mem->load_handler(mem, state->reg_addr);
-
+  *ptr = ppu_memory_load(mem, state->v.address);
+  //TODO v address during rendering
   if (state->control.addr_inc32) {
-    state->reg_addr += 32;
+    state->v.address += 32;
   } else {
-    state->reg_addr += 1;
+    state->v.address += 1;
   }
 }
 

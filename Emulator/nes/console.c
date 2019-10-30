@@ -70,6 +70,7 @@ int nes_load_rom(nes_t* console, struct cartridge* cartridge) {
   debug_print("ROM reset vector: %04x\n", console->cpu->pc);
   // init ppu (set nametable addr)
   mem = console->ppu->memory;
+  // do wyjebania
   switch (cartridge->mirroring_type) {
     case HORIZONTAL:
       mem->nametable0 = mem->nt_buf;
@@ -118,6 +119,20 @@ int nes_load_rom(nes_t* console, struct cartridge* cartridge) {
 
 bool nes_is_loaded(nes_t* console) {
   return (console->cartridge != NULL && console->mapper != NULL);
+}
+
+void nes_reset(nes_t* console) {
+  if (!nes_is_loaded(console)) {
+    return;
+  }
+
+  mapper* mapper = console->mapper;
+  console->mapper = NULL;
+  console->cartridge = NULL;
+  mapper_free(mapper);
+  // reset ppu and cpu
+  state6502_create(console->cpu, console->cpu->memory);
+  ppu_state_create(console->ppu, console->ppu->memory);
 }
 
 int nes_step(nes_t* console) {

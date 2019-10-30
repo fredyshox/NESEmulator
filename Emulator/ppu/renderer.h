@@ -31,21 +31,17 @@ struct ppu_render_handle {
   uint8_t* spr_pixel_buf;
   int sprbuf_size;
   struct ppu_sprite* spr_buffer;
-  // tables for scanline
-  int spr_ptable;
-  int bg_ptable;
-  uint8_t* nametable;
-  uint8_t* attrtable;
-  // tile coordinates
-  int h;
-  int v;
-  // coordinates within tile (0..8)
-  int pH;
-  int pV;
-  // current tile buffer
+    // current tile buffer
+  uint8_t bg_pt_index;
   uint8_t bg_tile_upper;
   uint8_t bg_tile_lower0;
   uint8_t bg_tile_lower1;
+  // tables for scanline
+  int spr_ptable;
+  int bg_ptable;
+  // tile coordinates
+  int cycle;
+  int line;
 };
 
 typedef struct ppu_render_handle ppu_render_handle;
