@@ -85,9 +85,10 @@ union ppu_mask {
 
 union ppu_internal_register {
   struct {
-    uint8_t x_scroll : 5;
-    uint8_t y_scroll : 5;
-    uint8_t nametable_addr : 2;
+    uint16_t x_scroll : 5;
+    uint16_t y_scroll : 5;
+    uint16_t nametable_addr : 2;
+    uint16_t _unused : 4;
   };
   uint16_t address;
 };
@@ -131,7 +132,8 @@ struct ppu_memory {
 
 typedef struct ppu_memory ppu_memory;
 
-void ppu_memory_create(struct ppu_memory* mem, enum ppu_mirroring mirroring_type);
+void ppu_memory_create(struct ppu_memory* mem);
+void ppu_memory_set_mirroring(struct ppu_memory* mem, enum ppu_mirroring mirroring_type);
 void ppy_memory_free(struct ppu_memory* mem);
 uint8_t ppu_memory_load(struct ppu_memory* mem, uint16_t idx);
 void ppu_memory_store(struct ppu_memory* mem, uint16_t idx, uint8_t value);
@@ -154,6 +156,7 @@ struct ppu_state {
   // x/t fine scroll - coordinates within tile
   uint8_t fine_x;
   uint8_t fine_y;
+  uint8_t temp_fine_y;
 };
 
 typedef struct ppu_state ppu_state;

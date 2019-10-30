@@ -7,13 +7,21 @@
 
 // PPU memory
 
-void ppu_memory_create(struct ppu_memory* mem, enum ppu_mirroring mirroring_type) {
+void ppu_memory_create(struct ppu_memory* mem) {
   mem->image_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
   mem->sprite_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
   mem->sprite_ram = malloc(PPU_SPRRAM_SIZE * sizeof(struct ppu_sprite));
   // alloc memory for 4 nametables (normally ppu has vram for only 2)
   mem->nt_buf = malloc(4 * (PPU_NTAT_SIZE) * sizeof(uint8_t));
   mem->nt_buf_size = 4 * (PPU_NTAT_SIZE);
+  ppu_memory_set_mirroring(mem, SINGLE_SCREEN);
+  // memory allocated by user
+  mem->io = NULL;
+  mem->load_handler = NULL;
+  mem->store_handler = NULL;
+}
+
+void ppu_memory_set_mirroring(struct ppu_memory* mem, enum ppu_mirroring mirroring_type) {
   switch (mirroring_type) {
     case HORIZONTAL:
       mem->ntat_block0 = mem->nt_buf;
@@ -40,15 +48,13 @@ void ppu_memory_create(struct ppu_memory* mem, enum ppu_mirroring mirroring_type
       mem->ntat_block3 = mem->ntat_block0;
       break;
   }
-  // memory allocated by user
-  mem->io = NULL;
-  mem->load_handler = NULL;
-  mem->store_handler = NULL;
 }
 
 uint8_t ppu_memory_load(struct ppu_memory* mem, uint16_t idx) {
+  idx = idx & 0x3fff; // idx mod 0x4000
+  
   if (idx >= 0x2000 && idx < 0x3f00) {
-    int address = idx & 0x03ff;
+    uint16_t address = idx & 0x03ff;
     int block_index = (idx >> 10) & 0x0003; 
     switch (block_index) {
       case 0: 
@@ -61,11 +67,21 @@ uint8_t ppu_memory_load(struct ppu_memory* mem, uint16_t idx) {
         return mem->ntat_block3[address];
       default: break; /* never gonna happen */
     }
+  } else if (idx >= 0x3f00 && idx < 0x4000) {
+    uint16_t n = idx % (2*PPU_PALETTE_SIZE);
+    if (n < 0x0f) {
+      return mem->image_palette[n];
+    } else {
+      return mem->sprite_palette[n - 0x0f];
+    }
   }
+
   return mem->load_handler(mem, idx);
 }
 
 void ppu_memory_store(struct ppu_memory* mem, uint16_t idx, uint8_t value) {
+  idx = idx & 0x3fff; // idx mod 0x4000
+
   if (idx >= 0x2000 && idx < 0x3f00) {
     int address = idx & 0x03ff;
     int block_index = (idx >> 10) & 0x0003;
@@ -84,6 +100,13 @@ void ppu_memory_store(struct ppu_memory* mem, uint16_t idx, uint8_t value) {
         break;
       default: break; /* never gonna happen */
     }
+  } else if (idx >= 0x3f00 && idx < 0x4000) {
+    uint16_t n = idx % (2*PPU_PALETTE_SIZE);
+    if (n < 0x0f) {
+      mem->image_palette[n] = value;
+    } else {
+      mem->sprite_palette[n - 0x0f] = value;
+    }
   } else {
     mem->store_handler(mem, idx, value);
   }
@@ -99,6 +122,10 @@ void ppu_state_create(struct ppu_state* ppu, struct ppu_memory* mem) {
   ppu->control.byte = 0x00;
   ppu->v.address = 0x0000;
   ppu->t.address = 0x0000;
+  ppu->w = false;
+  ppu->fine_x = 0;
+  ppu->fine_y = 0;
+  ppu->temp_fine_y = 0;
   // setup
 }
 
@@ -134,8 +161,7 @@ void ppu_status_read(struct ppu_state* state, uint8_t* ptr) {
   debug_print_ppu(state);
   state->w = false;
   *ptr = state->status.byte;
-  if (state->status.vblank)
-    state->status.vblank = 0;
+  state->status.vblank = 0;
 }
 
 void ppu_sr_addr_write(struct ppu_state* state, uint8_t addr) {
@@ -200,7 +226,7 @@ void ppu_scroll_write(struct ppu_state* state, uint8_t coord) {
     state->t.x_scroll = (coord >> 3);
     state->w = true;
   } else {
-    state->fine_y = (coord & 0x07);
+    state->temp_fine_y = (coord & 0x07);
     state->t.y_scroll = (coord >> 3);
     state->w = false;
   }
@@ -209,19 +235,19 @@ void ppu_scroll_write(struct ppu_state* state, uint8_t coord) {
 void ppu_addr_write(struct ppu_state* state, uint8_t byte) {
   debug_print("PPUADDR W: ");
   debug_print_ppu(state);
-  // flag which determine wether msb or lsb
-  // of ppuaddr will be written
   uint16_t value = state->t.address;
   if (!state->w) {
     value &= 0xc0ff;
     value |= ((uint16_t) (byte & 0x3f)) << 8;
     state->t.address = value;
+    state->temp_fine_y = (byte >> 4) & 0x03;
     state->w = true;
   } else {
     value &= 0xff00;
     value |= (uint16_t) byte;
     state->t.address = value;
     state->v.address = value;
+    state->fine_y = state->temp_fine_y;
     state->w = false;
   }
 }

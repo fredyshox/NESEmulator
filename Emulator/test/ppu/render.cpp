@@ -1,6 +1,8 @@
 // Tests ppu rendering
 // Output image should have 8-pixel columns for each color in image pallete (16 colors), repreated twice
 
+// FIXME doesnt work with latest changes
+
 #include "pputest.h"
 #include <vector>
 #include <opencv2/opencv.hpp>
@@ -94,13 +96,12 @@ int main(int argc, char** argv) {
   memcpy(mem.image_palette, palette, PPU_PALETTE_SIZE);
   memcpy(mem.nt_buf, nametable, PPU_NAMETABLE_SIZE);
   memcpy((mem.nt_buf + PPU_NAMETABLE_SIZE), attrtable, PPU_ATTRTABLE_SIZE);
-  mem.nametable0 = mem.nt_buf;
-  mem.attrtable0 = (mem.nt_buf + PPU_NAMETABLE_SIZE);
+  ppu_memory_set_mirroring(&mem, SINGLE_SCREEN);
   mem.load_handler = custom_load_handler;
   mem.store_handler = custom_store_handler;
   mem.io = (void*) bg_ptable;
 
-  ppu.control.nametable_addr = 0;
+  //ppu.control.nametable_addr = 0;
   ppu.control.bg_pttrntable = 0;
 
   for (int i = 0; i < VERTICAL_RES; i++) {

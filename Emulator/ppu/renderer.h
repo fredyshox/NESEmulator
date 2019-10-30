@@ -22,6 +22,23 @@
 #define MAX_SPRITES_PER_LINE 8
 
 /**
+ * Cyclic container for attributes and patterns fetched during fetch cycles.
+ * Used by render handle.
+ */
+struct ppu_shift_storage {
+  uint8_t bg_pt_index;
+  uint8_t bg_tile_upper;
+  uint8_t bg_tile_lower0;
+  uint8_t bg_tile_lower1;
+  // compiled bg tiles (8 tiles, each 4 bits)
+  uint32_t bg_tiles;
+  struct ppu_shift_storage* next;
+};
+
+struct ppu_shift_storage* ppu_shift_storage_create();
+void ppu_shift_storage_free(struct ppu_shift_storage* pss);
+
+/**
  * Structure with pointers to memory for rendering.
  * Should be reused between rendering calls.
  */
@@ -32,16 +49,16 @@ struct ppu_render_handle {
   int sprbuf_size;
   struct ppu_sprite* spr_buffer;
     // current tile buffer
-  uint8_t bg_pt_index;
-  uint8_t bg_tile_upper;
-  uint8_t bg_tile_lower0;
-  uint8_t bg_tile_lower1;
+  struct ppu_shift_storage* fetch_storage;
+  struct ppu_shift_storage* render_storage;
   // tables for scanline
   int spr_ptable;
   int bg_ptable;
   // tile coordinates
   int cycle;
   int line;
+  // nmi util
+  bool nmi_trigger;
 };
 
 typedef struct ppu_render_handle ppu_render_handle;
