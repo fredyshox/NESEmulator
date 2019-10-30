@@ -36,10 +36,10 @@ int cartridge_from_file(struct cartridge* c, char* path) {
   flags10 = header[10];
 
   // header parsing
-  mirroring_type mirroring;
-  if ((flags6 & 0x01 << 3)) {
+  ppu_mirroring mirroring;
+  if (flags6 & 0x08) {
     mirroring = FOUR_SCREEN;
-  } else if ((flags6 & 0x01)) {
+  } else if (flags6 & 0x01) {
     mirroring = VERTICAL;
   } else {
     mirroring = HORIZONTAL;

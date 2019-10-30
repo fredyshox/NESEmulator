@@ -46,7 +46,7 @@ int setup_ppu(nes_t* console) {
 }
 
 int nes_create(nes_t* console) {
-  int c, p, m;
+  int c, p;
   console->mapper = NULL;
   c = setup_cpu(console);
   p = setup_ppu(console);
@@ -70,49 +70,7 @@ int nes_load_rom(nes_t* console, struct cartridge* cartridge) {
   debug_print("ROM reset vector: %04x\n", console->cpu->pc);
   // init ppu (set nametable addr)
   mem = console->ppu->memory;
-  // do wyjebania
-  switch (cartridge->mirroring_type) {
-    case HORIZONTAL:
-      mem->nametable0 = mem->nt_buf;
-      mem->attrtable0 = (mem->nt_buf + PPU_NAMETABLE_SIZE);
-      mem->nametable1 = mem->nametable0;
-      mem->attrtable1 = mem->attrtable0;
-      mem->nametable2 = (mem->nt_buf + PPU_NTAT_SIZE);
-      mem->attrtable2 = (mem->nt_buf + PPU_NTAT_SIZE + PPU_NAMETABLE_SIZE);
-      mem->nametable3 = mem->nametable2;
-      mem->attrtable3 = mem->attrtable2;
-      break;
-    case VERTICAL:
-      mem->nametable0 = mem->nt_buf;
-      mem->attrtable0 = (mem->nt_buf + PPU_NAMETABLE_SIZE);
-      mem->nametable1 = (mem->nt_buf + PPU_NTAT_SIZE);
-      mem->attrtable1 = (mem->nt_buf + PPU_NTAT_SIZE + PPU_NAMETABLE_SIZE);
-      mem->nametable2 = mem->nametable0;
-      mem->attrtable2 = mem->attrtable0;
-      mem->nametable3 = mem->nametable1;
-      mem->attrtable3 = mem->attrtable1;
-      break;
-    case FOUR_SCREEN:
-      mem->nametable0 = mem->nt_buf;
-      mem->attrtable0 = (mem->nt_buf + PPU_NAMETABLE_SIZE);
-      mem->nametable1 = (mem->nt_buf + PPU_NTAT_SIZE);
-      mem->attrtable1 = (mem->nt_buf + PPU_NTAT_SIZE + PPU_NAMETABLE_SIZE);
-      mem->nametable2 = (mem->nt_buf + 2*PPU_NTAT_SIZE);
-      mem->attrtable2 = (mem->nt_buf + 2*PPU_NTAT_SIZE + PPU_NAMETABLE_SIZE);
-      mem->nametable3 = (mem->nt_buf + 3*PPU_NTAT_SIZE);
-      mem->attrtable3 = (mem->nt_buf + 3*PPU_NTAT_SIZE + PPU_NAMETABLE_SIZE);
-      break;
-    case SINGLE_SCREEN:
-      mem->nametable0 = mem->nt_buf;
-      mem->attrtable0 = (mem->nt_buf + PPU_NAMETABLE_SIZE);
-      mem->nametable1 = mem->nametable0;
-      mem->attrtable1 = mem->attrtable0;
-      mem->nametable2 = mem->nametable0;
-      mem->attrtable2 = mem->attrtable0;
-      mem->nametable3 = mem->nametable0;
-      mem->attrtable3 = mem->attrtable0;
-      break;
-  }
+  ppu_memory_set_mirroring(mem, cartridge->mirroring_type);
 
   return m;
 }
@@ -142,8 +100,9 @@ int nes_step(nes_t* console) {
   for (int i = 0; i < cpu_cycles * 3; i++) {
     ppu_execute_cycle(console->ppu, console->ppu_handle);
     // TODO do sth between vblank and new frame
-    if (console->ppu->status.vblank && console->ppu->control.gen_nmi) {
+    if (console->ppu_handle->nmi_trigger && console->ppu->control.gen_nmi) {
       console->cpu->incoming_int = NMI_INT;
+      console->ppu_handle->nmi_trigger = false;
     }
   }
 
@@ -151,7 +110,7 @@ int nes_step(nes_t* console) {
 }
 
 void nes_step_time(nes_t* console, double seconds) {
-  double cpu_cycles = NES_CPU_FREQ * seconds;
+  long long int cpu_cycles = (long long int)(NES_CPU_FREQ * seconds);
   while (cpu_cycles > 0) {
     cpu_cycles -= nes_step(console);
   }
@@ -249,100 +208,22 @@ void nes_cpu_memory_write(struct memory6502* memory, uint16_t addr, uint8_t byte
 
 uint8_t nes_ppu_memory_read(struct ppu_memory* memory, uint16_t addr) {
   nes_t* console = (nes_t*) memory->io;
-  struct ppu_memory* mem = console->ppu->memory;
-
-  if (addr >= 0x4000) {
-    addr = addr % 0x4000;
-  }
 
   if (addr < 0x2000) {
     struct mapper* mapper = (struct mapper*) console->mapper;
     uint8_t out;
     mapper_read(mapper, addr, &out);
     return out;
-  } else if (addr < 0x3f00) {
-    uint16_t base = addr < 0x3000 ? addr - 0x2000 : addr - 0x3000;
-    uint16_t n = base % PPU_NTAT_SIZE;
-    uint8_t *nt, *at;
-    switch (base / PPU_NTAT_SIZE) {
-      case 0:
-        nt = mem->nametable0; at = mem->attrtable0;
-        break;
-      case 1:
-        nt = mem->nametable1; at = mem->attrtable1;
-        break;
-      case 2:
-        nt = mem->nametable2; at = mem->attrtable2;
-        break;
-      case 3:
-        nt = mem->nametable3; at = mem->attrtable3;
-        break;
-      default: break; /* never gonna happen */
-    }
-
-    if (n < PPU_NAMETABLE_SIZE) {
-      // nametable
-      return nt[n];
-    } else {
-      // attrtable
-      return at[n - PPU_NAMETABLE_SIZE];
-    }
-  } else if (addr < 0x4000) {
-    uint16_t n = addr % (2*PPU_PALETTE_SIZE);
-    if (n < 0x0f) {
-      return mem->image_palette[n];
-    } else {
-      return mem->sprite_palette[n - 0x0f];
-    }
   }
 
-  return 0; // never gonna happen
+  return 0; // should never happen
 }
 
 void nes_ppu_memory_write(struct ppu_memory* memory, uint16_t addr, uint8_t byte) {
   nes_t* console = (nes_t*) memory->io;
-  struct ppu_memory* mem = console->ppu->memory;
-
-  if (addr >= 0x4000) {
-    addr = addr % 0x4000;
-  }
 
   if (addr < 0x2000) {
     struct mapper* mapper = (struct mapper*) console->mapper;
     mapper_write(mapper, addr, byte);
-  } else if (addr < 0x3f00) {
-    uint16_t base = addr < 0x3000 ? addr - 0x2000 : addr - 0x3000;
-    uint16_t n = base % PPU_NTAT_SIZE;
-    uint8_t *nt, *at;
-    switch (base / PPU_NTAT_SIZE) {
-      case 0:
-        nt = mem->nametable0; at = mem->attrtable0;
-        break;
-      case 1:
-        nt = mem->nametable1; at = mem->attrtable1;
-        break;
-      case 2:
-        nt = mem->nametable2; at = mem->attrtable2;
-        break;
-      case 3:
-        nt = mem->nametable3; at = mem->attrtable3;
-        break;
-      default: break; /* never gonna happen */
-    }
-
-    if (n < PPU_NAMETABLE_SIZE) {
-      // nametable
-      nt[n] = byte;
-    } else {
-      // attrtable
-      at[n - PPU_NAMETABLE_SIZE] = byte;
-    }
-  } else if (addr < 0x4000) {
-    uint16_t n = addr % (2*PPU_PALETTE_SIZE);
-    if (n < 0x0f) {
-      mem->image_palette[n] = byte;
-    } else {
-      mem->sprite_palette[n - 0x0f] = byte;
-    }
   }
 }

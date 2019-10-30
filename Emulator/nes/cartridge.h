@@ -11,15 +11,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-
-enum mirroring_type {
-  HORIZONTAL = 0,
-  VERTICAL,
-  FOUR_SCREEN,
-  SINGLE_SCREEN
-};
-
-typedef enum mirroring_type mirroring_type;
+#include "ppu/ppu.h"
 
 #define TV_SYSTEM_NTSC 0
 #define TV_SYSTEM_PAL  1
@@ -38,7 +30,7 @@ struct cartridge {
     int chr_rom_size;
     uint8_t* chr_rom;
     uint8_t* prg_ram;
-    mirroring_type mirroring_type;
+    ppu_mirroring mirroring_type;
     int mapper;
     int tv_system;
 };
