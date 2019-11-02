@@ -93,9 +93,13 @@ void nes_reset(nes_t* console) {
   ppu_state_create(console->ppu, console->ppu->memory);
 }
 
-int nes_step(nes_t* console) {
+int nes_step(nes_t* console, int* error) {
   int cpu_cycles;
   cpu_cycles = execute_asm(console->cpu);
+  if (cpu_cycles <= 0) {
+    error = 1;
+    return 0;
+  }
 
   for (int i = 0; i < cpu_cycles * 3; i++) {
     ppu_execute_cycle(console->ppu, console->ppu_handle);
@@ -106,13 +110,19 @@ int nes_step(nes_t* console) {
     }
   }
 
+  *error = 0;
   return cpu_cycles;
 }
 
 void nes_step_time(nes_t* console, double seconds) {
   long long int cpu_cycles = (long long int)(NES_CPU_FREQ * seconds);
+  int nes_error;
   while (cpu_cycles > 0) {
-    cpu_cycles -= nes_step(console);
+    cpu_cycles -= nes_step(console, &nes_error);
+    if (nes_error) {
+      pretty_print(stdout, "NES ERROR: CPU error code: %d", nes_error);
+      break; //TODO propagate error message
+    }
   }
 }
 

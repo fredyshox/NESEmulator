@@ -14,7 +14,10 @@
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
+#define pretty_print(file, fmt, ...) \
+  fprintf(file, "%s:%d:%s(): " fmt, __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);
+
 #define debug_print(fmt, ...) \
-  do { if (DEBUG_MODE) fprintf(stderr, "%s:%d:%s(): " fmt, __FILENAME__, __LINE__, __func__, ##__VA_ARGS__); } while (0)
+  do { if (DEBUG_MODE) pretty_print(stderr, fmt, __VA_ARGS__) } while (0)
 
 #endif /* debug_h */

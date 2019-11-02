@@ -9,13 +9,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "6502/asm.h"
-#include "6502/addr.h"
 #include "6502/state.h"
-#include "6502/handlers/arithmetic.h"
-#include "6502/handlers/branch.h"
-#include "6502/handlers/memory.h"
-#include "6502/handlers/other.h"
-#include "6502/handlers/stack.h"
 
 #define debug_print_cpu(state, asm) \
   do { \

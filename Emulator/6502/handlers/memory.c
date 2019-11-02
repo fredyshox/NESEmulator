@@ -26,28 +26,24 @@ static uint8_t load_value(state6502 *state, asm6502 cmd) {
 // Load value into accumulator register
 // Affected flags: Z, N
 void load_accumulator(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == LDA_ASM);
   state->reg_a = load_value(state, cmd);
 }
 
 // Load value into X register
 // Affected flags: Z, N
 void load_xreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == LDX_ASM);
   state->reg_x = load_value(state, cmd);
 }
 
 // Load value into Y register
 // Affected flags: Z, N
 void load_yreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == LDY_ASM);
   state->reg_y = load_value(state, cmd);
 }
 
 // Store acc value
 // Affected flags: none
 void store_accumulator(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == STA_ASM);
   uint16_t addr = handle_addr(state, cmd.maddr);
   memory6502_store(state->memory, addr, state->reg_a);
 }
@@ -55,7 +51,6 @@ void store_accumulator(state6502 *state, asm6502 cmd) {
 // Store X register value
 // Affected flags: none
 void store_xreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == STX_ASM);
   uint16_t addr = handle_addr(state, cmd.maddr);
   memory6502_store(state->memory, addr, state->reg_x);
 }
@@ -63,7 +58,6 @@ void store_xreg(state6502 *state, asm6502 cmd) {
 // Store Y register value
 // Affected flags: none
 void store_yreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == STY_ASM);
   uint16_t addr = handle_addr(state, cmd.maddr);
   memory6502_store(state->memory, addr, state->reg_y);
 }
@@ -78,21 +72,17 @@ static void transfer(state6502 *state, uint8_t *src, uint8_t *dest) {
 }
 
 void transfer_a2x(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == TAX_ASM);
   transfer(state, &state->reg_a, &state->reg_x);
 }
 
 void transfer_x2a(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == TXA_ASM);
   transfer(state, &state->reg_x, &state->reg_a);
 }
 
 void transfer_a2y(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == TAY_ASM);
   transfer(state, &state->reg_a, &state->reg_y);
 }
 
 void transfer_y2a(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == TYA_ASM);
   transfer(state, &state->reg_y, &state->reg_a);
 }

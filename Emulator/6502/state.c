@@ -30,6 +30,7 @@ void interrupt6502_handle(struct state6502 *state) {
   uint16_t vec_addr;
   // vars for pc addr
   uint8_t msb, lsb;
+  printf("Interrupt happened: %d\n", intnum);
 
   if ((state->status.int_disable == 1 && intnum != NMI_INT) || intnum == NONE_INT)
     return;
@@ -71,6 +72,10 @@ void memory6502_create(struct memory6502 *memory, uint16_t size) {
 }
 
 void memory6502_store(struct memory6502 *memory, uint16_t idx, uint8_t value) {
+  if (idx >= 0x100 && idx < 0x200) {
+    printf("STACK ACCESS! %04x %02x\n", idx, value);
+  }
+
   if (memory->store_handler == NULL) {
     // default
     if (idx >= memory->size) {

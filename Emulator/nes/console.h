@@ -33,7 +33,16 @@ void nes_free(nes_t* console);
 int nes_load_rom(nes_t* console, struct cartridge* cartridge);
 bool nes_is_loaded(nes_t* console);
 void nes_reset(nes_t* console);
-int nes_step(nes_t* console);
+
+/**
+ * Performs single nes step by executing single cpu instruction
+ * and appropriate amount of ppu cycles. 
+ * Error flag values:
+ * 0 - no error
+ * 1 - cpu error
+ * 2 - ppu error
+ */
+int nes_step(nes_t* console, int* error);
 void nes_step_time(nes_t* console, double seconds);
 // memory handlers
 uint8_t nes_cpu_memory_read(struct memory6502* memory, uint16_t addr);

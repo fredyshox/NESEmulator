@@ -10,43 +10,36 @@
 
 // Affected flags: C
 void clear_carry(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CLC_ASM);
   state->status.carry = 0;
 }
 
 // Affected flags: C
 void set_carry(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == SEC_ASM);
   state->status.carry = 1;
 }
 
 // Affected flags: I
 void clear_interrupt(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CLI_ASM);
   state->status.int_disable = 0;
 }
 
 // Affected flags: I
 void set_interrupt(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == SEI_ASM);
   state->status.int_disable = 1;
 }
 
 // Affected flags: V
 void clear_overflow(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CLV_ASM);
   state->status.overflow = 0;
 }
 
 // Affected flags: D (Decimal mode not supported in other areas)
 void clear_decimal(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CLD_ASM);
   state->status.decimal = 0;
 }
 
 // Affected flags: D
 void set_decimal(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == SED_ASM);
   state->status.decimal = 1;
 }
 
@@ -68,7 +61,6 @@ static void compare_register(state6502 *state, asm6502 cmd, uint8_t reg) {
 }
 
 void compare_accumulator(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CMP_ASM);
   compare_register(state, cmd, state->reg_a);
   // sign of acc?
   // if (state->reg_a & 0x80) {
@@ -77,12 +69,10 @@ void compare_accumulator(state6502 *state, asm6502 cmd) {
 }
 
 void compare_xreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CPX_ASM);
   compare_register(state, cmd, state->reg_x);
 }
 
 void compare_yreg(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == CPY_ASM);
   compare_register(state, cmd, state->reg_y);
 }
 

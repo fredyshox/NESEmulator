@@ -82,6 +82,25 @@
   ASM(CPX)  \
   ASM(CPY)  \
   ASM(NOP)  \
+  /* Unofficial */ \
+  ASM(SLO)  \
+  ASM(RLA)  \
+  ASM(SRE)  \
+  ASM(RRA)  \
+  ASM(SAX)  \
+  ASM(LAX)  \
+  ASM(DCP)  \
+  ASM(ISC)  \
+  ASM(ANC)  \
+  ASM(ALR)  \
+  ASM(ARR)  \
+  ASM(XAA)  \
+  ASM(AXS)  \
+  ASM(AHX)  \
+  ASM(SHY)  \
+  ASM(SHX)  \
+  ASM(TAS)  \
+  ASM(LAS)  \
 
 #define GENERATE_ENUM(ENUM) ENUM ## _ASM,
 #define GENERATE_ASM_STRING(STRING) #STRING,

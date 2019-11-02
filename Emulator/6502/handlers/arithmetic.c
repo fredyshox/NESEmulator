@@ -32,7 +32,6 @@ void add_with_carry_handler(state6502* state, uint8_t value) {
 // Add value to accumulator with carry
 // Affected flags: Z, N, C, V
 void add_with_carry(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == ADC_ASM);
   uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.value;
@@ -45,8 +44,6 @@ void add_with_carry(state6502 *state, asm6502 cmd) {
 }
 
 void increment_memory(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == INC_ASM);
-
   uint16_t addr = handle_addr(state, cmd.maddr);
   uint16_t value = memory6502_load(state->memory, addr);
   value += 1;
@@ -60,7 +57,6 @@ void increment_memory(state6502 *state, asm6502 cmd) {
 
 
 void increment_x(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == INX_ASM);
   uint16_t value = state->reg_x + 1;
 
   // flags
@@ -71,7 +67,6 @@ void increment_x(state6502 *state, asm6502 cmd) {
 }
 
 void increment_y(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == INY_ASM);
   uint16_t value = state->reg_y + 1;
 
   // flags
@@ -82,7 +77,6 @@ void increment_y(state6502 *state, asm6502 cmd) {
 }
 
 void subtract_with_carry(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == SBC_ASM);
   uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.value;
@@ -95,7 +89,6 @@ void subtract_with_carry(state6502 *state, asm6502 cmd) {
 }
 
 void decrement_memory(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == DEC_ASM);
 
   uint16_t addr = handle_addr(state, cmd.maddr);
   uint16_t value = memory6502_load(state->memory, addr);
@@ -109,7 +102,6 @@ void decrement_memory(state6502 *state, asm6502 cmd) {
 }
 
 void decrement_x(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == DEX_ASM);
   uint16_t value = state->reg_x - 1;
 
   // flags
@@ -120,7 +112,6 @@ void decrement_x(state6502 *state, asm6502 cmd) {
 }
 
 void decrement_y(state6502 *state, asm6502 cmd) {
-  assert(cmd.type == DEY_ASM);
   uint16_t value = state->reg_y - 1;
 
   // flags

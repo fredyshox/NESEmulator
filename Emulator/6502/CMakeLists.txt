@@ -9,7 +9,8 @@ set(6502lib_SOURCES
   handlers/branch.c
   handlers/memory.c
   handlers/other.c
-  handlers/stack.c)
+  handlers/stack.c
+  handlers/illegal.c)
 
 add_library(6502
   STATIC
@@ -21,8 +22,11 @@ target_include_directories(6502
   PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-# TEMPORARY
-target_compile_definitions(6502 PUBLIC DEBUG=1)
+# debug mode
+#target_compile_definitions(6502 PUBLIC DEBUG=1)
+
+# illegal opcodes on by default
+target_compile_definitions(6502 PUBLIC ILLEGAL_OPCODES=1)
 
 install(TARGETS 6502 DESTINATION lib)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
