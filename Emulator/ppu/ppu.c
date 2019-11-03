@@ -180,7 +180,7 @@ void ppu_sr_addr_write(struct ppu_state* state, uint8_t addr) {
 void ppu_sr_data_write(struct ppu_state* state, uint8_t byte) {
   debug_print("OAMDATA W: ");
   debug_print_ppu(state);
-  uint8_t si = state->reg_sr_addr >> 4; // fast div
+  uint8_t si = state->reg_sr_addr >> 2; // fast div
   uint8_t bi = state->reg_sr_addr & 0b11; // fast mod
   struct ppu_sprite* spr = &state->memory->sprite_ram[si];
   switch (bi) {

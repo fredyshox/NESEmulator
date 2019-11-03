@@ -44,6 +44,7 @@ struct ppu_render_handle* ppu_render_handle_create() {
   handle->fetch_storage = ppu_shift_storage_create();
   handle->render_storage = handle->fetch_storage->next;
   handle->nmi_trigger = false;
+  handle->odd_frame = false;
 
   return handle;
 }
@@ -202,12 +203,23 @@ void ppu_storage_compile(struct ppu_shift_storage* storage) {
 }
 
 void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) {
+  bool renderingEnabled = ppu->mask.show_bg || ppu->mask.show_spr;
+  if (renderingEnabled) {
+    if (handle->odd_frame && handle->line == 261 && handle->cycle == 339) {
+      handle->cycle = 0;
+      handle->line = 0;
+      handle->odd_frame = !handle->odd_frame;
+      return;
+    }
+  }
+
   handle->cycle += 1;
   if (handle->cycle > 340) {
     handle->cycle = 0;
     handle->line += 1;
     if (handle->line > 261) {
       handle->line = 0;
+      handle->odd_frame = !handle->odd_frame;
     }
   }
 
@@ -225,7 +237,7 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
 
   // check if rendering is enabled 
   int bg_ptable = ppu->control.bg_pttrntable;
-  if (ppu->mask.show_bg || ppu->mask.show_spr) {
+  if (renderingEnabled) {
     if (visibleFrame && visibleCycle) {
       // just draw stuff
       ppu_render_pixel(ppu, handle);
@@ -247,10 +259,10 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
           break;
         // lower bits for each pixel in tile
         case 5:
-          storage->bg_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, storage->bg_pt_index * 16 + ppu->fine_y, bg_ptable);
+          storage->bg_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, (uint16_t) storage->bg_pt_index * 16 + (uint16_t) ppu->fine_y, bg_ptable);
           break;
         case 7:
-          storage->bg_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, storage->bg_pt_index * 16 + ppu->fine_y + TILE_SIZE, bg_ptable);
+          storage->bg_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, (uint16_t) storage->bg_pt_index * 16 + (uint16_t) ppu->fine_y + TILE_SIZE, bg_ptable);
           break;
         default: break;
       }

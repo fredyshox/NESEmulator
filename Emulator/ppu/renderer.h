@@ -45,6 +45,7 @@ void ppu_shift_storage_free(struct ppu_shift_storage* pss);
 struct ppu_render_handle {
   int frame_buf_pos;
   uint8_t* frame;
+  bool odd_frame;
   uint8_t* spr_pixel_buf;
   int sprbuf_size;
   struct ppu_sprite* spr_buffer;
