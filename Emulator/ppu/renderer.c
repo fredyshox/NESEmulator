@@ -140,9 +140,9 @@ int ppu_update_frame(uint8_t* frame, struct ppu_color color, int pos) {
 void ppu_render_pixel(struct ppu_state* ppu, struct ppu_render_handle* handle) {
   struct ppu_shift_storage* storage = handle->render_storage;
   uint8_t fine_x = ppu->fine_x & 0x07;
-  uint8_t bg_color_idx = (uint8_t) (storage->bg_tiles >> ((TILE_SIZE - fine_x - 1) << 2)) & 0x0F; // (7 - x_fine) * 4
+  uint16_t bg_color_address = 0x3f00 | (uint16_t) ((storage->bg_tiles >> ((TILE_SIZE - fine_x - 1) << 2)) & 0x0F); // (7 - x_fine) * 4
   storage->bg_tiles <<= 4;
-  struct ppu_color bg_color = NES_COLOR(ppu->memory->image_palette[bg_color_idx]);
+  struct ppu_color bg_color = NES_COLOR(ppu_memory_load(ppu->memory, bg_color_address));
   handle->frame_buf_pos += ppu_update_frame(handle->frame, bg_color, handle->frame_buf_pos);
 }
 

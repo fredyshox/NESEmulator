@@ -68,11 +68,16 @@ uint8_t ppu_memory_load(struct ppu_memory* mem, uint16_t idx) {
       default: break; /* never gonna happen */
     }
   } else if (idx >= 0x3f00 && idx < 0x4000) {
-    uint16_t n = idx % (2*PPU_PALETTE_SIZE);
-    if (n < 0x0f) {
-      return mem->image_palette[n];
-    } else {
-      return mem->sprite_palette[n - 0x0f];
+    int type = (idx >> 4) & 1;
+    uint8_t c = idx & 0x000f;
+    if ((c & 0x03) == 0) {
+      return mem->image_palette[0];
+    }
+
+    if (!type) { // even type
+      return mem->image_palette[c];
+    } else { // odd type
+      return mem->sprite_palette[c];
     }
   }
 
@@ -101,11 +106,13 @@ void ppu_memory_store(struct ppu_memory* mem, uint16_t idx, uint8_t value) {
       default: break; /* never gonna happen */
     }
   } else if (idx >= 0x3f00 && idx < 0x4000) {
-    uint16_t n = idx % (2*PPU_PALETTE_SIZE);
-    if (n < 0x0f) {
-      mem->image_palette[n] = value;
+    int type = (idx >> 4) & 1;
+    uint8_t c = idx & 0x000f;
+
+    if (!type || (type && (c & 0x03) == 0)) {
+      mem->image_palette[c] = value;
     } else {
-      mem->sprite_palette[n - 0x0f] = value;
+      mem->sprite_palette[c] = value;
     }
   } else {
     mem->store_handler(mem, idx, value);
