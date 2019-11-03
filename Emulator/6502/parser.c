@@ -15,11 +15,6 @@
 #include "6502/handlers/illegal.h"
 #endif
 
-asm6502 prevOp;
-uint8_t sp;
-uint8_t spH;
-uint8_t spL;
-
 int execute_asm(state6502 *state) {
   if (state->incoming_int != NONE_INT) {
     //TODO what about handle interrupt cpu cycles?
@@ -34,13 +29,6 @@ int execute_asm(state6502 *state) {
   if (operation.cycles) {
     state->pc += (uint16_t) consumed;
     asm6502_execute(operation, state);
-    
-    prevOp = operation;
-    sp = state->sp;
-    uint8_t sp1 = sp + 1;
-    uint8_t sp2 = sp + 2;
-    spH = memory6502_load(state->memory, 0x100 + (uint16_t) sp1);
-    spL = memory6502_load(state->memory, 0x100 + (uint16_t) sp2); 
   }
 
   return operation.cycles;
@@ -196,7 +184,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       break;
     // BRK
     case 0x00:
-      printf("BRK at: %04x prev: %s\n", pos, ASM_STRING[prevOp.type]);
       cmd->type = BRK_ASM;
       addr.type = IMP_ADDR;
       cmd->handler = break_interrupt;
@@ -420,7 +407,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       cmd->type = JSR_ASM;
       cmd->handler = jump_subroutine;
       cycles = 6;
-      printf("JSR at: %04x mem: %04x prev: %s\n", pos, addr.value, ASM_STRING[prevOp.type]);
       break;
     // LDA
     case 0xa9:
@@ -614,7 +600,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
         break;
     // PHA
     case 0x48:
-      printf("PHA at %04x s %02x - %02x %02x\n", pos, sp, spH, spL);
       cmd->type = PHA_ASM;
       addr.type = IMP_ADDR;
       cmd->handler = push_accumulator;
@@ -622,7 +607,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       break;
     // PHP
     case 0x08:
-      printf("PHP\n");
       cmd->type = PHP_ASM;
       addr.type = IMP_ADDR;
       cmd->handler = push_cpu_status;
@@ -630,7 +614,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       break;
     // PLA
     case 0x68:
-      printf("PLA at %04x s %02x - %02x %02x\n", pos, sp, spH, spL);
       cmd->type = PLA_ASM;
       addr.type = IMP_ADDR;
       cmd->handler = pull_accumulator;
@@ -638,7 +621,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       break;
     // PLP
     case 0x28:
-      printf("PLP\n");
       cmd->type = PLP_ASM;
       addr.type = IMP_ADDR;
       cmd->handler = pull_cpu_status;
@@ -699,7 +681,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       break;
     // RTS
     case 0x60:
-      printf("RTS at: %04x prev: %s - %04x %04x\n", pos, ASM_STRING[prevOp.type], spH, spL);
       cmd->type = RTS_ASM;
       addr.type = IMP_ADDR;
       cmd->handler = return_subroutine;
@@ -851,14 +832,12 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
       break;
     // TSX
     case 0xba:
-      printf("%s\n", ASM_STRING[TSX_ASM]);
       cmd->type = TSX_ASM;
       addr.type = IMP_ADDR;
       cmd->handler = transfer_sptr2x;
       break;
     // TXS
     case 0x9a:
-      printf("%s\n", ASM_STRING[TXS_ASM]);
       cmd->type = TXS_ASM;
       addr.type = IMP_ADDR;
       cmd->handler = transfer_x2sptr;
@@ -1184,8 +1163,6 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
     #endif
     default:
       debug_print("ERROR: unsupported opcode %x at %x\n", opcode, pos);
-      printf("ERROR: unsupported opcode %x at %x\n", opcode, pos);
-      printf("ERROR: Prev op: %d %s\n", prevOp.type, ASM_STRING[prevOp.type]);
       return 0;
   }
   cmd->maddr = addr;

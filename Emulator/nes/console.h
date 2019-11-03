@@ -43,7 +43,7 @@ void nes_reset(nes_t* console);
  * 2 - ppu error
  */
 int nes_step(nes_t* console, int* error);
-void nes_step_time(nes_t* console, double seconds);
+void nes_step_time(nes_t* console, double seconds, int* error);
 // memory handlers
 uint8_t nes_cpu_memory_read(struct memory6502* memory, uint16_t addr);
 void nes_cpu_memory_write(struct memory6502* memory, uint16_t addr, uint8_t byte);
