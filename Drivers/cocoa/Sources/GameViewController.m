@@ -23,7 +23,6 @@
     if (self) {
         emulator = malloc(sizeof(nes_t));
         nes_create(emulator);
-        lastTime = 0.0;
     }
     return self;
 }
@@ -38,6 +37,7 @@
     [[self view] setWantsLayer: YES];
     [[[self view] layer] setBackgroundColor: NSColor.blackColor.CGColor];
     
+    NSLog(@"NES CPU freq: %f", NES_CPU_FREQ);
     _nesView = [[NESView alloc] initWithPPUHandle: emulator->ppu_handle];
     [_nesView setTranslatesAutoresizingMaskIntoConstraints: NO];
     [[self view] addSubview: _nesView];
@@ -46,7 +46,7 @@
     [NSLayoutConstraint activateConstraints: hcon];
     [NSLayoutConstraint activateConstraints: vcon];
     
-    NSString* gamePath = @"../../testsuite/Donkey Kong Classics (U).nes";
+    NSString* gamePath = @"../../testsuite/roms/Donkey Kong Classics (U).nes";
     [self loadGameFromFile: gamePath];
 }
 
@@ -64,23 +64,29 @@
 - (double)getTimeUSec {
     struct timeval time;
     gettimeofday(&time, NULL);
+    
     return ((double) time.tv_sec * 1E6 + (double) time.tv_usec);
 }
 
 - (void)emulateConsole {
     @autoreleasepool {
-        while (![[NSThread currentThread] isCancelled]) {
+        int error = 0;
+        double lastTime = [self getTimeUSec];
+        
+        while (![[NSThread currentThread] isCancelled] && error == 0) {
+            [NSThread sleepForTimeInterval: 0.001];
             double current = [self getTimeUSec];
-            if (lastTime == 0.0) {
-                lastTime = current;
-            }
             
             if (current != lastTime) {
-                nes_step_time(emulator, current - lastTime);
+                nes_step_time(emulator, (current - lastTime) / 1E6, &error);
             }
             
             lastTime = current;
-            [NSThread sleepForTimeInterval: 0.005];
+        }
+        
+        
+        if (error != 0) {
+            NSLog(@"Emulation stopped with error code: %d", error);
         }
     }
 }
@@ -117,6 +123,7 @@
         return;
     }
     
+    NSLog(@"%d", c->mirroring_type);
     if (nes_load_rom(emulator, c) != 0) {
         NSLog(@"Unable to load rom");
         return;

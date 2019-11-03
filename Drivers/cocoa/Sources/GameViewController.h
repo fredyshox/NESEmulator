@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GameViewController : NSViewController {
     NSThread* emulatorThread;
     nes_t* emulator;
-    double lastTime;
 }
 
 @property (strong, readonly, nonnull) NESView* nesView;

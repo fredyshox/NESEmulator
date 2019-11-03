@@ -8,7 +8,9 @@
 
 #import "NESView.h"
 
-@implementation NESView
+@implementation NESView {
+    int frameCounter;
+}
 
 @synthesize fps, renderingHandle;
 
@@ -82,6 +84,11 @@
                 k += 1;
             }
         }
+    }
+    
+    frameCounter += 1;
+    if (frameCounter % 60 == 0) {
+        NSLog(@"C: %d L: %d FB: %d", renderingHandle->cycle, renderingHandle->line, renderingHandle->frame_buf_pos);
     }
     
     if ([NSGraphicsContext currentContext] != nil) {

@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @property unsigned int fps;
-@property (nullable) ppu_render_handle* renderingHandle;
+@property (nullable) volatile ppu_render_handle* renderingHandle;
 
 - (instancetype)initWithPPUHandle:(nullable ppu_render_handle*) handle;
 -(void)renderFrame:(id) sender;

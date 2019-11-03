@@ -8,15 +8,124 @@
 
 /* Begin PBXBuildFile section */
 		E21985F6227FA0100024EB70 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E21985F5227FA0100024EB70 /* GameViewController.m */; };
-		E220B7B4227F7AAC00590FCE /* libppu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E220B7B1227F7AAC00590FCE /* libppu.a */; };
-		E220B7B5227F7AAC00590FCE /* lib6502.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E220B7B2227F7AAC00590FCE /* lib6502.a */; };
-		E220B7B6227F7AAC00590FCE /* libnes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E220B7B3227F7AAC00590FCE /* libnes.a */; };
 		E279193722616B6D00EB941D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E279193622616B6D00EB941D /* AppDelegate.m */; };
 		E279193922616B6D00EB941D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E279193822616B6D00EB941D /* Assets.xcassets */; };
 		E279193C22616B6D00EB941D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E279193A22616B6D00EB941D /* MainMenu.xib */; };
 		E279193F22616B6D00EB941D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E279193E22616B6D00EB941D /* main.m */; };
 		E279194822616CAF00EB941D /* NESView.m in Sources */ = {isa = PBXBuildFile; fileRef = E279194722616CAF00EB941D /* NESView.m */; };
+		E2DE5E9B236F1653006D259C /* lib6502.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E7E236F1605006D259C /* lib6502.a */; };
+		E2DE5E9C236F1653006D259C /* libcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E80236F1605006D259C /* libcommon.a */; };
+		E2DE5E9D236F1653006D259C /* libnes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E84236F1605006D259C /* libnes.a */; };
+		E2DE5E9E236F1653006D259C /* libppu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E86236F1605006D259C /* libppu.a */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E2DE5E7D236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DD574CC0B89A493F9706146E;
+			remoteInfo = 6502;
+		};
+		E2DE5E7F236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F4AC9801999645209EC98497;
+			remoteInfo = common;
+		};
+		E2DE5E81236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4FD45BDABD2649EDA67C5369;
+			remoteInfo = debugger;
+		};
+		E2DE5E83236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DF727F2E7A8C4F82B76402B3;
+			remoteInfo = nes;
+		};
+		E2DE5E85236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D8F25282DF3E44AC98A2216E;
+			remoteInfo = ppu;
+		};
+		E2DE5E87236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 09347CF8945342DA8320C6F8;
+			remoteInfo = renderer;
+		};
+		E2DE5E89236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 79F12EFB8D68456591E8E34B;
+			remoteInfo = run;
+		};
+		E2DE5E8B236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 21066F76D915488A95F85F32;
+			remoteInfo = test_arithmetic_op;
+		};
+		E2DE5E8D236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 38B6616C384C4532B8A9F175;
+			remoteInfo = test_cartridge;
+		};
+		E2DE5E8F236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 502F42F3BA4B44BC9B75B36F;
+			remoteInfo = test_flags_op;
+		};
+		E2DE5E91236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6B1EAAA2E4DB460A93F6BCC8;
+			remoteInfo = test_ints;
+		};
+		E2DE5E93236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 73678F67DE834444B0532835;
+			remoteInfo = test_memory_op;
+		};
+		E2DE5E95236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8A86F067A7014E14ADC92A2D;
+			remoteInfo = test_nes_roms;
+		};
+		E2DE5E97236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 74A791396B1843A79DBFC483;
+			remoteInfo = test_ppu_sprites;
+		};
+		E2DE5E99236F1605006D259C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 72788542942F40128B330291;
+			remoteInfo = test_program_counter_op;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		E21985F4227FA0100024EB70 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
@@ -34,6 +143,7 @@
 		E279194022616B6D00EB941D /* nescocoa.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = nescocoa.entitlements; sourceTree = "<group>"; };
 		E279194622616CAF00EB941D /* NESView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESView.h; sourceTree = "<group>"; };
 		E279194722616CAF00EB941D /* NESView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESView.m; sourceTree = "<group>"; };
+		E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "nes-emulator.xcodeproj"; path = "Build/nes-emulator.xcodeproj"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,9 +151,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E220B7B4227F7AAC00590FCE /* libppu.a in Frameworks */,
-				E220B7B5227F7AAC00590FCE /* lib6502.a in Frameworks */,
-				E220B7B6227F7AAC00590FCE /* libnes.a in Frameworks */,
+				E2DE5E9B236F1653006D259C /* lib6502.a in Frameworks */,
+				E2DE5E9C236F1653006D259C /* libcommon.a in Frameworks */,
+				E2DE5E9D236F1653006D259C /* libnes.a in Frameworks */,
+				E2DE5E9E236F1653006D259C /* libppu.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,6 +191,7 @@
 		E279193422616B6D00EB941D /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */,
 				E279194622616CAF00EB941D /* NESView.h */,
 				E279194722616CAF00EB941D /* NESView.m */,
 				E21985F4227FA0100024EB70 /* GameViewController.h */,
@@ -93,6 +205,28 @@
 				E279194022616B6D00EB941D /* nescocoa.entitlements */,
 			);
 			path = Sources;
+			sourceTree = "<group>";
+		};
+		E2DE5E68236F1605006D259C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E2DE5E7E236F1605006D259C /* lib6502.a */,
+				E2DE5E80236F1605006D259C /* libcommon.a */,
+				E2DE5E82236F1605006D259C /* debugger */,
+				E2DE5E84236F1605006D259C /* libnes.a */,
+				E2DE5E86236F1605006D259C /* libppu.a */,
+				E2DE5E88236F1605006D259C /* renderer */,
+				E2DE5E8A236F1605006D259C /* run */,
+				E2DE5E8C236F1605006D259C /* test_arithmetic_op */,
+				E2DE5E8E236F1605006D259C /* test_cartridge */,
+				E2DE5E90236F1605006D259C /* test_flags_op */,
+				E2DE5E92236F1605006D259C /* test_ints */,
+				E2DE5E94236F1605006D259C /* test_memory_op */,
+				E2DE5E96236F1605006D259C /* test_nes_roms */,
+				E2DE5E98236F1605006D259C /* test_ppu_sprites */,
+				E2DE5E9A236F1605006D259C /* test_program_counter_op */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,12 +274,126 @@
 			mainGroup = E279192922616B6D00EB941D;
 			productRefGroup = E279193322616B6D00EB941D /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = E2DE5E68236F1605006D259C /* Products */;
+					ProjectRef = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				E279193122616B6D00EB941D /* nescocoa */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		E2DE5E7E236F1605006D259C /* lib6502.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = lib6502.a;
+			remoteRef = E2DE5E7D236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E80236F1605006D259C /* libcommon.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libcommon.a;
+			remoteRef = E2DE5E7F236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E82236F1605006D259C /* debugger */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = debugger;
+			remoteRef = E2DE5E81236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E84236F1605006D259C /* libnes.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libnes.a;
+			remoteRef = E2DE5E83236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E86236F1605006D259C /* libppu.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libppu.a;
+			remoteRef = E2DE5E85236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E88236F1605006D259C /* renderer */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = renderer;
+			remoteRef = E2DE5E87236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E8A236F1605006D259C /* run */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = run;
+			remoteRef = E2DE5E89236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E8C236F1605006D259C /* test_arithmetic_op */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_arithmetic_op;
+			remoteRef = E2DE5E8B236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E8E236F1605006D259C /* test_cartridge */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_cartridge;
+			remoteRef = E2DE5E8D236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E90236F1605006D259C /* test_flags_op */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_flags_op;
+			remoteRef = E2DE5E8F236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E92236F1605006D259C /* test_ints */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_ints;
+			remoteRef = E2DE5E91236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E94236F1605006D259C /* test_memory_op */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_memory_op;
+			remoteRef = E2DE5E93236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E96236F1605006D259C /* test_nes_roms */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_nes_roms;
+			remoteRef = E2DE5E95236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E98236F1605006D259C /* test_ppu_sprites */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_ppu_sprites;
+			remoteRef = E2DE5E97236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E2DE5E9A236F1605006D259C /* test_program_counter_op */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_program_counter_op;
+			remoteRef = E2DE5E99236F1605006D259C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E279193022616B6D00EB941D /* Resources */ = {
@@ -304,13 +552,18 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = JE2494MFB5;
-				HEADER_SEARCH_PATHS = ../../Emulator/install/include;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/Build/nes/include",
+					"$(PROJECT_DIR)/Build/6502/include",
+					"$(PROJECT_DIR)/Build/ppu/include",
+					"$(PROJECT_DIR)/Build/common/include",
+				);
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = ../../Emulator/install/lib;
+				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raczy.nescocoa;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -324,13 +577,18 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = JE2494MFB5;
-				HEADER_SEARCH_PATHS = ../../Emulator/install/include;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/Build/nes/include",
+					"$(PROJECT_DIR)/Build/6502/include",
+					"$(PROJECT_DIR)/Build/ppu/include",
+					"$(PROJECT_DIR)/Build/common/include",
+				);
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = ../../Emulator/install/lib;
+				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raczy.nescocoa;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
