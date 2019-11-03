@@ -13,11 +13,33 @@ macro(add_test_exec target source libs)
   install(TARGETS "test_${target}" DESTINATION test)
 endmacro()
 
+macro(add_gtest_exec target source libs) 
+  add_test_exec(${target} ${source} ${libs})
+  target_link_libraries("test_${target}" ${GTEST_LIBRARY})
+  target_include_directories("test_${target}" PRIVATE ${GTEST_INCLUDE_DIRS})
+  target_compile_options("test_${target}" PRIVATE -std=c++17)
+endmacro()
+
 macro(add_unit_test target name args)
   add_test(NAME "test_${target}_${name}"
            COMMAND "test_${target}" ${args}
-           WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+           WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../")
 endmacro()
+
+macro(add_unit_gtest target args)
+  add_test(NAME "test_${target}"
+           COMMAND "test_${target}" ${args}
+           WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../")
+endmacro()
+
+# GTest
+
+find_package(GTest 1.8.1 REQUIRED)
+if (GTEST_FOUND)
+  message(STATUS "GTest 1.8.1 found!")
+else()
+  message(FATAL_ERROR "GTest not found!")
+endif()
 
 # test execs
 add_test_exec(memory_op
@@ -43,6 +65,10 @@ add_test_exec(ints
 add_test_exec(ppu_sprites
   ppu/sprites.c
   ppu)
+
+add_gtest_exec(nes_roms
+  nes/romtest.cpp
+  nes)
 
 add_test_exec(cartridge
   nes/cartridge.c
@@ -102,5 +128,6 @@ add_unit_test(ints interrupts "")
 
 add_unit_test(ppu_sprites eval "--eval")
 add_unit_test(ppu_sprites layout "--layout")
+add_unit_gtest(nes_roms "")
 
 add_unit_test(cartridge loading "${CMAKE_CURRENT_SOURCE_DIR}/../../testsuite/Donkey\ Kong\ Classics\ \(U\).nes")

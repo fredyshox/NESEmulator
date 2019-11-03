@@ -17,18 +17,23 @@ double getTimeUSec() {
 }
 
 void emulate() {
-  while (1) {
-            double current = getTimeUSec();
-            if (lastTime == 0.0) {
-                lastTime = current;
-            }
+  int error = 0;
+  while (error == 0) {
+    double current = getTimeUSec();
+    if (lastTime == 0.0) {
+      lastTime = current;
+    }
 
-            if (current != lastTime) {
-                nes_step_time(&console, current - lastTime);
-            }
+    if (current != lastTime) {
+      nes_step_time(&console, current - lastTime, &error);
+    }
 
-            lastTime = current;
-            usleep(5000);
+    lastTime = current;
+    usleep(5000);
+  }
+
+  if (error != 0) {
+    printf("Emulation stopped with error code: %d\n", error);
   }
 }
 

@@ -1,5 +1,6 @@
 //
 // Common testing stuff
+// Testing utilities used before I discovered gtest...
 //
 
 #ifndef TEST_H
