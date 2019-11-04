@@ -50,6 +50,10 @@ int nes_create(nes_t* console) {
   console->mapper = NULL;
   c = setup_cpu(console);
   p = setup_ppu(console);
+  console->controller1.id = 1;
+  console->controller1.locked = true;
+  console->controller2.id = 2;
+  console->controller2.locked = true;
   return (!c && !p);
 }
 
@@ -97,7 +101,7 @@ int nes_step(nes_t* console, int* error) {
   int cpu_cycles;
   cpu_cycles = execute_asm(console->cpu);
   if (cpu_cycles <= 0) {
-    error = 1;
+    *error = 1;
     return 0;
   }
 
@@ -149,7 +153,7 @@ uint8_t nes_cpu_memory_read(struct memory6502* memory, uint16_t addr) {
         ppu_data_read(console->ppu, &out);
         break;
       default:
-        debug_print("Warning: CPU read access on %d\n", addr);
+        debug_print("Warning: CPU read access on %04x\n", addr);
         out = 0;
         break;
     }
@@ -157,7 +161,14 @@ uint8_t nes_cpu_memory_read(struct memory6502* memory, uint16_t addr) {
     return out;
   } else if (addr < 0x4020 || addr < 0x6000) {
     // other io
-    return 0;
+    if (addr == CONTROLLER_JOYPAD1) {
+      return controller_read(&console->controller1);
+    } else if (addr == CONTRoLLER_JOYPAD2) {
+      return controller_read(&console->controller2);
+    } else {
+      debug_print("Warning: Not implemented - write on %04x\n", addr); 
+      return 0; 
+    }
   } else {
     // rom stuff
     uint8_t out;
@@ -195,7 +206,7 @@ void nes_cpu_memory_write(struct memory6502* memory, uint16_t addr, uint8_t byte
         ppu_data_write(console->ppu, byte);
         break;
       default:
-        debug_print("Warning: CPU write access on %d\n", addr);
+        debug_print("Warning: CPU write access on %04x\n", addr);
         break;
     }
   } else if (addr < 0x4020 || addr < 0x6000) {
@@ -208,8 +219,12 @@ void nes_cpu_memory_write(struct memory6502* memory, uint16_t addr, uint8_t byte
           oam[i] = nes_cpu_memory_read(console->cpu->memory, base_addr + i);
         }
         ppu_sr_dma_write(console->ppu, oam, 0xff);
+      case CONTROLLER_JOYPAD1:
+        controller_write(&console->controller1, byte);
+        controller_write(&console->controller2, byte);
+        break;
       default:
-        debug_print("Warning: Not implemented - write on %d\n", addr);
+        debug_print("Warning: Not implemented - write on %04x\n", addr);
         break;
     }
   } else {

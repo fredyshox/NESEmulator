@@ -15,6 +15,7 @@
 #include "ppu/renderer.h"
 #include "nes/mapper.h"
 #include "nes/cartridge.h"
+#include "nes/controller.h"
 
 #define NES_CPU_FREQ 1.79E6
 
@@ -24,6 +25,8 @@ struct nes_t {
   ppu_render_handle* ppu_handle;
   mapper* mapper;
   cartridge* cartridge;
+  controller_t controller1;
+  controller_t controller2;
 };
 
 typedef struct nes_t nes_t;

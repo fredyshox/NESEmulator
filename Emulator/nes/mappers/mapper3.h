@@ -17,7 +17,7 @@
 #include "nes/mappers/mapper0.h"
 #include <stdlib.h>
 
-mapper* mapper3_create(struct cartridge* cartridge);
+struct mapper* mapper3_create(struct cartridge* cartridge);
 void mapper3_write(struct mapper* m, uint16_t address, uint8_t byte);
 void mapper3_read(struct mapper* m, uint16_t address, uint8_t* dest);
 

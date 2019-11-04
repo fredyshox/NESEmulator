@@ -5,7 +5,7 @@
 
 #include "nes/mappers/mapper3.h"
 
-mapper* mapper3_create(struct cartridge* cartridge) {
+struct mapper* mapper3_create(struct cartridge* cartridge) {
   mapper* m = malloc(sizeof(mapper));
   m->id = 3;
   m->cartridge = cartridge;
