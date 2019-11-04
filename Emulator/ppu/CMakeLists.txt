@@ -18,7 +18,7 @@ target_include_directories(ppu
 target_link_libraries(ppu
   common)
 
-target_compile_definitions(ppu PUBLIC DEBUG=1)
+#target_compile_definitions(ppu PUBLIC DEBUG=1)
 
 install(TARGETS ppu DESTINATION lib)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

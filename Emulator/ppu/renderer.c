@@ -188,7 +188,7 @@ void ppu_shift(struct ppu_render_handle* handle) {
 }
 
 void ppu_storage_compile(struct ppu_shift_storage* storage) {
-  uint32_t value;
+  uint32_t value = 0;
   uint8_t attr = (storage->bg_tile_upper << 2) & 0x0c, pttr;
   uint8_t lower0 = storage->bg_tile_lower0, lower1 = storage->bg_tile_lower1;
   for (int i = 0; i < 8; i++) {

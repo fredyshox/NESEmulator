@@ -12,19 +12,13 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include "common/debug.h"
 
 #ifdef DEBUG
 #define DEBUG_MODE 1
 #else
 #define DEBUG_MODE 0
 #endif
-
-// Move this to some common place
-
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-
-#define debug_print(fmt, ...) \
-  do { if (DEBUG_MODE) fprintf(stderr, "%s:%d:%s(): " fmt, __FILENAME__, __LINE__, __func__, ##__VA_ARGS__); } while (0)
 
 #define debug_print_ppu(ppu) \
   debug_print("PPUCTRL:%02x PPUSTATUS:%02x PPUMASK:%02x PPUSCROLL:(%02x,%02x) PPUADDR:%04x OAMADDR:%02x\n", \

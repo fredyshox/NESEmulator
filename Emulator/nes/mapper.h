@@ -7,7 +7,7 @@
 #define mapper_h
 
 #include "nes/cartridge.h"
-#include "nes/debug.h"
+#include "common/debug.h"
 
 /**
  * Abstract mapper struct

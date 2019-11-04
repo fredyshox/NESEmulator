@@ -1,10 +1,11 @@
-// debugging interface
+//
+// debug io operations
+// 
 
-#ifndef debug_h
-#define debug_h
+#ifndef common_debug_h
+#define common_debug_h 
 
 #include <stdio.h>
-#include <string.h>
 
 #ifdef DEBUG
 #define DEBUG_MODE 1
@@ -18,6 +19,6 @@
   fprintf(file, "%s:%d:%s(): " fmt, __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);
 
 #define debug_print(fmt, ...) \
-  do { if (DEBUG_MODE) pretty_print(stderr, fmt, __VA_ARGS__) } while (0)
+  do { if (DEBUG_MODE) pretty_print(stderr, fmt, ##__VA_ARGS__) } while (0)
 
-#endif /* debug_h */
+#endif /* common_debug_h */

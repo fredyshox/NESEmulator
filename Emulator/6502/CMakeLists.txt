@@ -18,6 +18,9 @@ add_library(6502
 
 export_headers(6502 ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/include/6502)
 
+target_link_libraries(6502
+  common)
+
 target_include_directories(6502
   PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)

@@ -22,7 +22,8 @@ target_include_directories(nes
 
 target_link_libraries(nes
   ppu
-  6502)
+  6502
+  common)
 
 install(TARGETS nes DESTINATION lib)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
