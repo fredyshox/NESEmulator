@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <sys/time.h>
 #import <nes/console.h>
+#import <nes/controller.h>
 #import <nes/cartridge.h>
 #import "NESView.h"
 
@@ -17,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GameViewController : NSViewController {
     NSThread* emulatorThread;
     nes_t* emulator;
+    controller_state buttons;
 }
 
 @property (strong, readonly, nonnull) NESView* nesView;

@@ -7,6 +7,7 @@
 //
 
 #import "GameViewController.h"
+#import <Carbon/Carbon.h>
 
 @interface GameViewController ()
     @property (strong, readwrite, nonnull) NESView* nesView;
@@ -46,7 +47,7 @@
     [NSLayoutConstraint activateConstraints: hcon];
     [NSLayoutConstraint activateConstraints: vcon];
     
-    NSString* gamePath = @"../../testsuite/roms/Donkey Kong Classics (U).nes";
+    NSString* gamePath = @"../../testsuite/roms/Pac-Man (U).nes";
     [self loadGameFromFile: gamePath];
 }
 
@@ -128,6 +129,77 @@
         NSLog(@"Unable to load rom");
         return;
     }
+}
+
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
+- (void)keyUp:(NSEvent *)event {
+    int index;
+    switch ([event keyCode]) {
+        case kVK_ANSI_A:
+            index = A_BUTTON;
+            break;
+        case kVK_ANSI_S:
+            index = B_BUTTON;
+            break;
+        case kVK_UpArrow:
+            index = UP_BUTTON;
+            break;
+        case kVK_DownArrow:
+            index = DOWN_BUTTON;
+            break;
+        case kVK_LeftArrow:
+            index = LEFT_BUTTON;
+            break;
+        case kVK_RightArrow:
+            index = RIGHT_BUTTON;
+            break;
+        case kVK_Escape:
+            index = SELECT_BUTTON;
+            break;
+        case kVK_Return:
+            index = START_BUTTON;
+            break;
+        default: return;
+    }
+    buttons.buttons[index] = false;
+    controller_set_buttons(&emulator->controller1, buttons);
+}
+
+- (void)keyDown:(NSEvent *)event {
+    NSLog(@"Key down %d, %@", [event keyCode], [event characters]);
+    int index;
+    switch ([event keyCode]) {
+        case kVK_ANSI_A:
+            index = A_BUTTON;
+            break;
+        case kVK_ANSI_S:
+            index = B_BUTTON;
+            break;
+        case kVK_UpArrow:
+            index = UP_BUTTON;
+            break;
+        case kVK_DownArrow:
+            index = DOWN_BUTTON;
+            break;
+        case kVK_LeftArrow:
+            index = LEFT_BUTTON;
+            break;
+        case kVK_RightArrow:
+            index = RIGHT_BUTTON;
+            break;
+        case kVK_Escape:
+            index = SELECT_BUTTON;
+            break;
+        case kVK_Return:
+            index = START_BUTTON;
+            break;
+        default: return;
+    }
+    buttons.buttons[index] = true;
+    controller_set_buttons(&emulator->controller1, buttons);
 }
 
 @end

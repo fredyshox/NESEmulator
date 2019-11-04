@@ -8,7 +8,7 @@ uint8_t controller_state_to_byte(struct controller_state state) {
   uint8_t res = 0;
   for (int i = 0; i < 8; i++) {
     if (state.buttons[i]) {
-      res |= 0x01 << i;
+      res |= (0x01 << i);
     }
   }
 
@@ -19,6 +19,7 @@ void controller_write(struct controller_t* cont, uint8_t byte) {
   cont->locked = !(byte & 0x01);
   if (cont->locked) {
     cont->counter = 0;
+    cont->buffer = controller_state_to_byte(cont->state);
   }
 }
 
@@ -28,14 +29,13 @@ uint8_t controller_read(struct controller_t* cont) {
     return 0x01;
   }
 
-  uint8_t byte = (cont->state & 0x01);
-  cont->state >>= 1;
+  uint8_t byte = (cont->buffer & 0x01);
+  cont->buffer >>= 1;
   cont->counter += 1;
+
   return byte;
 }
 
 void controller_set_buttons(struct controller_t* cont, struct controller_state buttons) {
-  if (!cont->locked) {
-    cont->state = controller_state_to_byte(buttons);
-  }
+  cont->state = buttons;
 }

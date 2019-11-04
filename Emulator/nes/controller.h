@@ -26,11 +26,14 @@ struct controller_state {
   bool buttons[8];
 };
 
+typedef struct controller_state controller_state;
+
 struct controller_t {
   uint8_t id;
   bool locked;
   uint32_t counter; 
-  uint8_t state;
+  struct controller_state state;
+  uint8_t buffer;
 };
 
 typedef struct controller_t controller_t;

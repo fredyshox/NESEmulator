@@ -26,6 +26,7 @@
     [_gameViewController.view setFrame: _window.frame];
     NSLog(@"Window frame %f %f", _window.frame.size.width, _window.frame.size.height);
     [_window setContentViewController: _gameViewController];
+    [_window makeFirstResponder: _gameViewController];
     [_window makeKeyWindow];
 }
 
