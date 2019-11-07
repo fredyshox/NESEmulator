@@ -39,6 +39,7 @@ struct ppu_sprite {
     uint8_t attrs;
   };
   uint8_t x_coord;
+  uint8_t ram_index;
 };
 
 typedef struct ppu_sprite ppu_sprite;

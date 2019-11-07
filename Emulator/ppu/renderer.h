@@ -90,30 +90,6 @@ void ppu_render_handle_free(struct ppu_render_handle* handle);
 #define NEW_TILE(HANDLE) (HANDLE->pH == 0)
 
 /**
- * Gets nametable and attribute table addresses according to ppu control flag
- * @param ppu    ppu state struct
- * @param nt_ptr pointer to save nametable addr
- * @param at_ptr pointer to save attrtable addr
- */
-void ntat_addr(struct ppu_state* ppu, uint8_t** nt_ptr, uint8_t** at_ptr);
-
-/**
- * Fetches byte from name table - which is index of 8x8 tile in pattern table
- * @param nt_ptr - pointer to name table
- * @param h - horizontal index
- * @param v - vertical index
- */
-uint8_t fetch_nt_byte(uint8_t* nt_ptr, int h, int v);
-
-/**
- * Fetches byte from attribute table  - which is upper bits of pallete index for given 4x4 tile group
- * @param at_ptr - pointer to attribute table
- * @param h - horizontal index
- * @param v - vertical index
- */
-uint8_t fetch_at_byte(uint8_t* at_ptr, int h, int v);
-
-/**
  * Evaluates which sprites are going to appear on current line
  * @param  ppu    ppu state
  * @param  output pointer to output buffer
@@ -125,13 +101,13 @@ int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int o
 
 /**
  * Layouts pixel values for sprites that are visible on current line
- * Each pixel value is bit set - nth bit determines visibility of nth sprite from sprite buffer.
+ * @param ppu     ppu state
  * @param sprites sprite buffer
  * @param sprlen  sprite buffer length
  * @param buffer  pixel buffer
  * @param bufsize pixel buffer length
  */
-void ppu_sprite_pixel_layout(struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize);
+void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize);
 
 /**
  * Updates frame on specified position with specified color
@@ -141,17 +117,6 @@ void ppu_sprite_pixel_layout(struct ppu_sprite* sprites, int sprlen, uint8_t* bu
  * @return       number of bytes written
  */
 int ppu_update_frame(uint8_t* frame, struct ppu_color color, int pos);
-
-/**
- * Evaluates palette index based on bit info from pttrntable and pixel location.
- * @param  tile_lower0 bit 0th's for tile
- * @param  tile_lower1 bit 1st's for tile
- * @param  tile_upper  upper bit value (2 bit)
- * @param  pV          pixel vertical coord
- * @param  pH          pixel horizontal coord
- * @return             index in palette
- */
-uint8_t ppu_color_idx(uint8_t tile_lower0, uint8_t tile_lower1, uint8_t tile_upper, int pV, int pH);
 
 /**
  * Executes signle ppu cycle (currently renders single pixel)

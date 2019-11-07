@@ -108,20 +108,39 @@ int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int o
 }
 
 /**
- * Pixel layout for sprite:
- * Each pixel is represented by a byte with bits arrangement:
- * Low Priority: X X X X X X X X :High priority
- * Where each bit represents sprite based on its index.
+ * Pixel layout for scanline using sprite buffer
+ * Each value in pixel buffer has sprite-color index (opaque) of sprite with highest priority 
+ * or 0 if color is transparent.
  */
-void ppu_sprite_pixel_layout(struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize) {
-  struct ppu_sprite spr;
-  for (int i = 0; i < bufsize; i++) {
-    buffer[i] = 0;
-    for (int j = sprlen - 1; j >= 0; j--) {
-      spr = sprites[j];
-      if (i >= spr.x_coord && i < (spr.x_coord + TILE_SIZE)) {
-        buffer[i] |= (0x01 << j);
+void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize) {
+  memset(buffer, 0, bufsize);
+  ppu_sprite spr;
+  uint8_t spr_tile_lower0, spr_tile_lower1, spr_tile_upper, color_idx;
+  uint8_t pttrntable_idx = ppu->control.spr_pttrntable;
+  for (int i = 0; i < sprlen; i++) {
+    spr = sprites[i];
+    spr_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + ppu->fine_y, pttrntable_idx);
+    spr_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + ppu->fine_y + TILE_SIZE, pttrntable_idx);
+    spr_tile_upper = ((spr.palette_msb << 2) & 0xc0);
+    for (int x = spr.x_coord; x < spr.x_coord + TILE_SIZE; x++) {
+      // check if buffer has already opaque pixel value
+      if (buffer[x] != 0) {
+        goto tile_bitshift;
       }
+
+      color_idx = 0x00;
+      color_idx |= ((spr_tile_lower1 >> 6) & 0x02);
+      color_idx |= ((spr_tile_lower0 >> 7) & 0x01);
+      // if lower bits are zero -> color is transparent
+      if (color_idx == 0) {
+        goto tile_bitshift;
+      }
+
+      color_idx |= spr_tile_upper;
+      buffer[x] = color_idx;
+      tile_bitshift:
+        spr_tile_lower0 <<= 1;
+        spr_tile_lower1 <<= 1; 
     }
   }
 }

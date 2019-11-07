@@ -3,7 +3,14 @@
 
 // FIXME doesnt work with latest changes
 
-#include "pputest.h"
+#define DEBUG 1
+
+extern "C" {
+#include "ppu/ppu.h"
+#include "ppu/color.h"
+#include "ppu/renderer.h"
+}
+
 #include <vector>
 #include <opencv2/opencv.hpp>
 

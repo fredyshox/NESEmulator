@@ -11,6 +11,9 @@ void ppu_memory_create(struct ppu_memory* mem) {
   mem->image_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
   mem->sprite_palette = malloc(PPU_PALETTE_SIZE * sizeof(uint8_t));
   mem->sprite_ram = malloc(PPU_SPRRAM_SIZE * sizeof(struct ppu_sprite));
+  for (int i = 0; i < PPU_SPRRAM_SIZE; i++) {
+    mem->sprite_ram[i].ram_index = i;
+  }
   // alloc memory for 4 nametables (normally ppu has vram for only 2)
   mem->nt_buf = malloc(4 * (PPU_NTAT_SIZE) * sizeof(uint8_t));
   mem->nt_buf_size = 4 * (PPU_NTAT_SIZE);
