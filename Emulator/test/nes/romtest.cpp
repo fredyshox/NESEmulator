@@ -1,5 +1,5 @@
 //
-// Tests ppu memory
+// Tests using various emulator test roms
 //
 
 extern "C" {
@@ -23,7 +23,7 @@ protected:
 
 	// Ticks emulator and checks memory location at address.
 	// Waits for change predecessor -> expected which signals test result.
-	void test_rom(string& path, uint16_t address, uint8_t expected, uint8_t predecessor, int max_instructions) {
+	void testRom(string& path, uint16_t address, uint8_t expected, uint8_t predecessor, int max_instructions) {
 		if (cartridge_from_file(&cart, (char*) path.c_str()) != 0 || nes_load_rom(&console, &cart)) {
 			cerr << "Error: rom related" << endl;
 			FAIL();
@@ -63,14 +63,36 @@ protected:
 	}
 };
 
+// CPU
+
+// TODO MAPPER 1 REQURED
+// TEST_F(RomTest, OfficialAsm) {
+// 	string path = basepath + "instr_test-v5/official_only.nes";
+// 	test_rom(path, 0x6000, 0x00, 0x80, MAX_INSTRUCTIONS);
+// }
+
+TEST_F(RomTest, BranchTiming) {
+	string path1 = basepath + "branch_timing_tests/1.Branch_Basics.nes";
+	string path2 = basepath + "branch_timing_tests/2.Backward_Branch.nes";	
+	string path3 = basepath + "branch_timing_tests/3.Forward_Branch.nes";
+	cerr << path1 << endl;	
+	testRom(path1, 0x6000, 0x00, 0x80, MAX_INSTRUCTIONS);
+	cerr << path2 << endl;
+	testRom(path2, 0x6000, 0x00, 0x80, MAX_INSTRUCTIONS);
+	cerr << path3 << endl;
+	testRom(path3, 0x6000, 0x00, 0x80, MAX_INSTRUCTIONS);
+}
+
+// PPU
+
 TEST_F(RomTest, OAMRead) {
 	string path = basepath + "oam_read/oam_read.nes"; 
-	test_rom(path, 0x6000, 0x00, 0x80, MAX_INSTRUCTIONS);
+	testRom(path, 0x6000, 0x00, 0x80, MAX_INSTRUCTIONS);
 }
 
 TEST_F(RomTest, OAMStress) {
 	string path = basepath + "oam_stress/oam_stress.nes";
-	test_rom(path, 0x6000, 0x00, 0x80, MAX_INSTRUCTIONS);
+	testRom(path, 0x6000, 0x00, 0x80, MAX_INSTRUCTIONS);
 }
 
 int main(int argc, char** argv) {

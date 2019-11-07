@@ -62,8 +62,16 @@ add_test_exec(ints
   cpu/int.c
   6502)
 
-add_test_exec(ppu_sprites
-  ppu/sprites.c
+add_gtest_exec(ppu_sprites
+  ppu/sprites.cpp
+  ppu)
+  
+add_gtest_exec(ppu_bg
+  ppu/bg.cpp
+  ppu)
+
+add_gtest_exec(ppu_memory
+  ppu/memory.cpp
   ppu)
 
 add_gtest_exec(nes_roms
@@ -126,8 +134,9 @@ add_unit_test(flags_op cmp "--cmp")
 
 add_unit_test(ints interrupts "")
 
-add_unit_test(ppu_sprites eval "--eval")
-add_unit_test(ppu_sprites layout "--layout")
+add_unit_gtest(ppu_sprites "")
+add_unit_gtest(ppu_bg "")
+add_unit_gtest(ppu_memory "")
 add_unit_gtest(nes_roms "")
 
 add_unit_test(cartridge loading "${CMAKE_CURRENT_SOURCE_DIR}/../../testsuite/Donkey\ Kong\ Classics\ \(U\).nes")
