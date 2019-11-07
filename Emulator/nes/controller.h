@@ -10,8 +10,9 @@
 
 #define CONTROLLER_JOYPAD1 0x4016
 #define CONTRoLLER_JOYPAD2 0x4017
+#define CONTROLLER_BUTTON_COUNT 8
 
-enum controller_buttons {
+enum controller_button {
   A_BUTTON = 0,
   B_BUTTON,
   SELECT_BUTTON,
