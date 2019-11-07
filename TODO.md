@@ -1,18 +1,14 @@
 ## TODO List
 Emulator
-instruction.h:
-* move common operation code to some #defines
-state.h:
 all:
-* test flags, store, stack, bitwise
 * fix endianess issues
+* cartridge reading tests (mock rom files)
+* controller tests
 ppu:
-* sprite flips
-* sprite priority bit
-* sprite zero hit
-* 8x16 sprites
-* tests
-* scrolling
+* foreground rendering
+* automated rom tests
+frontend:
+* keymap setting ui
+* gamepad support
 mappers:
-* mmc0, mmc1, mmc3
-* few mappers
+* ines 1, ines 2, ines 4

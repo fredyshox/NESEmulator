@@ -14,7 +14,7 @@ erl_crash.dump
 .elixir_ls/
 Playground.exs
 
-# vim
+# editors
 *.swp
 .vscode/*
 *.code-workspace
