@@ -78,42 +78,9 @@ add_gtest_exec(nes_roms
   nes/romtest.cpp
   nes)
 
-add_test_exec(cartridge
-  nes/cartridge.c
+add_gtest_exec(cartridge
+  nes/cartridge.cpp
   nes)
-
-# debugger
-
-add_executable(debugger
-  nes/debug.c)
-target_compile_definitions(debugger PUBLIC DEBUG=1)
-target_link_libraries(debugger
-  nes 6502)
-install(TARGETS debugger DESTINATION test)
-
-add_executable(run
-  nes/run.c)
-target_compile_definitions(run PUBLIC DEBUG=1)
-target_link_libraries(run
-  nes)
-install(TARGETS run DESTINATION test)
-
-# renderer
-
-find_package(OpenCV)
-if( OpenCV_FOUND )
-  message(STATUS "OpenCV found!")
-  add_executable(renderer
-    ppu/render.cpp)
-  target_compile_definitions(renderer PUBLIC DEBUG=1)
-  target_compile_options(renderer PRIVATE -std=c++11)
-  target_include_directories(renderer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-  target_link_libraries(renderer ${OpenCV_LIBS})
-  target_link_libraries(renderer ppu)
-  install(TARGETS renderer DESTINATION test)
-else()
-  message(WARNING "OpenCV not found!")
-endif()
 
 # unit tests
 
@@ -138,5 +105,4 @@ add_unit_gtest(ppu_sprites "")
 add_unit_gtest(ppu_bg "")
 add_unit_gtest(ppu_memory "")
 add_unit_gtest(nes_roms "")
-
-add_unit_test(cartridge loading "${CMAKE_CURRENT_SOURCE_DIR}/../../testsuite/Donkey\ Kong\ Classics\ \(U\).nes")
+add_unit_gtest(cartridge "")

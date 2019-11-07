@@ -56,3 +56,4 @@ add_subdirectory(nes)
 
 enable_testing()
 add_subdirectory(test)
+add_subdirectory(tools)
