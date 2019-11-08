@@ -134,20 +134,22 @@ TEST_F(PPUSprites, SpritePixelLayout) {
 	memset((expectedBuffer + 72), 1, 8);
 	memset((expectedBuffer + 252), 3, 4);
 
+	uint8_t val;
 	for (int i = 0; i < HORIZONTAL_RES; i++) {
 		cout << "Testing index: " << i << endl;
+		val = buffer[i] & 0x0f;
 		if (i >= 12 && i < 16) {
 			if (i % 2 == 0)
-				EXPECT_EQ(0, buffer[i]);
+				EXPECT_EQ(0, val);
 			else 
-				EXPECT_EQ(1, buffer[i]);
+				EXPECT_EQ(1, val);
 		} else if (i >= 16 && i < 20) {
 			if (i % 2 == 0)
-				EXPECT_EQ(3, buffer[i]);
+				EXPECT_EQ(3, val);
 			else 
-				EXPECT_EQ(1, buffer[i]);	
+				EXPECT_EQ(1, val);	
 		} else {
-			EXPECT_EQ(expectedBuffer[i], buffer[i]);
+			EXPECT_EQ(expectedBuffer[i], val);
 		}
 	}
 }

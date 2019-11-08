@@ -29,7 +29,6 @@ struct cartridge {
     uint8_t* prg_rom;
     int chr_rom_size;
     uint8_t* chr_rom;
-    uint8_t* prg_ram;
     ppu_mirroring mirroring_type;
     int mapper;
     int tv_system;

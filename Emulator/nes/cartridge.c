@@ -9,7 +9,7 @@ int cartridge_from_file(struct cartridge* c, char* path) {
   uint8_t header[INES_HEADER_SIZE];
   uint8_t flags6, flags7, flags8, flags9, flags10;
   int prg_rom_size, chr_rom_size;
-  uint8_t *prg_rom = NULL, *chr_rom = NULL, *trainer = NULL;
+  uint8_t *prg_rom = NULL, *chr_rom = NULL;
   int err = 0;
   FILE *file = fopen(path, "rb");
   if (file == NULL) {
@@ -52,8 +52,7 @@ int cartridge_from_file(struct cartridge* c, char* path) {
   int prg_ram_size = (int) flags8 * 8192;
 
   if (trainer_presence) {
-    trainer = malloc(sizeof(uint8_t) * INES_TRAINER_BLOCK);
-    if (fread(trainer, sizeof(uint8_t), INES_TRAINER_BLOCK, file) != INES_TRAINER_BLOCK) {
+    if (fseek(file, INES_TRAINER_BLOCK, 1)) {
       fprintf(stderr, "Cannot read trainer\n");
       err = 2; goto catch_error;
     }
@@ -89,12 +88,10 @@ int cartridge_from_file(struct cartridge* c, char* path) {
     fclose(file);
     free(prg_rom);
     free(chr_rom);
-    free(trainer);
     return err;
 }
 
 void cartridge_free(struct cartridge* c) {
   free(c->prg_rom);
   free(c->chr_rom);
-  free(c);
 }

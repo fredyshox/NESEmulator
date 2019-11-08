@@ -67,6 +67,7 @@ int nes_load_rom(nes_t* console, struct cartridge* cartridge) {
   struct ppu_memory* mem;
   // mapper
   m = setup_mapper(console, cartridge);
+  if (m) { return m; }
   // init cpu (set pc)
   reset_low = (uint16_t) memory6502_load(console->cpu->memory, STATE6502_RESET_VECTOR);
   reset_high = (uint16_t) memory6502_load(console->cpu->memory, STATE6502_RESET_VECTOR + 1);
@@ -76,7 +77,7 @@ int nes_load_rom(nes_t* console, struct cartridge* cartridge) {
   mem = console->ppu->memory;
   ppu_memory_set_mirroring(mem, cartridge->mirroring_type);
 
-  return m;
+  return 0;
 }
 
 bool nes_is_loaded(nes_t* console) {
