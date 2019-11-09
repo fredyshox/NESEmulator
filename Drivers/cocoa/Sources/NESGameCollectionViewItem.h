@@ -7,13 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "GameCollectionViewItemDelegate.h"
+#import "NESGameCollectionViewItemDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GameCollectionViewItem : NSCollectionViewItem
+@interface NESGameCollectionViewItem : NSCollectionViewItem
 
-@property (weak, nullable) id<GameCollectionViewItemDelegate> delegate;
+@property (weak, nullable) id<NESGameCollectionViewItemDelegate> delegate;
 
 - (IBAction)playGame:(NSMenuItem *)sender;
 - (IBAction)showInFinder:(NSMenuItem *)sender;

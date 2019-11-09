@@ -7,13 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "GameCollectionViewItemDelegate.h"
-#import "NESGame.h"
+#import "NESGameCollectionViewItemDelegate.h"
 #import "NESGameWindowController.h"
+#import "NESGame.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LibraryViewController : NSViewController <NSCollectionViewDataSource, NSCollectionViewDelegate, GameCollectionViewItemDelegate>
+@interface NESLibraryViewController : NSViewController <NSCollectionViewDataSource, NSCollectionViewDelegate, NESGameCollectionViewItemDelegate>
 
 @property (strong, readonly) NSCollectionView* collectionView;
 @property (strong, readonly) NSArray<NESGame*>* games;

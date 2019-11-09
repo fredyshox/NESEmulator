@@ -7,10 +7,15 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "NESGameViewController.h"
+#import "NESGame.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NESGameWindowController : NSWindowController
+@interface NESGameWindowController : NSWindowController <NSWindowDelegate>
+
+@property (strong, nullable) NESGameViewController* gameViewController;
+@property (strong, nullable) NESGame* game;
 
 @end
 

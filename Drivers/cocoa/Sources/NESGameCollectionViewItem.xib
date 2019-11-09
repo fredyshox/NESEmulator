@@ -5,7 +5,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="GameCollectionViewItem">
+        <customObject id="-2" userLabel="File's Owner" customClass="NESGameCollectionViewItem">
             <connections>
                 <outlet property="imageView" destination="qFE-tK-BcL" id="y09-dg-joM"/>
                 <outlet property="textField" destination="CgN-mT-wjI" id="a9G-jE-2IL"/>

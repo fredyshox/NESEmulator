@@ -8,12 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 #import <ppu/renderer.h>
-#import "GameViewController.h"
+#import "NESLibraryViewController.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property (strong) GameViewController* gameViewController;
-
+@property (strong) NESLibraryViewController* libraryViewController;
 
 @end
 

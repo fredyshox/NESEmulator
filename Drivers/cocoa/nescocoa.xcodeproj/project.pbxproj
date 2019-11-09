@@ -7,7 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E21985F6227FA0100024EB70 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E21985F5227FA0100024EB70 /* GameViewController.m */; };
+		E21985F6227FA0100024EB70 /* NESGameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E21985F5227FA0100024EB70 /* NESGameViewController.m */; };
+		E21CC9B7237582B60022BE64 /* NESLibraryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E21CC9B6237582B60022BE64 /* NESLibraryViewController.m */; };
+		E21CC9D423758A4E0022BE64 /* NESGameCollectionViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = E21CC9D223758A4E0022BE64 /* NESGameCollectionViewItem.m */; };
+		E21CC9D523758A4E0022BE64 /* NESGameCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = E21CC9D323758A4E0022BE64 /* NESGameCollectionViewItem.xib */; };
+		E21CC9D8237597B80022BE64 /* NESGame.m in Sources */ = {isa = PBXBuildFile; fileRef = E21CC9D7237597B80022BE64 /* NESGame.m */; };
+		E21CCA3E23771F450022BE64 /* NESGameWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = E21CCA3C23771F450022BE64 /* NESGameWindowController.m */; };
+		E21CCA3F23771F450022BE64 /* NESGameWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E21CCA3D23771F450022BE64 /* NESGameWindowController.xib */; };
 		E279193722616B6D00EB941D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E279193622616B6D00EB941D /* AppDelegate.m */; };
 		E279193922616B6D00EB941D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E279193822616B6D00EB941D /* Assets.xcassets */; };
 		E279193C22616B6D00EB941D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E279193A22616B6D00EB941D /* MainMenu.xib */; };
@@ -21,6 +27,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		E21CC9CD237582B70022BE64 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5094750634E34353A54F5801;
+			remoteInfo = test_ppu_bg;
+		};
+		E21CC9CF237582B70022BE64 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 71ACFAD177D447068D4CD583;
+			remoteInfo = test_ppu_memory;
+		};
 		E2DE5E7D236F1605006D259C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */;
@@ -129,8 +149,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		E21985F4227FA0100024EB70 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
-		E21985F5227FA0100024EB70 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
+		E21985F4227FA0100024EB70 /* NESGameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESGameViewController.h; sourceTree = "<group>"; };
+		E21985F5227FA0100024EB70 /* NESGameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESGameViewController.m; sourceTree = "<group>"; };
+		E21CC9B5237582B60022BE64 /* NESLibraryViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESLibraryViewController.h; sourceTree = "<group>"; };
+		E21CC9B6237582B60022BE64 /* NESLibraryViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESLibraryViewController.m; sourceTree = "<group>"; };
+		E21CC9D123758A4E0022BE64 /* NESGameCollectionViewItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESGameCollectionViewItem.h; sourceTree = "<group>"; };
+		E21CC9D223758A4E0022BE64 /* NESGameCollectionViewItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESGameCollectionViewItem.m; sourceTree = "<group>"; };
+		E21CC9D323758A4E0022BE64 /* NESGameCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NESGameCollectionViewItem.xib; sourceTree = "<group>"; };
+		E21CC9D6237597B80022BE64 /* NESGame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESGame.h; sourceTree = "<group>"; };
+		E21CC9D7237597B80022BE64 /* NESGame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESGame.m; sourceTree = "<group>"; };
+		E21CC9D92376460D0022BE64 /* NESGameCollectionViewItemDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESGameCollectionViewItemDelegate.h; sourceTree = "<group>"; };
+		E21CCA3B23771F450022BE64 /* NESGameWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESGameWindowController.h; sourceTree = "<group>"; };
+		E21CCA3C23771F450022BE64 /* NESGameWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESGameWindowController.m; sourceTree = "<group>"; };
+		E21CCA3D23771F450022BE64 /* NESGameWindowController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NESGameWindowController.xib; sourceTree = "<group>"; };
 		E220B7B1227F7AAC00590FCE /* libppu.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libppu.a; path = ../../Emulator/install/lib/libppu.a; sourceTree = "<group>"; };
 		E220B7B2227F7AAC00590FCE /* lib6502.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = lib6502.a; path = ../../Emulator/install/lib/lib6502.a; sourceTree = "<group>"; };
 		E220B7B3227F7AAC00590FCE /* libnes.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnes.a; path = ../../Emulator/install/lib/libnes.a; sourceTree = "<group>"; };
@@ -197,10 +228,21 @@
 				E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */,
 				E279194622616CAF00EB941D /* NESView.h */,
 				E279194722616CAF00EB941D /* NESView.m */,
+				E21CC9D6237597B80022BE64 /* NESGame.h */,
+				E21CC9D7237597B80022BE64 /* NESGame.m */,
 				E2DE5EA32370D332006D259C /* NESKeyMap.h */,
 				E2DE5EA42370D332006D259C /* NESKeyMap.m */,
-				E21985F4227FA0100024EB70 /* GameViewController.h */,
-				E21985F5227FA0100024EB70 /* GameViewController.m */,
+				E21985F4227FA0100024EB70 /* NESGameViewController.h */,
+				E21985F5227FA0100024EB70 /* NESGameViewController.m */,
+				E21CCA3B23771F450022BE64 /* NESGameWindowController.h */,
+				E21CCA3C23771F450022BE64 /* NESGameWindowController.m */,
+				E21CCA3D23771F450022BE64 /* NESGameWindowController.xib */,
+				E21CC9B5237582B60022BE64 /* NESLibraryViewController.h */,
+				E21CC9B6237582B60022BE64 /* NESLibraryViewController.m */,
+				E21CC9D92376460D0022BE64 /* NESGameCollectionViewItemDelegate.h */,
+				E21CC9D123758A4E0022BE64 /* NESGameCollectionViewItem.h */,
+				E21CC9D223758A4E0022BE64 /* NESGameCollectionViewItem.m */,
+				E21CC9D323758A4E0022BE64 /* NESGameCollectionViewItem.xib */,
 				E279193522616B6D00EB941D /* AppDelegate.h */,
 				E279193622616B6D00EB941D /* AppDelegate.m */,
 				E279193822616B6D00EB941D /* Assets.xcassets */,
@@ -228,6 +270,8 @@
 				E2DE5E92236F1605006D259C /* test_ints */,
 				E2DE5E94236F1605006D259C /* test_memory_op */,
 				E2DE5E96236F1605006D259C /* test_nes_roms */,
+				E21CC9CE237582B70022BE64 /* test_ppu_bg */,
+				E21CC9D0237582B70022BE64 /* test_ppu_memory */,
 				E2DE5E98236F1605006D259C /* test_ppu_sprites */,
 				E2DE5E9A236F1605006D259C /* test_program_counter_op */,
 			);
@@ -293,6 +337,20 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		E21CC9CE237582B70022BE64 /* test_ppu_bg */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_ppu_bg;
+			remoteRef = E21CC9CD237582B70022BE64 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E21CC9D0237582B70022BE64 /* test_ppu_memory */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = test_ppu_memory;
+			remoteRef = E21CC9CF237582B70022BE64 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		E2DE5E7E236F1605006D259C /* lib6502.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -405,7 +463,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E21CCA3F23771F450022BE64 /* NESGameWindowController.xib in Resources */,
 				E279193922616B6D00EB941D /* Assets.xcassets in Resources */,
+				E21CC9D523758A4E0022BE64 /* NESGameCollectionViewItem.xib in Resources */,
 				E279193C22616B6D00EB941D /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -417,8 +477,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E21985F6227FA0100024EB70 /* GameViewController.m in Sources */,
+				E21CC9D423758A4E0022BE64 /* NESGameCollectionViewItem.m in Sources */,
+				E21CC9B7237582B60022BE64 /* NESLibraryViewController.m in Sources */,
+				E21985F6227FA0100024EB70 /* NESGameViewController.m in Sources */,
 				E2DE5EA52370D332006D259C /* NESKeyMap.m in Sources */,
+				E21CCA3E23771F450022BE64 /* NESGameWindowController.m in Sources */,
+				E21CC9D8237597B80022BE64 /* NESGame.m in Sources */,
 				E279193F22616B6D00EB941D /* main.m in Sources */,
 				E279193722616B6D00EB941D /* AppDelegate.m in Sources */,
 				E279194822616CAF00EB941D /* NESView.m in Sources */,

@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "nes/controller.h"
+#import <nes/controller.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

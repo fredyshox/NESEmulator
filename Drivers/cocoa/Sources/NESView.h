@@ -13,19 +13,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NESView : NSView {
-    // private fields
-    NSTimer *frameTimer;
-    CGContextRef bitmapContext;
-    uint8_t *bitmapBuffer;
-}
+@interface NESView : NSView
 
 @property unsigned int fps;
 @property (nullable) volatile ppu_render_handle* renderingHandle;
 
 - (instancetype)initWithPPUHandle:(nullable ppu_render_handle*) handle;
--(void)renderFrame:(id) sender;
--(void)start;
+- (void)renderFrame:(id) sender;
+- (void)startRendering;
+- (void)pauseRendering;
 
 @end
 

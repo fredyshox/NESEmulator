@@ -9,6 +9,10 @@
 #import "NESView.h"
 
 @implementation NESView {
+    // private fields
+    NSTimer *frameTimer;
+    CGContextRef bitmapContext;
+    uint8_t *bitmapBuffer;
     int frameCounter;
 }
 
@@ -20,11 +24,9 @@
 }
 
 - (instancetype)initWithPPUHandle: (nullable ppu_render_handle*) handle {
-    self = [super init];
+    self = [super initWithFrame: NSZeroRect];
     if (self) {
-        self->bitmapBuffer = [self createBuffer];
-        self->renderingHandle = handle;
-        self->fps = 60;
+        [self initializeWithHandle: handle];
     }
     return self;
 }
@@ -32,23 +34,25 @@
 - (instancetype)initWithCoder:(NSCoder *)decoder {
     self = [super initWithCoder: decoder];
     if (self) {
-        self->bitmapBuffer = [self createBuffer];
-        self->renderingHandle = NULL;
-        self->fps = 60;
+        [self initializeWithHandle: NULL];
     }
     return self;
 }
 
-- (instancetype)initWithFrame:(NSRect)frame
-{
+- (instancetype)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        self->bitmapBuffer = [self createBuffer];
-        self->renderingHandle = NULL;
-        self->fps = 60;
-        
+        [self initializeWithHandle: NULL];
     }
     return self;
+}
+
+-(void) initializeWithHandle: (ppu_render_handle*) handle {
+    self->bitmapBuffer = [self createBuffer];
+    self->renderingHandle = handle;
+    self->fps = 60;
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    self->bitmapContext = CGBitmapContextCreate(bitmapBuffer, HORIZONTAL_RES, VERTICAL_RES, 8, HORIZONTAL_RES * 4, cs, kCGImageAlphaNoneSkipFirst);
 }
 
 - (uint8_t*) createBuffer {
@@ -56,10 +60,10 @@
 }
 
 - (void)dealloc {
-    NSLog(@"DEALOC");
+    NSLog(@"nesview dealloc");
     [frameTimer invalidate];
     frameTimer = nil;
-    //free(bitmapBuffer);
+    free(bitmapBuffer);
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -104,7 +108,7 @@
     [self setNeedsDisplay: YES];
 }
 
-- (void)start {
+- (void)startRendering {
     if (renderingHandle == NULL) {
         NSLog(@"Cannot start rendering without ppu handle!");
         return;
@@ -115,10 +119,13 @@
         frameTimer = nil;
     }
     
-    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
-    bitmapContext = CGBitmapContextCreate(bitmapBuffer, HORIZONTAL_RES, VERTICAL_RES, 8, HORIZONTAL_RES * 4, cs, kCGImageAlphaNoneSkipFirst);
     frameTimer = [NSTimer scheduledTimerWithTimeInterval: (1.0/fps) target: self selector: @selector(renderFrame:) userInfo: nil repeats: YES];
     [[NSRunLoop currentRunLoop] addTimer: frameTimer forMode: NSDefaultRunLoopMode];
+}
+
+- (void)pauseRendering {
+    [frameTimer invalidate];
+    frameTimer = nil;
 }
 
 @end

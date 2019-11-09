@@ -7,10 +7,10 @@
 //
 
 #import "NESLibraryViewController.h"
-#import "GameCollectionViewItem.h"
+#import "NESGameCollectionViewItem.h"
 #import "NESGameWindowController.h"
 
-#define kGameItemIdentifier @"GameCollectionViewItem"
+#define kGameItemIdentifier @"NESGameCollectionViewItem"
 
 @implementation NESLibraryViewController
 
@@ -50,7 +50,7 @@
     [layout setMinimumLineSpacing: 16.0];
     [layout setMinimumInteritemSpacing: 24.0];
     [layout setSectionInset: NSEdgeInsetsMake(24.0, 16.0, 24.0, 16.0)];
-    NSNib* itemNib = [[NSNib alloc] initWithNibNamed: @"GameCollectionViewItem" bundle: nil];
+    NSNib* itemNib = [[NSNib alloc] initWithNibNamed: @"NESGameCollectionViewItem" bundle: nil];
     [_collectionView registerNib: itemNib forItemWithIdentifier: kGameItemIdentifier];
     [_collectionView setBackgroundColors: @[ [NSColor clearColor] ]];
     [_collectionView setSelectable: YES];
@@ -85,11 +85,11 @@
 
 // MARK: GameCollectionViewItemDelegate
 
-- (void)gcvItemDidReceiveDeleteGameRequest:(GameCollectionViewItem *)item {
+- (void)gcvItemDidReceiveDeleteGameRequest:(NESGameCollectionViewItem *)item {
     
 }
 
-- (void)gcvItemDidReceivePlayGameRequest:(GameCollectionViewItem *)item {
+- (void)gcvItemDidReceivePlayGameRequest:(NESGameCollectionViewItem *)item {
     NSIndexPath* indexPath = [_collectionView indexPathForItem: item];
     NESGame* game = [_games objectAtIndex: indexPath.item];
     _gameWindowController = [[NESGameWindowController alloc] initWithWindowNibName: @"NESGameWindowController"];
@@ -109,7 +109,7 @@
 }
 
 - (NSCollectionViewItem *)collectionView:(NSCollectionView *)collectionView itemForRepresentedObjectAtIndexPath:(NSIndexPath *)indexPath {
-    GameCollectionViewItem* item = [collectionView makeItemWithIdentifier: kGameItemIdentifier forIndexPath: indexPath];
+    NESGameCollectionViewItem* item = [collectionView makeItemWithIdentifier: kGameItemIdentifier forIndexPath: indexPath];
     NESGame* game = [_games objectAtIndex: [indexPath item]];
     [item.textField setStringValue: game.title];
     [item setDelegate: self];

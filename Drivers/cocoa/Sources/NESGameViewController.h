@@ -12,19 +12,22 @@
 #import <nes/controller.h>
 #import <nes/cartridge.h>
 #import "NESView.h"
+#import "NESGame.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GameViewController : NSViewController {
+@interface NESGameViewController : NSViewController {
     NSThread* emulatorThread;
     nes_t* emulator;
     controller_state buttons;
 }
 
-@property (strong, readonly, nonnull) NESView* nesView;
+@property (strong, readonly) NESView* nesView;
+@property (strong, readonly) NESGame* game;
 @property (atomic) BOOL isActive;
 
-- (void)loadGameFromFile:(NSString*) file;
+- (id)initWithGame:(NESGame*) game;
+- (void)loadGameFromRom;
 - (void)emulateConsole;
 - (void) startEmulation;
 - (void)pauseEmulation;

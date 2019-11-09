@@ -6,31 +6,33 @@
 //  Copyright © 2019 Kacper Raczy. All rights reserved.
 //
 
-#import "GameViewController.h"
+#import "NESGameViewController.h"
 #import <Carbon/Carbon.h>
 
-@interface GameViewController ()
-    @property (strong, readwrite, nonnull) NESView* nesView;
-@end
+@implementation NESGameViewController
 
-@implementation GameViewController
+@synthesize nesView = _nesView;
+@synthesize game = _game;
 
-- (void)loadView {
-    [self setView: [[NSView alloc] init]];
-}
-
-- (instancetype)init {
+- (id)initWithGame:(NESGame*) game {
     self = [super initWithNibName: nil bundle: nil];
     if (self) {
+        _game = game;
         emulator = malloc(sizeof(nes_t));
         nes_create(emulator);
+        memset(&buttons, 0, sizeof(controller_state));
     }
+    
     return self;
 }
 
 - (void)dealloc {
-    NSLog(@"dealloc");
+    NSLog(@"gamevc dealloc");
     nes_free(emulator);
+}
+
+- (void)loadView {
+    [self setView: [[NSView alloc] init]];
 }
 
 - (void)viewDidLoad {
@@ -38,17 +40,21 @@
     [[self view] setWantsLayer: YES];
     [[[self view] layer] setBackgroundColor: NSColor.blackColor.CGColor];
     
+    // reset button state
+    controller_set_buttons(&emulator->controller1, buttons);
+    controller_set_buttons(&emulator->controller2, buttons);
+    // init views
     NSLog(@"NES CPU freq: %f", NES_CPU_FREQ);
     _nesView = [[NESView alloc] initWithPPUHandle: emulator->ppu_handle];
-    [_nesView setTranslatesAutoresizingMaskIntoConstraints: NO];
     [[self view] addSubview: _nesView];
-    NSArray* hcon = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[nes]|" options: 0 metrics: nil views: @{@"nes": _nesView}];
-    NSArray* vcon = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[nes]|" options:0 metrics: nil views: @{@"nes": _nesView}];
-    [NSLayoutConstraint activateConstraints: hcon];
-    [NSLayoutConstraint activateConstraints: vcon];
     
-    NSString* gamePath = @"../../testsuite/roms/oam_stress/oam_stress.nes";
-    [self loadGameFromFile: gamePath];
+    // load file
+    [self loadGameFromRom];
+}
+
+- (void)viewDidLayout {
+    [super viewDidLayout];
+    [_nesView setFrame: [self.view frame]];
 }
 
 - (void)viewDidAppear {
@@ -58,8 +64,18 @@
         return;
     } else {
         [self startEmulation];
-        [_nesView start];
+        [_nesView startRendering];
     }
+}
+
+- (void)viewWillDisappear {
+    [super viewWillDisappear];
+    [self pauseEmulation];
+    [_nesView pauseRendering];
+}
+
+- (BOOL)acceptsFirstResponder {
+    return YES;
 }
 
 - (double)getTimeUSec {
@@ -111,6 +127,21 @@
     }
 }
 
+- (void)loadGameFromRom {
+    NSError* error = nil;
+    cartridge* c = [_game loadRomWithError: &error];
+    if (error != nil) {
+        NSLog(@"Error: %@", [error localizedDescription]);
+        return;
+    }
+    
+    if (nes_load_rom(emulator, c) != 0) {
+        NSLog(@"Unable to load rom");
+        return;
+    }
+    // TODO cartridge memory
+}
+
 - (void)loadGameFromFile:(NSString *)file {
     cartridge* c = malloc(sizeof(cartridge));
     const char* _Nullable cFile = [file cStringUsingEncoding: NSUTF8StringEncoding];
@@ -129,10 +160,6 @@
         NSLog(@"Unable to load rom");
         return;
     }
-}
-
-- (BOOL)acceptsFirstResponder {
-    return YES;
 }
 
 - (void)keyUp:(NSEvent *)event {

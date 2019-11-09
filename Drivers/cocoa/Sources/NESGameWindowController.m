@@ -7,17 +7,35 @@
 //
 
 #import "NESGameWindowController.h"
-
-@interface NESGameWindowController ()
-
-@end
+#import <ppu/renderer.h>
 
 @implementation NESGameWindowController
 
+@synthesize game = _game;
+@synthesize gameViewController = _gameViewController;
+
 - (void)windowDidLoad {
     [super windowDidLoad];
+    [[self window] setDelegate: self];
+    [[self window] setContentAspectRatio: NSMakeSize(HORIZONTAL_RES, VERTICAL_RES)];
+    [[self window] setContentMinSize: NSMakeSize(HORIZONTAL_RES, VERTICAL_RES)];
+    [[self window] setContentSize: NSMakeSize(HORIZONTAL_RES * 2, VERTICAL_RES * 2)];
+    if (_game == nil) {
+        NSLog(@"Warning: Game is nil");
+        return;
+    }
     
-    // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
+    _gameViewController = [[NESGameViewController alloc] initWithGame: _game];
+    [[_gameViewController view] setFrame: [[self window] frame]];
+    [[self window] makeFirstResponder: _gameViewController];
+    [self setContentViewController: _gameViewController];
+}
+
+- (void)windowWillClose:(NSNotification *)notification {
+    NSLog(@"Game window will close");
+    [self setContentViewController: nil];
+    _gameViewController = nil;
+    _game = nil;
 }
 
 @end
