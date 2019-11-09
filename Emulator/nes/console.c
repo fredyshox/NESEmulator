@@ -51,9 +51,9 @@ int nes_create(nes_t* console) {
   c = setup_cpu(console);
   p = setup_ppu(console);
   console->controller1.id = 1;
-  console->controller1.locked = true;
+  controller_init(&console->controller1);
   console->controller2.id = 2;
-  console->controller2.locked = true;
+  controller_init(&console->controller2);
   return (!c && !p);
 }
 

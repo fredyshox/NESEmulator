@@ -39,6 +39,8 @@ struct controller_t {
 
 typedef struct controller_t controller_t;
 
+// creation
+void controller_init(struct controller_t* cont);
 // controller "registers"
 void controller_write(struct controller_t* cont, uint8_t byte);
 uint8_t controller_read(struct controller_t* cont);

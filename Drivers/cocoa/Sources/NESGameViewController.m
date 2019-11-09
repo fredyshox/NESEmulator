@@ -16,7 +16,7 @@
 @implementation GameViewController
 
 - (void)loadView {
-    self.view = [[NSView alloc] init];
+    [self setView: [[NSView alloc] init]];
 }
 
 - (instancetype)init {
@@ -47,7 +47,7 @@
     [NSLayoutConstraint activateConstraints: hcon];
     [NSLayoutConstraint activateConstraints: vcon];
     
-    NSString* gamePath = @"../../testsuite/roms/Pac-Man (U).nes";
+    NSString* gamePath = @"../../testsuite/roms/oam_stress/oam_stress.nes";
     [self loadGameFromFile: gamePath];
 }
 

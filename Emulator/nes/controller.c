@@ -15,6 +15,13 @@ uint8_t controller_state_to_byte(struct controller_state state) {
   return res;
 }
 
+void controller_init(struct controller_t* cont) {
+  cont->locked = true;
+  cont->counter = 0;
+  cont->buffer = 0;
+  memset(&cont->state, 0, sizeof(struct controller_state));
+}
+
 void controller_write(struct controller_t* cont, uint8_t byte) {
   cont->locked = !(byte & 0x01);
   if (cont->locked) {
