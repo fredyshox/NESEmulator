@@ -48,7 +48,7 @@
 }
 
 - (IBAction)showInFinder:(NSMenuItem *)sender {
-    
+    [_delegate gcvItemDidReceiveShowInFinderRequest: self];
 }
 
 - (IBAction)deleteGame:(NSMenuItem *)sender {

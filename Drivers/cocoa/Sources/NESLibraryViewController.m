@@ -139,7 +139,7 @@
 
 - (void) reloadData {
     _games = [_library loadGames];
-    [_collectionView reloadData];
+    [[_collectionView animator] reloadData];
 }
 
 // MARK: GameCollectionViewItemDelegate
@@ -167,6 +167,13 @@
     [_gameWindowController setGame: game];
     [_gameWindowController showWindow: nil];
     [[_gameWindowController window] makeKeyAndOrderFront: nil];
+}
+
+- (void)gcvItemDidReceiveShowInFinderRequest:(NESGameCollectionViewItem *)item {
+    NSIndexPath* indexPath = [_collectionView indexPathForItem: item];
+    NESGame* game = [_games objectAtIndex: indexPath.item];
+    NSArray<NSURL*>* urls = @[game.path];
+    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs: urls];
 }
 
 // MARK: NSCollectionViewDelegate & DataSource

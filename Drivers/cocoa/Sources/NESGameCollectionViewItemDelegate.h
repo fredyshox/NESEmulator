@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 - (void)gcvItemDidReceivePlayGameRequest:(NESGameCollectionViewItem *)item;
 - (void)gcvItemDidReceiveDeleteGameRequest:(NESGameCollectionViewItem *)item;
+- (void)gcvItemDidReceiveShowInFinderRequest:(NESGameCollectionViewItem *)item;
 @end
 
 NS_ASSUME_NONNULL_END
