@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NESGameViewController : NSViewController {
     NSThread* emulatorThread;
     nes_t* emulator;
-    controller_state buttons;
+    controller_state joypad;
 }
 
 @property (strong, readonly) NESView* nesView;

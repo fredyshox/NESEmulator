@@ -13,10 +13,10 @@
     NSMutableDictionary<NSNumber*, NSNumber*>* keyCodeDict;
 }
 
--(id) init {
+-(id)init {
     if (self = [super init]) {
         for (int i = 0; i<CONTROLLER_BUTTON_COUNT; i++) {
-            keyArray[i] = -1;
+            keyArray[i] = NESKeyMapKeyCodeNone;
             keyCodeDict = [NSMutableDictionary new];
         }
     }
@@ -24,7 +24,7 @@
     return self;
 }
 
-// MARK: NSCoding
+// MARK: NSSecureCoding
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
     if (self = [super init]) {
@@ -41,6 +41,10 @@
 
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeBytes: (uint8_t *) keyArray length: sizeof(uint16_t) * 8 forKey: @"keyArray"];
+}
+
++ (BOOL)supportsSecureCoding {
+    return YES;
 }
 
 // MARK: Utilities
@@ -67,11 +71,38 @@
     return -1;
 }
 
+- (uint16_t) keyCodeForButton: (enum controller_button) button {
+    return keyArray[button];
+}
+
 - (void)setKeyCode:(uint16_t)keyCode forButton:(enum controller_button)button {
     keyArray[button] = keyCode;
-    NSNumber* buttonNumber = [NSNumber numberWithInt: button];
+    [self clearButtonForKeyCode: keyCode];
+    
     NSNumber* keyCodeNumber = [NSNumber numberWithUnsignedShort: keyCode];
+    NSNumber* buttonNumber = [NSNumber numberWithInt: button];
     [keyCodeDict setObject: buttonNumber forKey: keyCodeNumber];
+    //[self printKeyMap];
+}
+
+- (void)clearKeyCodeForButton: (enum controller_button) button {
+    keyArray[button] = NESKeyMapKeyCodeNone;
+    [keyCodeDict removeObjectForKey: [NSNumber numberWithInt: button]];
+}
+
+- (void)clearButtonForKeyCode: (uint16_t) keyCode {
+    NSNumber* keyCodeNumber = [NSNumber numberWithUnsignedShort: keyCode];
+    NSNumber* buttonNumber = [keyCodeDict objectForKey: keyCodeNumber];
+    if (buttonNumber != nil) {
+        keyArray[buttonNumber.intValue] = NESKeyMapKeyCodeNone;
+        [keyCodeDict removeObjectForKey: keyCodeNumber];
+    }
+}
+
+- (void)printKeyMap {
+    for (int i = 0; i < 8; i++) {
+        NSLog(@"Button %d: %u", i, keyArray[i]);
+    }
 }
 
 @end

@@ -9,13 +9,18 @@
 #import <Foundation/Foundation.h>
 #import <nes/controller.h>
 
+#define NESKeyMapKeyCodeNone 0xffff
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NESKeyMap : NSObject <NSCoding>
+@interface NESKeyMap : NSObject <NSSecureCoding>
 
 - (id)init;
 - (enum controller_button)buttonForKeyCode: (uint16_t) keyCode;
+- (uint16_t) keyCodeForButton: (enum controller_button) button;
 - (void)setKeyCode: (uint16_t) keyCode forButton: (enum controller_button) button;
+- (void)clearKeyCodeForButton: (enum controller_button) button;
+- (void)clearButtonForKeyCode: (uint16_t) keyCode;
 
 @end
 

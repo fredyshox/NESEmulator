@@ -9,10 +9,17 @@
 #import <Cocoa/Cocoa.h>
 #import <ppu/renderer.h>
 #import "NESLibraryViewController.h"
+#import "NESKeyMapViewController.h"
 
-@interface AppDelegate : NSObject <NSApplicationDelegate>
+extern const NSString* _Nonnull kUserDefaultsController1Key;
+extern const NSString* _Nonnull kUserDefaultsController2Key;
 
-@property (strong) NESLibraryViewController* libraryViewController;
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
+
+@property (strong, nonnull) NESLibraryViewController* libraryViewController;
+@property (strong, nullable) NSWindow* preferencesWindow;
+
+- (IBAction)showPreferencesModal:(id _Nullable)sender;
 
 @end
 

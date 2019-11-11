@@ -30,7 +30,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[self view] setWantsLayer: YES];
-    [[[self view] layer] setBackgroundColor: NSColor.grayColor.CGColor];
     
     _games = [self loadGames];
     

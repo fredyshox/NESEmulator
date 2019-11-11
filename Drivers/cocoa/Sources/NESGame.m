@@ -23,9 +23,7 @@
         _title = [[NSString alloc] initWithString: title];
         _path = path;
     }
-    
-    NSLog(@"%d %d", _title == nil, _path == nil);
-    
+        
     return self;
 }
 

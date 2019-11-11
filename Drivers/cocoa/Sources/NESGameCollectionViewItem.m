@@ -23,7 +23,7 @@
     CALayer* viewLayer = [[self view] layer];
     [viewLayer setBorderWidth: 0.0];
     [viewLayer setCornerRadius: 12.0];
-    [viewLayer setBorderColor: NSColor.darkGrayColor.CGColor];
+    [viewLayer setBorderColor: NSColor.lightGrayColor.CGColor];
     [[self textField] setBezeled: NO];
     [[self textField] setDrawsBackground: NO];
     [[self textField] setEditable: NO];

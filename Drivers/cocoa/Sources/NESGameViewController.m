@@ -20,7 +20,7 @@
         _game = game;
         emulator = malloc(sizeof(nes_t));
         nes_create(emulator);
-        memset(&buttons, 0, sizeof(controller_state));
+        memset(&joypad, 0, sizeof(controller_state));
     }
     
     return self;
@@ -41,8 +41,8 @@
     [[[self view] layer] setBackgroundColor: NSColor.blackColor.CGColor];
     
     // reset button state
-    controller_set_buttons(&emulator->controller1, buttons);
-    controller_set_buttons(&emulator->controller2, buttons);
+    controller_set_buttons(&emulator->controller1, joypad);
+    controller_set_buttons(&emulator->controller2, joypad);
     // init views
     NSLog(@"NES CPU freq: %f", NES_CPU_FREQ);
     _nesView = [[NESView alloc] initWithPPUHandle: emulator->ppu_handle];
@@ -191,8 +191,8 @@
             break;
         default: return;
     }
-    buttons.buttons[index] = false;
-    controller_set_buttons(&emulator->controller1, buttons);
+    joypad.buttons[index] = false;
+    controller_set_buttons(&emulator->controller1, joypad);
 }
 
 - (void)keyDown:(NSEvent *)event {
@@ -225,8 +225,8 @@
             break;
         default: return;
     }
-    buttons.buttons[index] = true;
-    controller_set_buttons(&emulator->controller1, buttons);
+    joypad.buttons[index] = true;
+    controller_set_buttons(&emulator->controller1, joypad);
 }
 
 @end
