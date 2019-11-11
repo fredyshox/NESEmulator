@@ -31,6 +31,7 @@
 
 - (cartridge* _Nullable)loadRomWithError:(NSError **)error {
     const char* path = [[_path path] cStringUsingEncoding: NSASCIIStringEncoding];
+    NSLog(@"%s", path);
     cartridge* c = malloc(sizeof(cartridge));
     int res = cartridge_from_file(c, (char*) path);
     if (res != 0) {

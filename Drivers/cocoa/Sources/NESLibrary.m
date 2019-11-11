@@ -64,7 +64,7 @@
             const char* cTitle = (const char*) sqlite3_column_text(statement, 1);
             const char* cPath =  (const char*) sqlite3_column_text(statement, 2);
             NSString* title = [NSString stringWithUTF8String: cTitle];
-            NSURL* path = [NSURL fileURLWithPath: [NSString stringWithUTF8String: cPath]];
+            NSURL* path = [NSURL URLWithString: [NSString stringWithUTF8String: cPath]];
             if (title == nil || path == nil)
                 continue;
             [games addObject: [[NESGame alloc] initWithId: identifier andTitle: title andPath: path]];

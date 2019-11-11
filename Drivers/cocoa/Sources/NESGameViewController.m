@@ -142,26 +142,6 @@
     // TODO cartridge memory
 }
 
-- (void)loadGameFromFile:(NSString *)file {
-    cartridge* c = malloc(sizeof(cartridge));
-    const char* _Nullable cFile = [file cStringUsingEncoding: NSUTF8StringEncoding];
-    if (cFile == NULL) {
-        NSLog(@"File path not UTF8");
-        return;
-    }
-    
-    if (cartridge_from_file(c, (char*) cFile) != 0) {
-        NSLog(@"Unable to read cartridge from file %@", file);
-        return;
-    }
-    
-    NSLog(@"%d", c->mirroring_type);
-    if (nes_load_rom(emulator, c) != 0) {
-        NSLog(@"Unable to load rom");
-        return;
-    }
-}
-
 - (void)keyUp:(NSEvent *)event {
     int index;
     switch ([event keyCode]) {
