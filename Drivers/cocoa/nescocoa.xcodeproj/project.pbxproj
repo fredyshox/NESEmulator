@@ -16,6 +16,8 @@
 		E21CCA3F23771F450022BE64 /* NESGameWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E21CCA3D23771F450022BE64 /* NESGameWindowController.xib */; };
 		E21CCA5923777AC80022BE64 /* NESKeyMapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E21CCA5723777AC80022BE64 /* NESKeyMapViewController.m */; };
 		E21CCA5A23777AC80022BE64 /* NESKeyMapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E21CCA5823777AC80022BE64 /* NESKeyMapViewController.xib */; };
+		E21CCA7423799EE50022BE64 /* NESLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = E21CCA7323799EE50022BE64 /* NESLibrary.m */; };
+		E21CCA8B2379A1160022BE64 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E21CCA8A2379A1150022BE64 /* libsqlite3.tbd */; };
 		E279193722616B6D00EB941D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E279193622616B6D00EB941D /* AppDelegate.m */; };
 		E279193922616B6D00EB941D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E279193822616B6D00EB941D /* Assets.xcassets */; };
 		E279193C22616B6D00EB941D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E279193A22616B6D00EB941D /* MainMenu.xib */; };
@@ -167,6 +169,9 @@
 		E21CCA5623777AC80022BE64 /* NESKeyMapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESKeyMapViewController.h; sourceTree = "<group>"; };
 		E21CCA5723777AC80022BE64 /* NESKeyMapViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESKeyMapViewController.m; sourceTree = "<group>"; };
 		E21CCA5823777AC80022BE64 /* NESKeyMapViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NESKeyMapViewController.xib; sourceTree = "<group>"; };
+		E21CCA7223799EE50022BE64 /* NESLibrary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESLibrary.h; sourceTree = "<group>"; };
+		E21CCA7323799EE50022BE64 /* NESLibrary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESLibrary.m; sourceTree = "<group>"; };
+		E21CCA8A2379A1150022BE64 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		E220B7B1227F7AAC00590FCE /* libppu.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libppu.a; path = ../../Emulator/install/lib/libppu.a; sourceTree = "<group>"; };
 		E220B7B2227F7AAC00590FCE /* lib6502.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = lib6502.a; path = ../../Emulator/install/lib/lib6502.a; sourceTree = "<group>"; };
 		E220B7B3227F7AAC00590FCE /* libnes.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnes.a; path = ../../Emulator/install/lib/libnes.a; sourceTree = "<group>"; };
@@ -190,6 +195,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E21CCA8B2379A1160022BE64 /* libsqlite3.tbd in Frameworks */,
 				E2DE5E9B236F1653006D259C /* lib6502.a in Frameworks */,
 				E2DE5E9C236F1653006D259C /* libcommon.a in Frameworks */,
 				E2DE5E9D236F1653006D259C /* libnes.a in Frameworks */,
@@ -203,6 +209,7 @@
 		E220B7B0227F7AAC00590FCE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E21CCA8A2379A1150022BE64 /* libsqlite3.tbd */,
 				E220B7B2227F7AAC00590FCE /* lib6502.a */,
 				E220B7B3227F7AAC00590FCE /* libnes.a */,
 				E220B7B1227F7AAC00590FCE /* libppu.a */,
@@ -237,6 +244,8 @@
 				E21CC9D7237597B80022BE64 /* NESGame.m */,
 				E2DE5EA32370D332006D259C /* NESKeyMap.h */,
 				E2DE5EA42370D332006D259C /* NESKeyMap.m */,
+				E21CCA7223799EE50022BE64 /* NESLibrary.h */,
+				E21CCA7323799EE50022BE64 /* NESLibrary.m */,
 				E21985F4227FA0100024EB70 /* NESGameViewController.h */,
 				E21985F5227FA0100024EB70 /* NESGameViewController.m */,
 				E21CCA3B23771F450022BE64 /* NESGameWindowController.h */,
@@ -492,6 +501,7 @@
 				E2DE5EA52370D332006D259C /* NESKeyMap.m in Sources */,
 				E21CCA5923777AC80022BE64 /* NESKeyMapViewController.m in Sources */,
 				E21CCA3E23771F450022BE64 /* NESGameWindowController.m in Sources */,
+				E21CCA7423799EE50022BE64 /* NESLibrary.m in Sources */,
 				E21CC9D8237597B80022BE64 /* NESGame.m in Sources */,
 				E279193F22616B6D00EB941D /* main.m in Sources */,
 				E279193722616B6D00EB941D /* AppDelegate.m in Sources */,

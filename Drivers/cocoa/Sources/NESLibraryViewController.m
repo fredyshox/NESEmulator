@@ -11,28 +11,36 @@
 #import "NESGameWindowController.h"
 
 #define kGameItemIdentifier @"NESGameCollectionViewItem"
+#define kLibraryDirectory @"Game Library"
+#define kLibraryRomsDirectory @"Roms"
+#define kLibraryDatabaseFileName @"GameLibrary.sqlite3"
 
 @implementation NESLibraryViewController
-
-@synthesize collectionView = _collectionView;
-@synthesize games = _games;
-@synthesize gameWindowController = _gameWindowController;
 
 - (void)loadView {
     [self setView: [[NSView alloc] init]];
 }
 
 - (instancetype)init {
-    self = [super initWithNibName: nil bundle: nil];
+    if (self = [super initWithNibName: nil bundle: nil]) {
+        [self initLibraryDirs];
+        _library = [[NESLibrary alloc] initWithPath: [_databaseURL path]];
+    }
     return self;
 }
+
+// MARK: VC Lifecycle
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[self view] setWantsLayer: YES];
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center addObserver: _library
+               selector: @selector(closeDatabase)
+                   name: NSApplicationWillTerminateNotification
+                 object: nil];
     
-    _games = [self loadGames];
-    
+    _games = [_library loadGames];
     _collectionView = [[NSCollectionView alloc] init];
     [[self view] addSubview: _collectionView];
     [self setUpCollectionView];
@@ -42,6 +50,8 @@
     [super viewDidLayout];
     [_collectionView setFrame: [[self view] frame]];
 }
+
+// MARK: Setup
 
 - (void)setUpCollectionView {
     NSCollectionViewFlowLayout* layout = [[NSCollectionViewFlowLayout alloc] init];
@@ -58,13 +68,43 @@
     [_collectionView setDelegate: self];
 }
 
-- (NSArray*)loadGames {
-    NSMutableArray<NESGame*>* gamesMutable = [NSMutableArray array];
-    [gamesMutable addObject: [[NESGame alloc] initWithTitle: @"Pac-Man" andPath: [NSURL fileURLWithPath: @"../../testsuite/roms/Pac-Man (U).nes"]]];
-    [gamesMutable addObject: [[NESGame alloc] initWithTitle: @"Super Mario Bros" andPath: [NSURL fileURLWithPath: @"../../testsuite/roms/Super Mario Bros (U).nes"]]];
-    [gamesMutable addObject: [[NESGame alloc] initWithTitle: @"Donkey Kong Classics" andPath: [NSURL fileURLWithPath: @"../../testsuite/roms/Donkey Kong Classics (U).nes"]]];
-    return gamesMutable;
+- (NSURL* _Nullable) applicationSupportDirWithError: (NSError**) error {
+    NSFileManager* manager = [NSFileManager defaultManager];
+    NSURL* applicationSupport = [manager URLForDirectory: NSApplicationSupportDirectory inDomain: NSUserDomainMask appropriateForURL: nil create: false error: error];
+    NSURL* dir = [applicationSupport URLByAppendingPathComponent: [[NSBundle mainBundle] bundleIdentifier]];
+    BOOL success = [manager createDirectoryAtURL: dir withIntermediateDirectories: YES attributes: nil error: error];
+    
+    return success ? dir : nil;
 }
+
+/**
+ Creates files & dirs for app in application support directory
+ */
+- (void)initLibraryDirs {
+    NSError* error = nil;
+    NSFileManager* manager = [NSFileManager defaultManager];
+    NSURL* asDir = [self applicationSupportDirWithError: &error];
+    if (asDir == nil) {
+        NSLog(@"Error cannot locate application support dir: %@", [error localizedDescription]);
+        return;
+    }
+    
+    _libraryDir = [asDir URLByAppendingPathComponent: kLibraryDirectory];
+    _romsDir = [_libraryDir URLByAppendingPathComponent: kLibraryRomsDirectory];
+    _databaseURL = [_libraryDir URLByAppendingPathComponent: kLibraryDatabaseFileName];
+    // This will create both dirs (immediate dirs to YES)
+    BOOL success = [manager createDirectoryAtURL: _romsDir withIntermediateDirectories: YES attributes: nil error: &error];
+    if (!success) {
+        NSLog(@"Error while creating library dirs: %@", [error localizedDescription]);
+        return;
+    }
+    
+    if (![manager fileExistsAtPath: [_databaseURL path]]) {
+        [manager createFileAtPath: [_databaseURL path] contents: [NSData data] attributes: nil];
+    }
+}
+
+// MARK: Actions
 
 - (IBAction)addRom:(id)sender {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
@@ -75,17 +115,49 @@
     
     [panel beginSheetModalForWindow: [[self view] window] completionHandler:^(NSModalResponse result) {
         if (result == NSModalResponseOK) {
-            for (NSURL* url in [panel URLs]) {
-                NSLog(@"%@", [url absoluteString]);
-            }
+            NSURL* url = [[panel URLs] lastObject];
+            NSString* title = [self titleFromURL: url];
+            NESGame* game = [[NESGame alloc] initWithId: -1 andTitle: title andPath: url];
+            __weak __typeof(self)weakSelf = self;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                __strong __typeof(weakSelf)strongSelf = weakSelf;
+                NSError* error;
+                if (![[strongSelf library] addGame: game error: &error]) {
+                    NSLog(@"Error: %@", [error localizedDescription]);
+                    return;
+                }
+                
+                [strongSelf reloadData];
+            });
         }
     }];
+}
+
+- (NSString*) titleFromURL: (NSURL*) url {
+    return [[url URLByDeletingPathExtension] lastPathComponent];
+}
+
+- (void) reloadData {
+    _games = [_library loadGames];
+    [_collectionView reloadData];
 }
 
 // MARK: GameCollectionViewItemDelegate
 
 - (void)gcvItemDidReceiveDeleteGameRequest:(NESGameCollectionViewItem *)item {
-    
+    NSIndexPath* indexPath = [_collectionView indexPathForItem: item];
+    NESGame* game = [_games objectAtIndex: [indexPath item]];
+    __weak __typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        NSError* error;
+        if (![[strongSelf library] removeGame: game error: &error]) {
+            NSLog(@"Error: %@", [error localizedDescription]);
+            return;
+        }
+        
+        [strongSelf reloadData];
+    });
 }
 
 - (void)gcvItemDidReceivePlayGameRequest:(NESGameCollectionViewItem *)item {

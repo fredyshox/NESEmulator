@@ -13,11 +13,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NESGame : NSObject
 
+@property (readonly) int identifier;
 @property (strong, readonly) NSString* title;
 @property (strong, readonly) NSURL* path;
 
-- (id)initWithTitle: (NSString*) title andPath: (NSURL*) path;
-- (cartridge*)loadRomWithError: (NSError**) error;
+- (id)initWithId: (int) identifier andTitle: (NSString*) title andPath: (NSURL*) path;
+- (cartridge* _Nullable)loadRomWithError: (NSError**) error;
 
 @end
 
