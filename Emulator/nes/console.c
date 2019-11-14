@@ -220,6 +220,7 @@ void nes_cpu_memory_write(struct memory6502* memory, uint16_t addr, uint8_t byte
           oam[i] = nes_cpu_memory_read(console->cpu->memory, base_addr + i);
         }
         ppu_sr_dma_write(console->ppu, oam, 0xff);
+        break;
       case CONTROLLER_JOYPAD1:
         controller_write(&console->controller1, byte);
         controller_write(&console->controller2, byte);

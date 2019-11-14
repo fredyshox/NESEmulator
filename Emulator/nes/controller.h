@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #define CONTROLLER_JOYPAD1 0x4016
 #define CONTRoLLER_JOYPAD2 0x4017
