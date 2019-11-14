@@ -185,7 +185,7 @@ void ppu_sr_data_write(struct ppu_state* state, uint8_t byte) {
   debug_print_ppu(state);
   uint8_t si = state->reg_sr_addr >> 2; // fast div
   uint8_t bi = state->reg_sr_addr & 0b11; // fast mod
-  struct ppu_sprite* spr = &state->memory->sprite_ram[si];
+  struct ppu_sprite* spr = (state->memory->sprite_ram + si);
   switch (bi) {
     case 0:
       spr->y_coord = byte;
@@ -201,6 +201,7 @@ void ppu_sr_data_write(struct ppu_state* state, uint8_t byte) {
       break;
     default: break;
   }
+
   state->reg_sr_addr += 1;
 }
 
@@ -209,7 +210,7 @@ void ppu_sr_data_read(struct ppu_state* state, uint8_t* ptr) {
   debug_print_ppu(state);
   uint8_t si = state->reg_sr_addr >> 2; // fast div
   uint8_t bi = state->reg_sr_addr & 0b11; // fast mod
-  struct ppu_sprite* spr = &state->memory->sprite_ram[si];
+  struct ppu_sprite* spr = (state->memory->sprite_ram + si);
   switch (bi) {
     case 0:
       *ptr = spr->y_coord;
@@ -225,6 +226,9 @@ void ppu_sr_data_read(struct ppu_state* state, uint8_t* ptr) {
       break;
     default: break;
   }
+
+  if (!state->status.vblank)
+    state->reg_sr_addr += 1;
 }
 
 void ppu_scroll_write(struct ppu_state* state, uint8_t coord) {
@@ -296,23 +300,26 @@ void ppu_sr_dma_write(struct ppu_state* state, uint8_t* data, int count) {
   assert(count > 0 && count <= PPU_SPRRAM_BYTE_SIZE);
   uint8_t rem;
   struct ppu_sprite* sprite;
+  uint8_t address = state->reg_sr_addr;
   for (uint8_t i = 0; i < count; i++) {
-    rem = i & 0b11;
-    sprite = &state->memory->sprite_ram[(i >> 2)];
+    rem = address & 0b11;
+    sprite = (state->memory->sprite_ram + (address >> 2));
     switch (rem) {
-      case 1:
+      case 0:
         sprite->y_coord = data[i];
         break;
-      case 2:
+      case 1:
         sprite->index = data[i];
         break;
-      case 3:
+      case 2:
         sprite->attrs = data[i];
         break;
-      case 4:
+      case 3:
         sprite->x_coord = data[i];
         break;
       default: break;
     }
+    address += 1;
   }
+  state->reg_sr_addr = address;
 }

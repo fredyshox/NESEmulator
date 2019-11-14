@@ -7,12 +7,12 @@
 
 // ppu_shift_storage functions
 
-struct ppu_shift_storage* ppu_shift_storage_create() {
-  struct ppu_shift_storage* first = malloc(sizeof(struct ppu_shift_storage*)); 
+struct ppu_shift_storage* ppu_shift_storage_create(void) {
+  struct ppu_shift_storage* first = malloc(sizeof(struct ppu_shift_storage));
   struct ppu_shift_storage* prev = first;
   struct ppu_shift_storage* next;
   for (int i = 0; i < 2; i++) {
-    next = malloc(sizeof(struct ppu_shift_storage*));
+    next = malloc(sizeof(struct ppu_shift_storage));
     prev->next = next;
     prev = next;
   }
@@ -33,7 +33,7 @@ void ppu_shift_storage_free(struct ppu_shift_storage* pss) {
 
 // ppu_render_handle funcitons
 
-struct ppu_render_handle* ppu_render_handle_create() {
+struct ppu_render_handle* ppu_render_handle_create(void) {
   struct ppu_render_handle* handle = malloc(sizeof(struct ppu_render_handle));
   handle->frame = malloc(sizeof(uint8_t) * HORIZONTAL_RES * VERTICAL_RES * 3);
   handle->spr_pixel_buf = malloc(sizeof(uint8_t) * HORIZONTAL_RES);
@@ -83,6 +83,10 @@ uint8_t ppu_memory_fetch_nt(struct ppu_memory* mem, union ppu_internal_register 
 
 // sprite helpers
 
+/**
+ * Evaluates first 8 sprites to appear on scanline.
+ * Sprites are ordered based on priority (position in vram)
+ */
 int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, int pV) {
   // counters
   int ramc = 0, outc = 0;
@@ -109,20 +113,24 @@ int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int o
 
 /**
  * Pixel layout for scanline using sprite buffer
- * Each value in pixel buffer has sprite-color index (opaque) of sprite with highest priority 
- * or 0 if color is transparent.
+ * Each value in pixel buffer has format:
+ * _ S S S C C C C 
+ * Where S is index in sprbuffer, C is palette index.
+ * Value is equal to zero if pixel is transparent.
  */
 void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize) {
   memset(buffer, 0, bufsize);
   ppu_sprite spr;
   uint8_t spr_tile_lower0, spr_tile_lower1, spr_tile_upper, color_idx;
-  uint8_t pttrntable_idx = ppu->control.spr_pttrntable;
+  int pttrntable_idx = ppu->control.spr_pttrntable & 0x01;
   for (int i = 0; i < sprlen; i++) {
     spr = sprites[i];
     spr_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + ppu->fine_y, pttrntable_idx);
     spr_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + ppu->fine_y + TILE_SIZE, pttrntable_idx);
-    spr_tile_upper = ((spr.palette_msb << 2) & 0xc0);
-    for (int x = spr.x_coord; x < spr.x_coord + TILE_SIZE; x++) {
+    spr_tile_upper = ((spr.palette_msb << 2) & 0x0c);
+    spr_tile_upper |= ((uint8_t) i << 4);
+
+    for (int x = spr.x_coord; x < spr.x_coord + TILE_SIZE && x < bufsize; x++) {
       // check if buffer has already opaque pixel value
       if (buffer[x] != 0) {
         goto tile_bitshift;
@@ -158,12 +166,47 @@ int ppu_update_frame(uint8_t* frame, struct ppu_color color, int pos) {
 // rendering process
 
 void ppu_render_pixel(struct ppu_state* ppu, struct ppu_render_handle* handle) {
-  struct ppu_shift_storage* storage = handle->render_storage;
   uint8_t fine_x = ppu->fine_x & 0x07;
-  uint16_t bg_color_address = 0x3f00 | (uint16_t) ((storage->bg_tiles >> ((TILE_SIZE - fine_x - 1) << 2)) & 0x0F); // (7 - x_fine) * 4
+  struct ppu_shift_storage* storage = handle->render_storage;
+  bool hide_left_bg = handle->cycle <= 8 && !ppu->mask.bg_l8;
+  uint16_t bg_color_address;
+  uint32_t bg_tiles = (uint32_t) (storage->bg_tiles >> 32);
+  if (ppu->mask.show_bg && !hide_left_bg) {
+    bg_color_address = 0x3f00 | (uint16_t) ((bg_tiles >> ((TILE_SIZE - fine_x - 1) << 2)) & 0x0F); // (7 - x_fine) * 4
+  } else {
+    bg_color_address = 0x3f00;
+  }
+
+  uint8_t spr_layout = handle->spr_pixel_buf[handle->cycle - 1];
+  struct ppu_sprite spr = handle->spr_buffer[(spr_layout >> 4) & 0x07];
+  bool hide_left_spr = handle->cycle <= 8 && !ppu->mask.spr_l8;
+  uint16_t spr_color_address;
+  if (ppu->mask.show_spr && !hide_left_spr) {
+    spr_color_address = 0x3f10 | (uint16_t) (spr_layout & 0x0f);
+  } else {
+    spr_color_address = 0x3f10;
+  }
+
+  bool bg_transparent = (bg_color_address & 0x0003) == 0;
+  bool spr_transparent = (spr_color_address & 0x0003) == 0;
+  uint16_t color_address;
+  if (bg_transparent && spr_transparent) {
+    color_address = 0x3f00;
+  } else if (bg_transparent) {
+    color_address = spr_color_address;
+  } else if (spr_transparent) {
+    color_address = bg_color_address;
+  } else {
+    color_address = (spr.priority) ? bg_color_address : spr_color_address;
+    if (spr.ram_index == 0 && ppu->status.sprite_zhit == 0 && handle->cycle != 256) {
+      ppu->status.sprite_zhit = 1; 
+    }
+  }
+
+  //uint16_t color_address = bg_color_address;
+  struct ppu_color color = NES_COLOR(ppu_memory_load(ppu->memory, color_address));
+  handle->frame_buf_pos += ppu_update_frame(handle->frame, color, handle->frame_buf_pos);
   storage->bg_tiles <<= 4;
-  struct ppu_color bg_color = NES_COLOR(ppu_memory_load(ppu->memory, bg_color_address));
-  handle->frame_buf_pos += ppu_update_frame(handle->frame, bg_color, handle->frame_buf_pos);
 }
 
 void ppu_increment_x(struct ppu_state* ppu) {
@@ -202,8 +245,14 @@ void ppu_copy_y(struct ppu_state* ppu) {
 }
 
 void ppu_shift(struct ppu_render_handle* handle) {
-  handle->fetch_storage = handle->fetch_storage->next;
-  handle->render_storage = handle->render_storage->next;
+  struct ppu_shift_storage* old_fstorage = handle->fetch_storage;
+  struct ppu_shift_storage* new_rstorage = handle->render_storage->next;
+  uint64_t bg_tiles = new_rstorage->bg_tiles;
+  bg_tiles = (bg_tiles & 0xffffffff00000000);
+  bg_tiles = (bg_tiles | ((old_fstorage->bg_tiles >> 32) & 0xffffffff));
+  new_rstorage->bg_tiles = bg_tiles;
+  handle->fetch_storage = old_fstorage->next;
+  handle->render_storage = new_rstorage;
 }
 
 void ppu_storage_compile(struct ppu_shift_storage* storage) {
@@ -218,7 +267,7 @@ void ppu_storage_compile(struct ppu_shift_storage* storage) {
     lower0 <<= 1;
     value |= (uint32_t) (attr | pttr);
   }
-  storage->bg_tiles = value;  
+  storage->bg_tiles = ((uint64_t) value) << 32;  
 }
 
 void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) {
@@ -255,7 +304,7 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
   }
 
   // check if rendering is enabled 
-  int bg_ptable = ppu->control.bg_pttrntable;
+  int bg_ptable = ppu->control.bg_pttrntable & 0x01;
   if (renderingEnabled) {
     if (visibleFrame && visibleCycle) {
       // just draw stuff
@@ -310,6 +359,11 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
   }
 
   // evaluate sprites on 257
+  if ((visibleFrame) && handle->cycle == 257) {
+    // TODO 
+    handle->sprbuf_size = ppu_evaluate_sprites(ppu, handle->spr_buffer, MAX_SPRITES_PER_LINE, (ppu->v.y_scroll << 3) + ppu->fine_y);
+    ppu_sprite_pixel_layout(ppu, handle->spr_buffer, handle->sprbuf_size, handle->spr_pixel_buf, HORIZONTAL_RES);
+  }
 
   // flags (vblank, zhit, ovf)
   if (handle->line == 241 && handle->cycle == 1) {

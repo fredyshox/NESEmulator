@@ -31,11 +31,11 @@ struct ppu_shift_storage {
   uint8_t bg_tile_lower0;
   uint8_t bg_tile_lower1;
   // compiled bg tiles (8 tiles, each 4 bits)
-  uint32_t bg_tiles;
+  uint64_t bg_tiles;
   struct ppu_shift_storage* next;
 };
 
-struct ppu_shift_storage* ppu_shift_storage_create();
+struct ppu_shift_storage* ppu_shift_storage_create(void);
 void ppu_shift_storage_free(struct ppu_shift_storage* pss);
 
 /**
@@ -68,7 +68,7 @@ typedef struct ppu_render_handle ppu_render_handle;
  * Creates handle instance by allocated memory for rendering needs
  * @return pointer to handle
  */
-struct ppu_render_handle* ppu_render_handle_create();
+struct ppu_render_handle* ppu_render_handle_create(void);
 
 #define debug_print_handle(handle) \
   debug_print("V:%02d pV:%d H:%02d pH:%d FPOS:%04x SBUF:%d SPT:%d BPT:%d\n", \
