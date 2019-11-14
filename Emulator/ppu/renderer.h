@@ -44,7 +44,10 @@ void ppu_shift_storage_free(struct ppu_shift_storage* pss);
  */
 struct ppu_render_handle {
   int frame_buf_pos;
+  // frame buffer
   uint8_t* frame;
+  // visible frame
+  uint8_t* vframe;
   bool odd_frame;
   uint8_t* spr_pixel_buf;
   int sprbuf_size;
@@ -97,7 +100,7 @@ void ppu_render_handle_free(struct ppu_render_handle* handle);
  * @param  pV     current line index
  * @return        number of sprites found on this position
  */
-int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, int pV);
+int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, uint8_t y_coord);
 
 /**
  * Layouts pixel values for sprites that are visible on current line
@@ -107,7 +110,7 @@ int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int o
  * @param buffer  pixel buffer
  * @param bufsize pixel buffer length
  */
-void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize);
+void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize, uint8_t y_coord);
 
 /**
  * Updates frame on specified position with specified color

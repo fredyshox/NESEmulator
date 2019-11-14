@@ -36,6 +36,7 @@ void ppu_shift_storage_free(struct ppu_shift_storage* pss) {
 struct ppu_render_handle* ppu_render_handle_create(void) {
   struct ppu_render_handle* handle = malloc(sizeof(struct ppu_render_handle));
   handle->frame = malloc(sizeof(uint8_t) * HORIZONTAL_RES * VERTICAL_RES * 3);
+  handle->vframe = malloc(sizeof(uint8_t) * HORIZONTAL_RES * VERTICAL_RES * 3); 
   handle->spr_pixel_buf = malloc(sizeof(uint8_t) * HORIZONTAL_RES);
   handle->spr_buffer = malloc(sizeof(struct ppu_sprite) * MAX_SPRITES_PER_LINE);
   handle->frame_buf_pos = 0;
@@ -87,14 +88,14 @@ uint8_t ppu_memory_fetch_nt(struct ppu_memory* mem, union ppu_internal_register 
  * Evaluates first 8 sprites to appear on scanline.
  * Sprites are ordered based on priority (position in vram)
  */
-int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, int pV) {
+int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, uint8_t y_coord) {
   // counters
   int ramc = 0, outc = 0;
   struct ppu_sprite sprite;
   // go through whole sprite ram or outlen and 1 more for sprite overflow detection
   while (ramc < PPU_SPRRAM_SIZE && outc <= outlen) {
     sprite = ppu->memory->sprite_ram[ramc];
-    if (pV >= sprite.y_coord && pV < (sprite.y_coord + TILE_SIZE)) {
+    if (y_coord >= sprite.y_coord && y_coord < (sprite.y_coord + TILE_SIZE)) {
       if (outc != outlen)
         output[outc] = sprite;
       outc += 1;
@@ -118,15 +119,22 @@ int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int o
  * Where S is index in sprbuffer, C is palette index.
  * Value is equal to zero if pixel is transparent.
  */
-void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize) {
+void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize, uint8_t y_coord) {
   memset(buffer, 0, bufsize);
   ppu_sprite spr;
   uint8_t spr_tile_lower0, spr_tile_lower1, spr_tile_upper, color_idx;
   int pttrntable_idx = ppu->control.spr_pttrntable & 0x01;
+  uint8_t spr_tile_y;
   for (int i = 0; i < sprlen; i++) {
     spr = sprites[i];
-    spr_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + ppu->fine_y, pttrntable_idx);
-    spr_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + ppu->fine_y + TILE_SIZE, pttrntable_idx);
+    spr_tile_y = y_coord - spr.y_coord;
+    spr_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + spr_tile_y, pttrntable_idx);
+    spr_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + spr_tile_y + TILE_SIZE, pttrntable_idx);
+    if (spr.hflip) {
+      spr_tile_lower0 = utility_bit_reverse(spr_tile_lower0);
+      spr_tile_lower1 = utility_bit_reverse(spr_tile_lower1);
+    }
+
     spr_tile_upper = ((spr.palette_msb << 2) & 0x0c);
     spr_tile_upper |= ((uint8_t) i << 4);
 
@@ -270,13 +278,20 @@ void ppu_storage_compile(struct ppu_shift_storage* storage) {
   storage->bg_tiles = ((uint64_t) value) << 32;  
 }
 
+void ppu_prepare_next_frame(struct ppu_render_handle* handle) {
+  handle->odd_frame = !handle->odd_frame;
+  uint8_t* temp = handle->frame;
+  handle->frame = handle->vframe;
+  handle->vframe = temp;
+}
+
 void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) {
   bool renderingEnabled = ppu->mask.show_bg || ppu->mask.show_spr;
   if (renderingEnabled) {
     if (handle->odd_frame && handle->line == 261 && handle->cycle == 339) {
       handle->cycle = 0;
       handle->line = 0;
-      handle->odd_frame = !handle->odd_frame;
+      ppu_prepare_next_frame(handle);
       return;
     }
   }
@@ -287,7 +302,7 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
     handle->line += 1;
     if (handle->line > 261) {
       handle->line = 0;
-      handle->odd_frame = !handle->odd_frame;
+      ppu_prepare_next_frame(handle);
     }
   }
 
@@ -361,8 +376,9 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
   // evaluate sprites on 257
   if ((visibleFrame) && handle->cycle == 257) {
     // TODO 
-    handle->sprbuf_size = ppu_evaluate_sprites(ppu, handle->spr_buffer, MAX_SPRITES_PER_LINE, (ppu->v.y_scroll << 3) + ppu->fine_y);
-    ppu_sprite_pixel_layout(ppu, handle->spr_buffer, handle->sprbuf_size, handle->spr_pixel_buf, HORIZONTAL_RES);
+    uint8_t y_coord = (ppu->v.y_scroll << 3) + ppu->fine_y;
+    handle->sprbuf_size = ppu_evaluate_sprites(ppu, handle->spr_buffer, MAX_SPRITES_PER_LINE, y_coord);
+    ppu_sprite_pixel_layout(ppu, handle->spr_buffer, handle->sprbuf_size, handle->spr_pixel_buf, HORIZONTAL_RES, y_coord);
   }
 
   // flags (vblank, zhit, ovf)
