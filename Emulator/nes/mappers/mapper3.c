@@ -30,7 +30,7 @@ void mapper3_read(struct mapper* m, uint16_t address, uint8_t* dest) {
   if (address < 0x2000) {
     // chr rom
     int bank = *(int*) m->data;
-    uint16_t chr_addr = (uint16_t) bank * address;
+    uint16_t chr_addr = (uint16_t) bank * (uint16_t) 0x2000 + address;
     if (chr_addr < m->cartridge->chr_rom_size) {
       *dest = m->cartridge->chr_rom[chr_addr];
     } else {
