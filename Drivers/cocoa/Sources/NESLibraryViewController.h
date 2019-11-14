@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NESLibraryViewController : NSViewController <NSCollectionViewDataSource, NSCollectionViewDelegate, NESGameCollectionViewItemDelegate>
 
+@property (strong, readonly) NSScrollView* scrollView;
 @property (strong, readonly) NSCollectionView* collectionView;
 @property (strong, readonly) NESLibrary* library;
 @property (strong, readonly) NSArray<NESGame*>* games;

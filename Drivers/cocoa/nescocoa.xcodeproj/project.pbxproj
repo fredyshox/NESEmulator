@@ -23,10 +23,10 @@
 		E279193C22616B6D00EB941D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E279193A22616B6D00EB941D /* MainMenu.xib */; };
 		E279193F22616B6D00EB941D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E279193E22616B6D00EB941D /* main.m */; };
 		E279194822616CAF00EB941D /* NESView.m in Sources */ = {isa = PBXBuildFile; fileRef = E279194722616CAF00EB941D /* NESView.m */; };
-		E2DE5E9B236F1653006D259C /* lib6502.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E7E236F1605006D259C /* lib6502.a */; };
-		E2DE5E9C236F1653006D259C /* libcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E80236F1605006D259C /* libcommon.a */; };
-		E2DE5E9D236F1653006D259C /* libnes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E84236F1605006D259C /* libnes.a */; };
-		E2DE5E9E236F1653006D259C /* libppu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E86236F1605006D259C /* libppu.a */; };
+		E2ADBCDC237D83A90083E0ED /* lib6502.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E7E236F1605006D259C /* lib6502.a */; };
+		E2ADBCDD237D83A90083E0ED /* libcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E80236F1605006D259C /* libcommon.a */; };
+		E2ADBCDE237D83A90083E0ED /* libnes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E84236F1605006D259C /* libnes.a */; };
+		E2ADBCDF237D83A90083E0ED /* libppu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E86236F1605006D259C /* libppu.a */; };
 		E2DE5EA52370D332006D259C /* NESKeyMap.m in Sources */ = {isa = PBXBuildFile; fileRef = E2DE5EA42370D332006D259C /* NESKeyMap.m */; };
 /* End PBXBuildFile section */
 
@@ -195,11 +195,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2ADBCDC237D83A90083E0ED /* lib6502.a in Frameworks */,
+				E2ADBCDD237D83A90083E0ED /* libcommon.a in Frameworks */,
+				E2ADBCDE237D83A90083E0ED /* libnes.a in Frameworks */,
+				E2ADBCDF237D83A90083E0ED /* libppu.a in Frameworks */,
 				E21CCA8B2379A1160022BE64 /* libsqlite3.tbd in Frameworks */,
-				E2DE5E9B236F1653006D259C /* lib6502.a in Frameworks */,
-				E2DE5E9C236F1653006D259C /* libcommon.a in Frameworks */,
-				E2DE5E9D236F1653006D259C /* libnes.a in Frameworks */,
-				E2DE5E9E236F1653006D259C /* libppu.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

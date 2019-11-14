@@ -41,14 +41,16 @@
                  object: nil];
     
     _games = [_library loadGames];
+    _scrollView = [[NSScrollView alloc] init];
     _collectionView = [[NSCollectionView alloc] init];
-    [[self view] addSubview: _collectionView];
     [self setUpCollectionView];
+    [_scrollView setDocumentView: _collectionView];
+    [[self view] addSubview: _scrollView];
 }
 
 - (void)viewDidLayout {
     [super viewDidLayout];
-    [_collectionView setFrame: [[self view] frame]];
+    [_scrollView setFrame: [[self view] frame]];
 }
 
 // MARK: Setup
@@ -59,10 +61,12 @@
     [layout setMinimumLineSpacing: 16.0];
     [layout setMinimumInteritemSpacing: 24.0];
     [layout setSectionInset: NSEdgeInsetsMake(24.0, 16.0, 24.0, 16.0)];
+    [layout setScrollDirection: NSCollectionViewScrollDirectionVertical];
     NSNib* itemNib = [[NSNib alloc] initWithNibNamed: @"NESGameCollectionViewItem" bundle: nil];
     [_collectionView registerNib: itemNib forItemWithIdentifier: kGameItemIdentifier];
     [_collectionView setBackgroundColors: @[ [NSColor clearColor] ]];
     [_collectionView setSelectable: YES];
+    [_collectionView setAllowsMultipleSelection: NO];
     [_collectionView setCollectionViewLayout: layout];
     [_collectionView setDataSource: self];
     [_collectionView setDelegate: self];
