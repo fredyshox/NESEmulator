@@ -128,6 +128,10 @@ void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, 
   for (int i = 0; i < sprlen; i++) {
     spr = sprites[i];
     spr_tile_y = y_coord - spr.y_coord;
+    if (spr.vflip) {
+      spr_tile_y = TILE_SIZE - 1 - spr_tile_y;
+    }
+    
     spr_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + spr_tile_y, pttrntable_idx);
     spr_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + spr_tile_y + TILE_SIZE, pttrntable_idx);
     if (spr.hflip) {
