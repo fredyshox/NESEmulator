@@ -18,6 +18,7 @@
 		E21CCA5A23777AC80022BE64 /* NESKeyMapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E21CCA5823777AC80022BE64 /* NESKeyMapViewController.xib */; };
 		E21CCA7423799EE50022BE64 /* NESLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = E21CCA7323799EE50022BE64 /* NESLibrary.m */; };
 		E21CCA8B2379A1160022BE64 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E21CCA8A2379A1150022BE64 /* libsqlite3.tbd */; };
+		E24B4339237E0B0400149878 /* KeyCodeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = E24B4338237E0B0400149878 /* KeyCodeFormatter.m */; };
 		E279193722616B6D00EB941D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E279193622616B6D00EB941D /* AppDelegate.m */; };
 		E279193922616B6D00EB941D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E279193822616B6D00EB941D /* Assets.xcassets */; };
 		E279193C22616B6D00EB941D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E279193A22616B6D00EB941D /* MainMenu.xib */; };
@@ -175,6 +176,9 @@
 		E220B7B1227F7AAC00590FCE /* libppu.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libppu.a; path = ../../Emulator/install/lib/libppu.a; sourceTree = "<group>"; };
 		E220B7B2227F7AAC00590FCE /* lib6502.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = lib6502.a; path = ../../Emulator/install/lib/lib6502.a; sourceTree = "<group>"; };
 		E220B7B3227F7AAC00590FCE /* libnes.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnes.a; path = ../../Emulator/install/lib/libnes.a; sourceTree = "<group>"; };
+		E24B4321237E081A00149878 /* NESKeyMapViewControllerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESKeyMapViewControllerDelegate.h; sourceTree = "<group>"; };
+		E24B4337237E0B0400149878 /* KeyCodeFormatter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeyCodeFormatter.h; sourceTree = "<group>"; };
+		E24B4338237E0B0400149878 /* KeyCodeFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KeyCodeFormatter.m; sourceTree = "<group>"; };
 		E279193222616B6D00EB941D /* nescocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nescocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E279193522616B6D00EB941D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E279193622616B6D00EB941D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -259,9 +263,12 @@
 				E21CC9D323758A4E0022BE64 /* NESGameCollectionViewItem.xib */,
 				E279193522616B6D00EB941D /* AppDelegate.h */,
 				E279193622616B6D00EB941D /* AppDelegate.m */,
+				E24B4321237E081A00149878 /* NESKeyMapViewControllerDelegate.h */,
 				E21CCA5623777AC80022BE64 /* NESKeyMapViewController.h */,
 				E21CCA5723777AC80022BE64 /* NESKeyMapViewController.m */,
 				E21CCA5823777AC80022BE64 /* NESKeyMapViewController.xib */,
+				E24B4337237E0B0400149878 /* KeyCodeFormatter.h */,
+				E24B4338237E0B0400149878 /* KeyCodeFormatter.m */,
 				E279193822616B6D00EB941D /* Assets.xcassets */,
 				E279193A22616B6D00EB941D /* MainMenu.xib */,
 				E279193D22616B6D00EB941D /* Info.plist */,
@@ -496,6 +503,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E21CC9D423758A4E0022BE64 /* NESGameCollectionViewItem.m in Sources */,
+				E24B4339237E0B0400149878 /* KeyCodeFormatter.m in Sources */,
 				E21CC9B7237582B60022BE64 /* NESLibraryViewController.m in Sources */,
 				E21985F6227FA0100024EB70 /* NESGameViewController.m in Sources */,
 				E2DE5EA52370D332006D259C /* NESKeyMap.m in Sources */,

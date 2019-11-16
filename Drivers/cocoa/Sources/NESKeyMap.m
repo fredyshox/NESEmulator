@@ -13,8 +13,11 @@
     NSMutableDictionary<NSNumber*, NSNumber*>* keyCodeDict;
 }
 
--(id)init {
+@synthesize source;
+
+- (id)initWithSource: (NESKeyMapSource) keyMapSource {
     if (self = [super init]) {
+        source = keyMapSource;
         for (int i = 0; i<CONTROLLER_BUTTON_COUNT; i++) {
             keyArray[i] = NESKeyMapKeyCodeNone;
             keyCodeDict = [NSMutableDictionary new];
@@ -34,6 +37,7 @@
             memcpy(keyArray, bytes, sizeof(uint16_t) * 8);
         }
         keyCodeDict = [self createKeyCodeDict];
+        source = [aDecoder decodeIntegerForKey: @"source"];
     }
     
     return self;
@@ -41,6 +45,7 @@
 
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeBytes: (uint8_t *) keyArray length: sizeof(uint16_t) * 8 forKey: @"keyArray"];
+    [coder encodeInteger: source forKey: @"source"];
 }
 
 + (BOOL)supportsSecureCoding {

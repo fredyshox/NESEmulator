@@ -20,7 +20,6 @@ mappers:
 Cocoa frontend:
 
 * keyCode to string - better method
-* keyCodes clear for second controller
 * use keyMap mappings in game
 * rom copying
 

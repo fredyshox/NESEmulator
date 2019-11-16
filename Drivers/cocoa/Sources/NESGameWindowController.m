@@ -21,12 +21,13 @@
     [[self window] setContentMinSize: NSMakeSize(HORIZONTAL_RES, VERTICAL_RES)];
     [[self window] setContentSize: NSMakeSize(HORIZONTAL_RES * 2, VERTICAL_RES * 2)];
     if (_game == nil) {
-        NSLog(@"Warning: Game is nil");
+        [NSException raise: @"GameNotSet" format: @"NESGame is set to nil"];
         return;
     }
     
     _gameViewController = [[NESGameViewController alloc] initWithGame: _game];
     [[_gameViewController view] setFrame: [[self window] frame]];
+    [[self window] setTitle: [_game title]];
     [[self window] makeFirstResponder: _gameViewController];
     [self setContentViewController: _gameViewController];
 }

@@ -84,7 +84,7 @@
     for (int i = 0; i < VERTICAL_RES; i++) {
         for (int j = 0, k = 0; j < HORIZONTAL_RES * 4; j++) {
             if (j % 4 != 0) {
-                bitmapBuffer[i * HORIZONTAL_RES * 4 + j] = renderingHandle->frame[i * HORIZONTAL_RES * 3 + k];
+                bitmapBuffer[i * HORIZONTAL_RES * 4 + j] = renderingHandle->vframe[i * HORIZONTAL_RES * 3 + k];
                 k += 1;
             }
         }

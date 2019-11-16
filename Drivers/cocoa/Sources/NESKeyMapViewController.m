@@ -30,10 +30,12 @@
     [_tableView setDelegate: self];
     [_inputButton removeAllItems];
     [_inputButton addItemsWithTitles: @[@"Keyboard"]];
+    [_inputButton selectItemAtIndex: [_keyMap source]];
 }
 
 - (void)viewWillDisappear {
     [super viewWillDisappear];
+    [_keyMap setSource: [self selectedSource]];
     [self storeKeyMap: _keyMap usingKey: _userDefaultsKey];
 }
 
@@ -41,13 +43,17 @@
     return YES;
 }
 
-- (NESKeyMap*) loadKeyMapUsingKey: (NSString*) key {
+- (NESKeyMapSource)selectedSource {
+    return [_inputButton indexOfSelectedItem];
+}
+
+- (NESKeyMap*)loadKeyMapUsingKey: (NSString*) key {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     NESKeyMap* keyMap;
     NSData* data = [defaults objectForKey: key];
     if (data == nil) {
         NSLog(@"Created new keymap");
-        return [[NESKeyMap alloc] init];
+        return [[NESKeyMap alloc] initWithSource: NESKeyMapSourceKeyboard];
     }
     
     NSError* error;
@@ -55,13 +61,13 @@
     if (error != nil) {
         NSLog(@"Decoding Error: %@", [error localizedDescription]);
         NSLog(@"Created new keymap");
-        return [[NESKeyMap alloc] init];
+        return [[NESKeyMap alloc] initWithSource: NESKeyMapSourceKeyboard];
     }
     
     return keyMap;
 }
 
-- (void) storeKeyMap: (NESKeyMap*) keyMap usingKey: (NSString*) key {
+- (void)storeKeyMap: (NESKeyMap*) keyMap usingKey: (NSString*) key {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     NSError* error;
     NSData* data = [NSKeyedArchiver archivedDataWithRootObject: keyMap requiringSecureCoding: YES error: &error];
@@ -73,7 +79,7 @@
     [defaults setObject: data forKey: key];
 }
 
-- (NSString*) stringForButton: (enum controller_button) button {
+- (NSString*)stringForButton: (enum controller_button) button {
     switch (button) {
         case A_BUTTON:
             return @"A";
@@ -94,33 +100,9 @@
     }
 }
 
-- (NSString*) stringForKeyCode: (uint16_t) keyCode {
-    TISInputSourceRef currentKeyboard = TISCopyCurrentKeyboardInputSource();
-    CFDataRef layoutData =
-    TISGetInputSourceProperty(currentKeyboard,
-                              kTISPropertyUnicodeKeyLayoutData);
-    const UCKeyboardLayout *keyboardLayout =
-    (const UCKeyboardLayout *)CFDataGetBytePtr(layoutData);
+// MARK: Actions
 
-    UInt32 keysDown = 0;
-    UniChar chars[4];
-    UniCharCount realLength;
 
-    UCKeyTranslate(keyboardLayout,
-                   keyCode,
-                   kUCKeyActionDisplay,
-                   0,
-                   LMGetKbdType(),
-                   kUCKeyTranslateNoDeadKeysBit,
-                   &keysDown,
-                   sizeof(chars) / sizeof(chars[0]),
-                   &realLength,
-                   chars);
-    CFRelease(currentKeyboard);
-
-    CFStringRef cfString = CFStringCreateWithCharacters(kCFAllocatorDefault, chars, 1);
-    return (__bridge NSString*) cfString;
-}
 
 // MARK: Keyboard
 
@@ -128,6 +110,9 @@
     NSInteger row = [_tableView selectedRow];
     uint16_t keyCode = [event keyCode];
     [_keyMap setKeyCode: keyCode forButton: (enum controller_button) row];
+    if (_delegate != nil) {
+        [_delegate keyCodeDidBecomeAssigned: keyCode forUserDefaultsKey: _userDefaultsKey];
+    }
     [_tableView reloadData];
 }
 
@@ -150,7 +135,11 @@
     } else if (tableColumn == [[tableView tableColumns] objectAtIndex: 1]) {
         editable = false;
         cellIdentifier = @"keyCell";
-        text = (keyCode == NESKeyMapKeyCodeNone) ? @"" : [self stringForKeyCode: keyCode];
+        if (keyCode == NESKeyMapKeyCodeNone) {
+            text = @"";
+        } else {
+            text = stringFromKeyCode(keyCode);
+        }
     } else {
         return nil;
     }
@@ -168,6 +157,17 @@
 
 - (BOOL)tableView:(NSTableView *)tableView shouldTypeSelectForEvent:(NSEvent *)event withCurrentSearchString:(NSString *)searchString {
     return NO;
+}
+
+// MARK: NESKeyMapViewControllerDelegate
+
+- (void)keyCodeDidBecomeAssigned: (uint16_t) keyCode forUserDefaultsKey: (NSString*) key {
+    if ([_userDefaultsKey isEqualToString: key]) {
+        return;
+    }
+    
+    [_keyMap clearButtonForKeyCode: keyCode];
+    [_tableView reloadData];
 }
 
 @end

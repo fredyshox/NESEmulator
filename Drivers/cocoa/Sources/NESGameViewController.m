@@ -39,6 +39,9 @@
     [super viewDidLoad];
     [[self view] setWantsLayer: YES];
     [[[self view] layer] setBackgroundColor: NSColor.blackColor.CGColor];
+    if (_game == nil) {
+        [NSException raise: @"GameNotSet" format: @"NESGame is set to nil"];
+    }
     
     // reset button state
     controller_set_buttons(&emulator->controller1, joypad);
@@ -115,6 +118,8 @@
     }
     
     NSThread* t = [[NSThread alloc] initWithTarget: self selector: @selector(emulateConsole) object: nil];
+    [t setQualityOfService: NSQualityOfServiceUserInteractive];
+    [t setThreadPriority: 1.0];
     [t start];
     emulatorThread = t;
 }

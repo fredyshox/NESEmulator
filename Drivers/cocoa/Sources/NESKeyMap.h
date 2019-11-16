@@ -13,9 +13,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, NESKeyMapSource) {
+    NESKeyMapSourceKeyboard
+};
+
 @interface NESKeyMap : NSObject <NSSecureCoding>
 
-- (id)init;
+@property NESKeyMapSource source;
+
+- (id)initWithSource: (NESKeyMapSource) keyMapSource;
 - (enum controller_button)buttonForKeyCode: (uint16_t) keyCode;
 - (uint16_t) keyCodeForButton: (enum controller_button) button;
 - (void)setKeyCode: (uint16_t) keyCode forButton: (enum controller_button) button;

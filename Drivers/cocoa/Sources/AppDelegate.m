@@ -25,7 +25,6 @@ NSString* _Nonnull kUserDefaultsController2Key = @"NESController2";
     [[_libraryViewController view] setFrame: _window.frame];
     [_window setContentViewController: _libraryViewController];
     NSLog(@"Window frame %f %f", _window.frame.size.width, _window.frame.size.height);
-    
     [_window makeKeyWindow];
 }
 
@@ -42,6 +41,8 @@ NSString* _Nonnull kUserDefaultsController2Key = @"NESController2";
     [controller1VC setTitle: @"Controller 1"];
     NESKeyMapViewController* controller2VC = [[NESKeyMapViewController alloc] initWithUserDefaultsKey: kUserDefaultsController2Key];
     [controller2VC setTitle: @"Controller 2"];
+    [controller1VC setDelegate: controller2VC];
+    [controller2VC setDelegate: controller1VC];
     [tabVC setTabViewItems: @[
         [NSTabViewItem tabViewItemWithViewController: controller1VC],
         [NSTabViewItem tabViewItemWithViewController: controller2VC]
