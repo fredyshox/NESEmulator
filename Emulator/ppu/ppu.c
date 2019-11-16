@@ -136,6 +136,7 @@ void ppu_state_create(struct ppu_state* ppu, struct ppu_memory* mem) {
   ppu->fine_x = 0;
   ppu->fine_y = 0;
   ppu->temp_fine_y = 0;
+  ppu->data_buffer = 0;
   // setup
 }
 
@@ -284,8 +285,16 @@ void ppu_data_read(struct ppu_state* state, uint8_t* ptr) {
   debug_print("PPUDATA R: ");
   debug_print_ppu(state);
 
+  uint16_t address = state->v.address;
   struct ppu_memory* mem = state->memory;
-  *ptr = ppu_memory_load(mem, state->v.address);
+  if (address > 0x3eff) {
+    *ptr = ppu_memory_load(mem, address);
+    state->data_buffer = ppu_memory_load(mem, 0x1000);
+  } else {
+    *ptr = state->data_buffer;
+    state->data_buffer = ppu_memory_load(mem, address);
+  }
+
   //TODO v address during rendering
   if (state->control.addr_inc32) {
     state->v.address += 32;

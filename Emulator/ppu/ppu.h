@@ -141,8 +141,10 @@ struct ppu_state {
   union ppu_status status;
   union ppu_mask mask;
   struct ppu_control control;
-  // ppu address register
+  // ppu oam address register
   uint8_t reg_sr_addr;
+  // ppu data internal buffer
+  uint8_t data_buffer;
   // internal registers
   union ppu_internal_register v;
   union ppu_internal_register t;
