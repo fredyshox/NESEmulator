@@ -6,6 +6,7 @@ set(NES_SOURCES
   controller.c
   mapper.c
   mappers/mapper0.c
+  mappers/mapper1.c
   mappers/mapper2.c
   mappers/mapper3.c)
 

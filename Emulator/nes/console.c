@@ -93,6 +93,7 @@ void nes_reset(nes_t* console) {
   console->mapper = NULL;
   console->cartridge = NULL;
   mapper_free(mapper);
+  free(mapper);
   // reset ppu and cpu
   state6502_create(console->cpu, console->cpu->memory);
   ppu_state_create(console->ppu, console->ppu->memory);

@@ -17,7 +17,6 @@ void mapper_read(struct mapper* m, uint16_t address, uint8_t* dest) {
 
 void mapper_free(struct mapper* m) {
   free(m->data);
-  free(m);
 }
 
 // mappers

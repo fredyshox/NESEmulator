@@ -1,7 +1,7 @@
 //
 // iNES mapper 2
 //
-// prg switchable
+// prg switchable + fixed
 // chr non switchable
 // vertical or horizontal mirroring, non switchable
 // no prg ram

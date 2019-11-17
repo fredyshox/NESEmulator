@@ -4,7 +4,7 @@
 //
 // Non switchable PRG bank with 16 or 32 KB size
 // Switchable CHR bank with 8 KB size (max 4 banks)
-// Mirroring: fixed vertical or horizontal
+// Mirroring: fixed vertical or horizontal non switchable
 // One register (writes at $8000-$ffff)
 //
 // Copyright (c) 2019 Kacper Rączy

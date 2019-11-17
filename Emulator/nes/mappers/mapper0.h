@@ -3,7 +3,7 @@
 //
 // prg non switchable
 // chr non switchable
-// vertical or horizontal mirroring
+// vertical or horizontal mirroring, non switchable
 // possible prg ram
 // no registers
 //
