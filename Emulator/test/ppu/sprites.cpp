@@ -126,7 +126,7 @@ TEST_F(PPUSprites, SpritePixelLayout) {
 	uint8_t expectedBuffer[HORIZONTAL_RES];
 	ppu.fine_y = 0;
 	ppu.control.spr_pttrntable = 0;
-	ppu_sprite_pixel_layout(&ppu, sprbuf, 8, buffer, HORIZONTAL_RES);
+	ppu_sprite_pixel_layout(&ppu, sprbuf, 8, buffer, HORIZONTAL_RES, 128);
 	memset(expectedBuffer, 0, HORIZONTAL_RES);
 	memset((expectedBuffer + 20), 3, 4);
 	memset((expectedBuffer + 32), 1, 8);

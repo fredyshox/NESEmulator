@@ -22,7 +22,7 @@ void mapper3_write(struct mapper* m, uint16_t address, uint8_t byte) {
     int* bank_ptr = (int*) m->data;
     *bank_ptr = (int) (byte & 0x03);
   } else {
-    debug_print("Warning: Mapper3 write at %d!\n", address);
+    debug_print("Warning: Mapper3 write at %x!\n", address);
   }
 }
 

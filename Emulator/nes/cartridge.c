@@ -49,6 +49,7 @@ int cartridge_from_file(struct cartridge* c, char* path) {
   int mapper_no = (flags7 & 0xf0) | (flags6 >> 4);
   int tv_system = (flags9 & 0x01) ? TV_SYSTEM_PAL : TV_SYSTEM_NTSC;
   bool prg_ram_presence = (flags9 & 0x10) != 0;
+  bool chr_ram_presence = chr_rom_size == 0; 
   int prg_ram_size = (int) flags8 * 8192;
 
   if (trainer_presence) {
@@ -66,18 +67,22 @@ int cartridge_from_file(struct cartridge* c, char* path) {
     }
   }
 
-  if (chr_rom_size != 0) {
+  if (chr_ram_presence) {
+    chr_rom_size = INES_CHR_BLOCK;
+    chr_rom = calloc(chr_rom_size, sizeof(uint8_t));
+  } else if (chr_rom_size != 0) {
     chr_rom = malloc(sizeof(uint8_t) * chr_rom_size);
     if (fread(chr_rom, sizeof(uint8_t), chr_rom_size, file) != chr_rom_size) {
       fprintf(stderr, "Cannot read chr rom\n");
       err = 2; goto catch_error;
-    }
+    } 
   }
 
   c->prg_rom = prg_rom;
   c->prg_rom_size = prg_rom_size;
   c->chr_rom = chr_rom;
   c->chr_rom_size = chr_rom_size;
+  c->chr_ram_mode = chr_ram_presence;
   c->mapper = mapper_no;
   c->mirroring_type = mirroring;
   c->tv_system = tv_system;

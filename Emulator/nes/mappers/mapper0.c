@@ -42,7 +42,9 @@ void mapper0_read(struct mapper* m, uint16_t address, uint8_t* dest) {
 }
 
 void mapper0_write(struct mapper* m, uint16_t address, uint8_t byte) {
-  if (address >= 0x6000 && address < 0x8000) {
+  if (address < 0x2000 && m->cartridge->chr_ram_mode) {
+    m->cartridge->chr_rom[address] = byte;
+  } else if (address >= 0x6000 && address < 0x8000) {
     uint8_t* pgr_ram = (uint8_t*) m->data;
     pgr_ram[address - 0x6000] = byte; 
   } else {
