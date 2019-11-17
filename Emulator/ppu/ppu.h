@@ -159,6 +159,7 @@ struct ppu_state {
 typedef struct ppu_state ppu_state;
 
 void ppu_state_create(struct ppu_state* ppu, struct ppu_memory* mem);
+void ppu_state_free(struct ppu_state* ppu);
 
 // PPU Registers
 #define PPUCTRL   0x2000

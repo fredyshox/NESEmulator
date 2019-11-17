@@ -24,6 +24,13 @@ void ppu_memory_create(struct ppu_memory* mem) {
   mem->store_handler = NULL;
 }
 
+void ppu_memory_free(struct ppu_memory* mem) {
+  free(mem->image_palette);
+  free(mem->sprite_palette);
+  free(mem->sprite_ram);
+  free(mem->nt_buf);
+}
+
 void ppu_memory_set_mirroring(struct ppu_memory* mem, enum ppu_mirroring mirroring_type) {
   switch (mirroring_type) {
     case HORIZONTAL:
@@ -138,6 +145,11 @@ void ppu_state_create(struct ppu_state* ppu, struct ppu_memory* mem) {
   ppu->temp_fine_y = 0;
   ppu->data_buffer = 0;
   // setup
+}
+
+void ppu_state_free(struct ppu_state* ppu) {
+  ppu_memory_free(ppu->memory);
+  free(ppu->memory);
 }
 
 // PPU registers

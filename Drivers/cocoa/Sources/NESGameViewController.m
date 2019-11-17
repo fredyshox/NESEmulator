@@ -28,6 +28,12 @@
 
 - (void)dealloc {
     NSLog(@"gamevc dealloc");
+    cartridge_free(emulator->cartridge);
+    free(emulator->cartridge);
+    if (nes_is_loaded(emulator)) {
+        mapper_free(emulator->mapper);
+        free(emulator->mapper);
+    }
     nes_free(emulator);
 }
 

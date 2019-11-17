@@ -58,7 +58,12 @@ int nes_create(nes_t* console) {
 }
 
 void nes_free(nes_t* console) {
-  //TODO
+  ppu_render_handle_free(console->ppu_handle);
+  free(console->ppu_handle);
+  ppu_state_free(console->ppu);
+  free(console->ppu);
+  state6502_free(console->cpu);
+  free(console->cpu);
 }
 
 int nes_load_rom(nes_t* console, struct cartridge* cartridge) {

@@ -65,6 +65,7 @@ struct state6502 {
 typedef struct state6502 state6502;
 
 void state6502_create(struct state6502 *state, struct memory6502 *memory);
+void state6502_free(struct state6502* state);
 void state6502_request_interrupt(struct state6502* state, enum interrupt6502 i);
 
 #define STATE6502_NMI_VECTOR (0xfffa)
@@ -96,6 +97,7 @@ struct memory6502 {
 typedef struct memory6502 memory6502;
 
 void memory6502_create(struct memory6502 *memory, uint16_t size);
+void memory6502_free(struct memory6502 *memory);
 void memory6502_store(struct memory6502 *memory, uint16_t idx, uint8_t value);
 uint8_t memory6502_load(struct memory6502 *memory, uint16_t idx);
 

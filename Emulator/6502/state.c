@@ -5,6 +5,8 @@
 
 #include "6502/state.h"
 
+// state6502
+
 void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   assert(memory != NULL && state != NULL);
 
@@ -16,6 +18,11 @@ void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   state->incoming_int = NONE_INT;
   state->status.byte = 0x34;
   state->memory = memory;
+}
+
+void state6502_free(struct state6502* state) {
+  memory6502_free(state->memory);
+  free(state->memory);
 }
 
 void state6502_request_interrupt(struct state6502* state, enum interrupt6502 i) {
@@ -61,6 +68,8 @@ void interrupt6502_handle(struct state6502 *state) {
   state->pc = vector;
 }
 
+// memory6502
+
 void memory6502_create(struct memory6502 *memory, uint16_t size) {
   uint8_t *buffer = malloc(size * sizeof(uint8_t));
   memory->mptr = buffer;
@@ -68,6 +77,10 @@ void memory6502_create(struct memory6502 *memory, uint16_t size) {
   memory->io = NULL;
   memory->store_handler = NULL;
   memory->load_handler = NULL;
+}
+
+void memory6502_free(struct memory6502 *memory) {
+  free(memory->mptr);
 }
 
 void memory6502_store(struct memory6502 *memory, uint16_t idx, uint8_t value) {

@@ -52,10 +52,10 @@ struct ppu_render_handle* ppu_render_handle_create(void) {
 
 void ppu_render_handle_free(struct ppu_render_handle* handle) {
   free(handle->frame);
+  free(handle->vframe);
   free(handle->spr_pixel_buf);
   free(handle->spr_buffer);
   ppu_shift_storage_free(handle->fetch_storage);
-  free(handle);
 }
 
 // memory helpers
