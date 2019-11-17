@@ -8,11 +8,21 @@ struct mapper* mapper0_create(struct cartridge* cartridge) {
   mapper* m = malloc(sizeof(mapper));
   m->id = 0;
   m->cartridge = cartridge;
-  m->data = (void*) calloc(0x2000, sizeof(uint8_t));
+  m->data = NULL;
   m->read = mapper0_read;
   m->write = mapper0_write;
 
   return m;
+}
+
+void mapper0_write(struct mapper* m, uint16_t address, uint8_t byte) {
+  if (address < 0x2000 && m->cartridge->chr_ram_mode) {
+    m->cartridge->chr_rom[address] = byte;
+  } else if (address >= 0x6000 && address < 0x8000) {
+    m->cartridge->prg_ram[address - 0x6000] = byte; 
+  } else {
+    debug_print("Warning: Mapper0 write at %x!\n", address); 
+  }
 }
 
 void mapper0_read(struct mapper* m, uint16_t address, uint8_t* dest) {
@@ -34,20 +44,8 @@ void mapper0_read(struct mapper* m, uint16_t address, uint8_t* dest) {
       *dest = m->cartridge->prg_rom[address - 0x8000];
     }
   } else if (address >= 0x6000) {
-    uint8_t* prg_ram = (uint8_t*) m->data;
-    *dest = prg_ram[address - 0x6000];
+    *dest = m->cartridge->prg_ram[address - 0x6000];
   } else {
     debug_print("Warning: Mapper0 read at %x!\n", address);
-  }
-}
-
-void mapper0_write(struct mapper* m, uint16_t address, uint8_t byte) {
-  if (address < 0x2000 && m->cartridge->chr_ram_mode) {
-    m->cartridge->chr_rom[address] = byte;
-  } else if (address >= 0x6000 && address < 0x8000) {
-    uint8_t* prg_ram = (uint8_t*) m->data;
-    prg_ram[address - 0x6000] = byte; 
-  } else {
-    debug_print("Warning: Mapper0 write at %x!\n", address); 
   }
 }

@@ -83,6 +83,8 @@ int cartridge_from_file(struct cartridge* c, char* path) {
   c->chr_rom = chr_rom;
   c->chr_rom_size = chr_rom_size;
   c->chr_ram_mode = chr_ram_presence;
+  c->prg_ram = calloc(CARTRIDGE_PRGRAM_SIZE, sizeof(uint8_t));
+  c->prg_ram_size = CARTRIDGE_PRGRAM_SIZE;
   c->mapper = mapper_no;
   c->mirroring_type = mirroring;
   c->tv_system = tv_system;
@@ -99,4 +101,5 @@ int cartridge_from_file(struct cartridge* c, char* path) {
 void cartridge_free(struct cartridge* c) {
   free(c->prg_rom);
   free(c->chr_rom);
+  free(c->prg_ram);
 }

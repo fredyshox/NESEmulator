@@ -52,7 +52,7 @@ void mapper1_write(struct mapper* m, uint16_t address, uint8_t byte) {
       data->counter = 0;
     }
   } else if (address >= 0x6000) {
-
+    m->cartridge->prg_ram[address - 0x6000] = byte;
   } else {
     debug_print("Warning: Mapper1 write at %x!\n", address);
   }
@@ -94,7 +94,7 @@ void mapper1_read(struct mapper* m, uint16_t address, uint8_t* dest) {
       }
     }
   } else if (address >= 0x6000) {
-    // prg ram todo
+    *dest = m->cartridge->prg_ram[address - 0x6000];
   } else {
     debug_print("Warning: Mapper1 read at %x!\n", address);
   }
