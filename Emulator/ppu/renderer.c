@@ -88,14 +88,17 @@ uint8_t ppu_memory_fetch_nt(struct ppu_memory* mem, union ppu_internal_register 
  * Evaluates first 8 sprites to appear on scanline.
  * Sprites are ordered based on priority (position in vram)
  */
-int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, uint8_t y_coord) {
+int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, int y_coord) {
   // counters
   int ramc = 0, outc = 0;
   struct ppu_sprite sprite;
+  // offset for 16x8 sprites
+  int offset = ppu->control.spr_size_16x8 ? 2 * TILE_SIZE : TILE_SIZE;
   // go through whole sprite ram or outlen and 1 more for sprite overflow detection
   while (ramc < PPU_SPRRAM_SIZE && outc <= outlen) {
     sprite = ppu->memory->sprite_ram[ramc];
-    if (y_coord >= sprite.y_coord && y_coord < (sprite.y_coord + TILE_SIZE)) {
+    int spr_y_coord = (int) sprite.y_coord;
+    if (y_coord >= spr_y_coord && y_coord < (spr_y_coord + offset)) {
       if (outc != outlen)
         output[outc] = sprite;
       outc += 1;
@@ -119,21 +122,34 @@ int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int o
  * Where S is index in sprbuffer, C is palette index.
  * Value is equal to zero if pixel is transparent.
  */
-void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize, uint8_t y_coord) {
+void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize, int y_coord) {
   memset(buffer, 0, bufsize);
   ppu_sprite spr;
   uint8_t spr_tile_lower0, spr_tile_lower1, spr_tile_upper, color_idx;
+  bool spr_size_16x8 = ppu->control.spr_size_16x8;
   int pttrntable_idx = ppu->control.spr_pttrntable & 0x01;
-  uint8_t spr_tile_y;
+  int pttrntable_address;
+  int spr_tile_y;
   for (int i = 0; i < sprlen; i++) {
     spr = sprites[i];
-    spr_tile_y = y_coord - spr.y_coord;
+    spr_tile_y = y_coord - (int) spr.y_coord;
+    if (spr_size_16x8) {
+      pttrntable_idx = spr.index & 0x01;
+      pttrntable_address = (spr.index & 0xfe) * 0x10; // *16
+      if (spr_tile_y >= TILE_SIZE) {
+        spr_tile_y = spr_tile_y - TILE_SIZE;
+        pttrntable_address += (spr.vflip) ? 0x00 : 0x10; // +0/16
+      }
+    } else {
+      pttrntable_address = spr.index * 0x10; // *16
+    }
+
     if (spr.vflip) {
       spr_tile_y = TILE_SIZE - 1 - spr_tile_y;
     }
     
-    spr_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + spr_tile_y, pttrntable_idx);
-    spr_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, spr.index * 16 + spr_tile_y + TILE_SIZE, pttrntable_idx);
+    spr_tile_lower0 = ppu_memory_fetch_pt(ppu->memory, pttrntable_address + spr_tile_y, pttrntable_idx);
+    spr_tile_lower1 = ppu_memory_fetch_pt(ppu->memory, pttrntable_address + spr_tile_y + TILE_SIZE, pttrntable_idx);
     if (spr.hflip) {
       spr_tile_lower0 = utility_bit_reverse(spr_tile_lower0);
       spr_tile_lower1 = utility_bit_reverse(spr_tile_lower1);

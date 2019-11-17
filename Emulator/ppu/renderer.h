@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 #include "ppu/ppu.h"
 #include "ppu/color.h"
 #include "common/utility.h"
@@ -97,10 +98,10 @@ void ppu_render_handle_free(struct ppu_render_handle* handle);
  * @param  ppu    ppu state
  * @param  output pointer to output buffer
  * @param  outlen max length of output buffer
- * @param  pV     current line index
+ * @param  y_coord     current line index
  * @return        number of sprites found on this position
  */
-int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, uint8_t y_coord);
+int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int outlen, int y_coord);
 
 /**
  * Layouts pixel values for sprites that are visible on current line
@@ -110,7 +111,7 @@ int ppu_evaluate_sprites(struct ppu_state* ppu, struct ppu_sprite* output, int o
  * @param buffer  pixel buffer
  * @param bufsize pixel buffer length
  */
-void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize, uint8_t y_coord);
+void ppu_sprite_pixel_layout(struct ppu_state* ppu, struct ppu_sprite* sprites, int sprlen, uint8_t* buffer, int bufsize, int y_coord);
 
 /**
  * Updates frame on specified position with specified color
