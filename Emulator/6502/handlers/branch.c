@@ -11,6 +11,7 @@
 #define BRANCH_IF(condition)  if (condition) { \
                                 uint16_t addr = handle_addr_pbc(state, cmd.maddr); \
                                 state->pc = addr; \
+                                state->branch_taken = true; \
                               }
 
 void branch_plus(state6502* state, asm6502 cmd) {

@@ -63,6 +63,7 @@ struct state6502 {
   enum interrupt6502 incoming_int;
   // temp data
   bool page_crossed;
+  bool branch_taken;
 };
 
 typedef struct state6502 state6502;

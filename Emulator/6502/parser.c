@@ -30,9 +30,12 @@ int execute_asm(state6502 *state) {
   if (operation.cycles) {
     state->pc += (uint16_t) consumed;
     asm6502_execute(operation, state);
-    cycles = operation.cycles + (state->page_crossed ? 1 : 0);
+    cycles += operation.cycles;
+    cycles += (state->page_crossed ? 1 : 0);
+    cycles += (state->branch_taken ? 1 : 0);
   }
   state->page_crossed = false;
+  state->branch_taken = false;
 
   return cycles;
 }
