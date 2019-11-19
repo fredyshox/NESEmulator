@@ -76,8 +76,9 @@ int indirect_indexed_addr(struct mem_addr *maddr, struct memory6502 *memory, uin
   return lsb_value(maddr, memory, pos);
 }
 
-uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr) {
+uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr, bool* page_crossed) {
   uint16_t value;
+  bool pbc;
   switch (maddr.type) {
     case ZPX_ADDR:
       value = (maddr.lval + state->reg_x) & 0xff;
@@ -87,12 +88,15 @@ uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr) {
       break;
     case REL_ADDR:
       value = state->pc + (int8_t) maddr.lval;
+      pbc = (value & 0x00ff) < (state->pc & 0x00ff);
       break;
     case ABX_ADDR:
       value = maddr.value + state->reg_x;
+      pbc = (value & 0x00ff) < maddr.lval;
       break;
     case ABY_ADDR:
       value = maddr.value + state->reg_y;
+      pbc = (value & 0x00ff) < maddr.lval;
       break;
     case IND_ADDR:
       value = 
@@ -109,10 +113,15 @@ uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr) {
       value = 
         (uint16_t) memory6502_load(state->memory, maddr.value) | 
         ((uint16_t) memory6502_load(state->memory, (maddr.value + 1) & 0xff) << 8);
+      pbc = ((value + state->reg_y) & 0x00ff) < (value & 0x00ff);
       value += state->reg_y;
       break;
     default:
       value = maddr.value;
+  }
+
+  if (page_crossed != NULL) {
+    *page_crossed = pbc;
   }
 
   return value;

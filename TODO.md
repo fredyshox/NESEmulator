@@ -3,23 +3,21 @@ Emulator
 
 all:
 * fix endianess issues
-* cartridge reading tests (mock rom files)
 * controller tests
 
-ppu:
-* foreground rendering
-* automated rom tests
+cpu:
+* page crossing additional cycles
 
-frontend:
-* keymap setting ui
-* gamepad support
+ppu:
+* automated rom tests
+* ppu register behavior while rendering
 
 mappers:
-* ines 1, ines 2, ines 4
+* ines 1, ines 4
 
 Cocoa frontend:
-
 * keyCode to string - better method
 * use keyMap mappings in game
 * rom copying
-
+* more efficient drawing
+* error alerts

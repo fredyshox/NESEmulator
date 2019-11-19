@@ -38,6 +38,7 @@ void increment_then_sbc(state6502* state, asm6502 cmd) {
   subtract_with_carry(state, cmd);
 }
 
+// +1 cycle if page crossed
 void load_acc_then_x(state6502* state, asm6502 cmd) {
   load_accumulator(state, cmd);
   load_xreg(state, cmd);
@@ -46,7 +47,7 @@ void load_acc_then_x(state6502* state, asm6502 cmd) {
 void bitwise_and_acc_x_then_store(state6502* state, asm6502 cmd) {
   uint8_t res = state->reg_a;
   res &= state->reg_x;
-  uint16_t addr = handle_addr(state, cmd.maddr);
+  uint16_t addr = handle_addr(state, cmd.maddr, NULL);
   memory6502_store(state->memory, addr, res);
 }
 
@@ -70,8 +71,9 @@ void transfer_x2a_then_and(state6502* state, asm6502 cmd) {
   bitwise_and(state, cmd);
 }
 
+// +1 cycle if page crossed
 void bitwise_and_with_sp_then_store(state6502* state, asm6502 cmd) {
-  uint16_t address = handle_addr(state, cmd.maddr);
+  uint16_t address = handle_addr_pbc(state, cmd.maddr);
   uint8_t res = memory6502_load(state->memory, address);
   res &= state->sp;
   state->reg_a = res;
@@ -96,14 +98,14 @@ void bitwise_and_with_x_then_sbc(state6502* state, asm6502 cmd) {
 void high_byte_shy(state6502* state, asm6502 cmd) {
   uint8_t res = (uint8_t) (cmd.maddr.value >> 8) + 1;
   res &= state->reg_y;
-  uint16_t address = handle_addr(state, cmd.maddr);
+  uint16_t address = handle_addr(state, cmd.maddr, NULL);
   memory6502_store(state->memory, address, res);
 }
 
 void high_byte_shx(state6502* state, asm6502 cmd) {
   uint8_t res = (uint8_t) (cmd.maddr.value >> 8) + 1;
   res &= state->reg_x;
-  uint16_t address = handle_addr(state, cmd.maddr);
+  uint16_t address = handle_addr(state, cmd.maddr, NULL);
   memory6502_store(state->memory, address, res);
 }
 
@@ -112,13 +114,13 @@ void high_byte_tas(state6502* state, asm6502 cmd) {
   uint8_t newSp = state->reg_a & state->reg_x;
   state->sp = newSp;
   hbyte &= newSp;
-  uint16_t address = handle_addr(state, cmd.maddr);
+  uint16_t address = handle_addr(state, cmd.maddr, NULL);
   memory6502_store(state->memory, address, hbyte);
 }
 
 void high_byte_ahx(state6502* state, asm6502 cmd) {
   uint8_t hbyte = (uint8_t) (cmd.maddr.value >> 8) + 1; 
   uint8_t res = (state->reg_a & state->reg_x & hbyte);
-  uint16_t address = handle_addr(state, cmd.maddr);
+  uint16_t address = handle_addr(state, cmd.maddr, NULL);
   memory6502_store(state->memory, address, res);
 }

@@ -45,12 +45,13 @@ void set_decimal(state6502 *state, asm6502 cmd) {
 
 // Comparsion
 
+// +1 cycle when page crossed
 static void compare_register(state6502 *state, asm6502 cmd, uint8_t reg) {
   uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.value;
   } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
+    uint16_t addr = handle_addr_pbc(state, cmd.maddr);
     value = memory6502_load(state->memory, addr);
   }
 

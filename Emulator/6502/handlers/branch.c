@@ -7,10 +7,11 @@
 #include "6502/handlers/branch.h"
 #include "6502/addr.h"
 
-#define BRANCH_IF(condition) if (condition) { \
-                               uint16_t addr = handle_addr(state, cmd.maddr); \
-                               state->pc = addr; \
-                             }
+// +1 cycle if page crossed
+#define BRANCH_IF(condition)  if (condition) { \
+                                uint16_t addr = handle_addr_pbc(state, cmd.maddr); \
+                                state->pc = addr; \
+                              }
 
 void branch_plus(state6502* state, asm6502 cmd) {
   BRANCH_IF(!state->status.negative);
@@ -45,13 +46,13 @@ void branch_neq(state6502* state, asm6502 cmd) {
 }
 
 void jump(state6502* state, asm6502 cmd) {
-  uint16_t addr = handle_addr(state, cmd.maddr);
+  uint16_t addr = handle_addr(state, cmd.maddr, NULL);
   state->pc = addr;
 }
 
 void jump_subroutine(state6502* state, asm6502 cmd) {
   uint16_t next = state->pc - 1;
-  uint16_t addr = handle_addr(state, cmd.maddr);
+  uint16_t addr = handle_addr(state, cmd.maddr, NULL);
   // portable conversion
   uint8_t bytes[2];
   uint_16_to_8(next, bytes);

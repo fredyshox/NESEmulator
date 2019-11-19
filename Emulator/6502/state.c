@@ -15,9 +15,10 @@ void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   state->reg_y = 0x00;
   state->sp = 0xff;
   state->pc = 0x0000;
-  state->incoming_int = NONE_INT;
   state->status.byte = 0x34;
   state->memory = memory;
+  state->incoming_int = NONE_INT;
+  state->page_crossed = false;
 }
 
 void state6502_free(struct state6502* state) {

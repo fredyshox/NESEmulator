@@ -7,6 +7,7 @@
 #define state_h
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +61,8 @@ struct state6502 {
   struct memory6502 *memory;
   // interrupts
   enum interrupt6502 incoming_int;
+  // temp data
+  bool page_crossed;
 };
 
 typedef struct state6502 state6502;

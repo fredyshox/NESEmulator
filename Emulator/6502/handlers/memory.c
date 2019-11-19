@@ -7,12 +7,13 @@
 #include "6502/addr.h"
 
 // Affected flags: Z, N
+// +1 cycle when page crossed
 static uint8_t load_value(state6502 *state, asm6502 cmd) {
   uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.lval;
   } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
+    uint16_t addr = handle_addr_pbc(state, cmd.maddr);
     value = memory6502_load(state->memory, addr);
   }
 
@@ -44,21 +45,21 @@ void load_yreg(state6502 *state, asm6502 cmd) {
 // Store acc value
 // Affected flags: none
 void store_accumulator(state6502 *state, asm6502 cmd) {
-  uint16_t addr = handle_addr(state, cmd.maddr);
+  uint16_t addr = handle_addr(state, cmd.maddr, NULL);
   memory6502_store(state->memory, addr, state->reg_a);
 }
 
 // Store X register value
 // Affected flags: none
 void store_xreg(state6502 *state, asm6502 cmd) {
-  uint16_t addr = handle_addr(state, cmd.maddr);
+  uint16_t addr = handle_addr(state, cmd.maddr, NULL);
   memory6502_store(state->memory, addr, state->reg_x);
 }
 
 // Store Y register value
 // Affected flags: none
 void store_yreg(state6502 *state, asm6502 cmd) {
-  uint16_t addr = handle_addr(state, cmd.maddr);
+  uint16_t addr = handle_addr(state, cmd.maddr, NULL);
   memory6502_store(state->memory, addr, state->reg_y);
 }
 

@@ -26,12 +26,15 @@ int execute_asm(state6502 *state) {
   int consumed = parse_asm(&operation, state->memory, state->pc);
   debug_print_cpu(state, operation);
   //execution
+  int cycles = 0;
   if (operation.cycles) {
     state->pc += (uint16_t) consumed;
     asm6502_execute(operation, state);
+    cycles = operation.cycles + (state->page_crossed ? 1 : 0);
   }
+  state->page_crossed = false;
 
-  return operation.cycles;
+  return cycles;
 }
 
 int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {

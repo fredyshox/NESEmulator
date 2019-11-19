@@ -31,12 +31,13 @@ void add_with_carry_handler(state6502* state, uint8_t value) {
 
 // Add value to accumulator with carry
 // Affected flags: Z, N, C, V
+// +1 cycle when page crossed
 void add_with_carry(state6502 *state, asm6502 cmd) {
   uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.value;
   } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
+    uint16_t addr = handle_addr_pbc(state, cmd.maddr);
     value = memory6502_load(state->memory, addr);
   }
 
@@ -44,7 +45,7 @@ void add_with_carry(state6502 *state, asm6502 cmd) {
 }
 
 void increment_memory(state6502 *state, asm6502 cmd) {
-  uint16_t addr = handle_addr(state, cmd.maddr);
+  uint16_t addr = handle_addr(state, cmd.maddr, NULL);
   uint16_t value = memory6502_load(state->memory, addr);
   value += 1;
 
@@ -76,12 +77,13 @@ void increment_y(state6502 *state, asm6502 cmd) {
   state->reg_y = (uint8_t) value;
 }
 
+// +1 cycle when page crossed
 void subtract_with_carry(state6502 *state, asm6502 cmd) {
   uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.value;
   } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
+    uint16_t addr = handle_addr_pbc(state, cmd.maddr);
     value = memory6502_load(state->memory, addr);
   }
 
@@ -90,7 +92,7 @@ void subtract_with_carry(state6502 *state, asm6502 cmd) {
 
 void decrement_memory(state6502 *state, asm6502 cmd) {
 
-  uint16_t addr = handle_addr(state, cmd.maddr);
+  uint16_t addr = handle_addr(state, cmd.maddr, NULL);
   uint16_t value = memory6502_load(state->memory, addr);
   value -= 1;
 
@@ -127,7 +129,7 @@ void bitwise_shift_l(state6502 *state, asm6502 cmd) {
   if (cmd.maddr.type == ACC_ADDR) {
     value = state->reg_a;
   } else {
-    addr = handle_addr(state, cmd.maddr);
+    addr = handle_addr(state, cmd.maddr, NULL);
     value = (uint16_t) memory6502_load(state->memory, addr);
   }
 
@@ -149,7 +151,7 @@ void bitwise_shift_r(state6502 *state, asm6502 cmd) {
   if (cmd.maddr.type == ACC_ADDR) {
     value = state->reg_a;
   } else {
-    addr = handle_addr(state, cmd.maddr);
+    addr = handle_addr(state, cmd.maddr, NULL);
     value = memory6502_load(state->memory, addr);
   }
 
@@ -165,48 +167,48 @@ void bitwise_shift_r(state6502 *state, asm6502 cmd) {
   }
 }
 
+// +1 cycle when page crossed
 void bitwise_and(state6502 *state, asm6502 cmd) {
   uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.lval;
   } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
+    uint16_t addr = handle_addr_pbc(state, cmd.maddr);
     value = memory6502_load(state->memory, addr);
   }
   value = value & state->reg_a;
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
-
   state->reg_a = value;
 }
 
+// +1 cycle when page crossed
 void bitwise_xor(state6502 *state, asm6502 cmd) {
   uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.lval;
   } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
+    uint16_t addr = handle_addr_pbc(state, cmd.maddr);
     value = memory6502_load(state->memory, addr);
   }
   value = value ^ state->reg_a;
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
-
   state->reg_a = value;
 }
 
+// +1 cycle when page crossed
 void bitwise_or(state6502 *state, asm6502 cmd) {
   uint8_t value;
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.lval;
   } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
+    uint16_t addr = handle_addr_pbc(state, cmd.maddr);
     value = memory6502_load(state->memory, addr);
   }
   value = value | state->reg_a;
   eval_zero_flag(state, value);
   eval_sign_flag(state, value);
-
   state->reg_a = value;
 }
 
@@ -216,7 +218,7 @@ void bitwise_rotate_l(state6502 *state, asm6502 cmd) {
   if (cmd.maddr.type == ACC_ADDR) {
     value = state->reg_a;
   } else {
-    addr = handle_addr(state, cmd.maddr);
+    addr = handle_addr(state, cmd.maddr, NULL);
     value = memory6502_load(state->memory, addr);
   }
 
@@ -237,7 +239,7 @@ void bitwise_rotate_r(state6502 *state, asm6502 cmd) {
   if (cmd.maddr.type == ACC_ADDR) {
     value = state->reg_a;
   } else {
-    addr = handle_addr(state, cmd.maddr);
+    addr = handle_addr(state, cmd.maddr, NULL);
     value = memory6502_load(state->memory, addr);
   }
 
@@ -258,7 +260,7 @@ void bitwise_bit_test(state6502 *state, asm6502 cmd) {
   if (cmd.maddr.type == IMM_ADDR) {
     value = cmd.maddr.lval;
   } else {
-    uint16_t addr = handle_addr(state, cmd.maddr);
+    uint16_t addr = handle_addr(state, cmd.maddr, NULL);
     value = memory6502_load(state->memory, addr);
   }
 

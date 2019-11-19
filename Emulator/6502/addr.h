@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "6502/state.h"
 
 #define IMM_ADDR  0x0
@@ -50,7 +51,11 @@ int indirect_indexed_addr(struct mem_addr *maddr, struct memory6502* memory, uin
 
 // Handler
 
-uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr);
+uint16_t handle_addr(struct state6502 *state, struct mem_addr maddr, bool* page_crossed);
 char* addr_to_string(struct mem_addr maddr, char* buf, int bufsize);
+
+// Macros
+
+#define handle_addr_pbc(state, maddr) handle_addr(state, maddr, &state->page_crossed);
 
 #endif /* addr_h */
