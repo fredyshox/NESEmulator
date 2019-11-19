@@ -38,11 +38,11 @@ int cartridge_from_file(struct cartridge* c, char* path) {
   // header parsing
   ppu_mirroring mirroring;
   if (flags6 & 0x08) {
-    mirroring = FOUR_SCREEN;
+    mirroring = PPU_MIRRORING_FOUR_SCREEN;
   } else if (flags6 & 0x01) {
-    mirroring = VERTICAL;
+    mirroring = PPU_MIRRORING_VERTICAL;
   } else {
-    mirroring = HORIZONTAL;
+    mirroring = PPU_MIRRORING_HORIZONTAL;
   }
   bool trainer_presence = (flags6 & 0x04) != 0;
   int ines_version = ((flags7 & 0x0c) == 0x0c) ? 2 : 1;

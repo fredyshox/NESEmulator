@@ -3,6 +3,7 @@
 //
 
 #include "nes/mappers/mapper1.h"
+#include "ppu/ppu.h"
 
 struct mapper* mapper1_create(struct cartridge* cartridge) {
   mapper* m = malloc(sizeof(mapper));
@@ -20,7 +21,6 @@ void mapper1_data_copy_cache(struct mapper1_data* data, uint8_t reg_index) {
   switch (reg_index) {
     case 0:
       data->control = cache;
-      // TODO notify mirroing changed
       break;
     case 1:
       data->chr_bank0 = cache;
@@ -30,6 +30,22 @@ void mapper1_data_copy_cache(struct mapper1_data* data, uint8_t reg_index) {
       break;
     case 3:
       data->prg_bank = cache;
+      break;
+    default: break;
+  }
+}
+
+void mapper1_switch_mirroring(struct mapper* m, uint8_t control) {
+  switch (control & 0x03) {
+    case 0:
+    case 1:
+      m->mirroring_type = PPU_MIRRORING_SINGLE_SCREEN;
+      break;
+    case 2:
+      m->mirroring_type = PPU_MIRRORING_VERTICAL;
+      break;
+    case 3:
+      m->mirroring_type = PPU_MIRRORING_HORIZONTAL;
       break;
     default: break;
   }
@@ -47,7 +63,8 @@ void mapper1_write(struct mapper* m, uint16_t address, uint8_t byte) {
     data->cache |= (byte & 0x01) << data->counter;
     data->counter += 1;
     if (data->counter == 5) {
-      mapper1_data_copy_cache(data, (byte >> 13) & 0x03);
+      mapper1_data_copy_cache(data, (uint8_t) ((address >> 13) & 0x03));
+      mapper1_switch_mirroring(m, data->control);
       data->cache = 0x00;
       data->counter = 0;
     }

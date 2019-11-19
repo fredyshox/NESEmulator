@@ -21,19 +21,29 @@ void mapper_free(struct mapper* m) {
 
 // mappers
 #include "nes/mappers/mapper0.h"
+#include "nes/mappers/mapper1.h"
 #include "nes/mappers/mapper2.h"
 #include "nes/mappers/mapper3.h"
 
 struct mapper* mapper_from_id(struct cartridge* c, int id) {
+  struct mapper* m;
   switch (id) {
     case 0:
-      return mapper0_create(c);
+      m = mapper0_create(c);
+      break;
+    case 1:
+      m = mapper1_create(c);
+      break;
     case 2:
-      return mapper2_create(c);
+      m = mapper2_create(c);
+      break;
     case 3:
-      return mapper3_create(c);
+      m = mapper3_create(c);
+      break;
     default:
       debug_print("Error: Mapper %d is not supported!\n", id);
       return NULL;
   }
+  m->mirroring_type = c->mirroring_type;
+  return m;
 }

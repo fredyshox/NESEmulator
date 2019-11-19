@@ -7,6 +7,7 @@
 #define mapper_h
 
 #include "nes/cartridge.h"
+#include "ppu/ppu.h"
 #include "common/debug.h"
 
 /**
@@ -16,6 +17,7 @@
 struct mapper {
   int id;
   struct cartridge* cartridge;
+  ppu_mirroring mirroring_type;
   void* data;
   void (*write)(struct mapper*, uint16_t, uint8_t);
   void (*read)(struct mapper*, uint16_t, uint8_t*);

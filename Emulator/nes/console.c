@@ -112,6 +112,8 @@ int nes_step(nes_t* console, int* error) {
     return 0;
   }
 
+  nes_mapper_step(console);
+
   for (int i = 0; i < cpu_cycles * 3; i++) {
     ppu_execute_cycle(console->ppu, console->ppu_handle);
     // TODO do sth between vblank and new frame
@@ -131,10 +133,19 @@ void nes_step_time(nes_t* console, double seconds, int* error) {
   while (cpu_cycles > 0) {
     cpu_cycles -= nes_step(console, &nes_error);
     if (nes_error) {
-      pretty_print(stdout, "NES ERROR: CPU error code: %d", nes_error);
+      pretty_print(stdout, "NES ERROR: CPU error code: %d\n", nes_error);
       *error = nes_error;
       break; //TODO propagate error message
     }
+  }
+}
+
+void nes_mapper_step(nes_t* console) {
+  ppu_memory* ppu_mem = console->ppu->memory;
+  ppu_mirroring mapper_mirroring = console->mapper->mirroring_type;
+  ppu_mirroring ppu_mirroring = ppu_mem->mirroring_type;
+  if (mapper_mirroring != ppu_mirroring) {
+    ppu_memory_set_mirroring(ppu_mem, mapper_mirroring);
   }
 }
 

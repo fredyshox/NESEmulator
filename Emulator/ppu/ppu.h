@@ -97,10 +97,10 @@ union ppu_internal_register {
 #define PPU_PTTRNTABLE_SIZE 4096
 
 enum ppu_mirroring {
-  HORIZONTAL = 0,
-  VERTICAL,
-  FOUR_SCREEN,
-  SINGLE_SCREEN
+  PPU_MIRRORING_HORIZONTAL = 0,
+  PPU_MIRRORING_VERTICAL,
+  PPU_MIRRORING_FOUR_SCREEN,
+  PPU_MIRRORING_SINGLE_SCREEN
 };
 
 typedef enum ppu_mirroring ppu_mirroring;
@@ -114,6 +114,8 @@ struct ppu_memory {
   uint8_t* ntat_block1;
   uint8_t* ntat_block2;
   uint8_t* ntat_block3;
+  // mirroring type
+  enum ppu_mirroring mirroring_type;
   // palettes
   uint8_t* image_palette;
   uint8_t* sprite_palette;

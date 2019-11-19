@@ -126,5 +126,9 @@ int main() {
   uint8_t lval = 0xff;
   printf("%04x\n", (value & 0xff00) | (uint16_t) (uint8_t) (lval + 1));
 
+  long long int ints[5] = {3,4,5,6,7};
+  printf("1 %lld\n", *(ints));
+  printf("2 %lld\n", *(ints + 1));
+
   return 0;
 }

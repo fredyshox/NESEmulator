@@ -40,6 +40,7 @@ int parse_asm(asm6502 *cmd, memory6502 *memory, uint16_t pos) {
   int consumed = 1, cycles = 2; // default 2 machine cycles
   mem_addr addr;
   // TODO support for page boundary additional cycles and branch taken cycles
+  // good compiler will transform this into a jump table, so im leaving this for now
   switch (opcode) {
     // ADC - add with carry
     case 0x69:

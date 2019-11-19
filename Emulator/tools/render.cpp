@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
   memcpy(mem.image_palette, palette, PPU_PALETTE_SIZE);
   memcpy(mem.nt_buf, nametable, PPU_NAMETABLE_SIZE);
   memcpy((mem.nt_buf + PPU_NAMETABLE_SIZE), attrtable, PPU_ATTRTABLE_SIZE);
-  ppu_memory_set_mirroring(&mem, SINGLE_SCREEN);
+  ppu_memory_set_mirroring(&mem, PPU_MIRRORING_SINGLE_SCREEN);
   mem.load_handler = custom_load_handler;
   mem.store_handler = custom_store_handler;
   mem.io = (void*) bg_ptable;

@@ -17,7 +17,7 @@ void ppu_memory_create(struct ppu_memory* mem) {
   // alloc memory for 4 nametables (normally ppu has vram for only 2)
   mem->nt_buf = malloc(4 * (PPU_NTAT_SIZE) * sizeof(uint8_t));
   mem->nt_buf_size = 4 * (PPU_NTAT_SIZE);
-  ppu_memory_set_mirroring(mem, SINGLE_SCREEN);
+  ppu_memory_set_mirroring(mem, PPU_MIRRORING_SINGLE_SCREEN);
   // memory allocated by user
   mem->io = NULL;
   mem->load_handler = NULL;
@@ -32,26 +32,27 @@ void ppu_memory_free(struct ppu_memory* mem) {
 }
 
 void ppu_memory_set_mirroring(struct ppu_memory* mem, enum ppu_mirroring mirroring_type) {
+  mem->mirroring_type = mirroring_type;
   switch (mirroring_type) {
-    case HORIZONTAL:
+    case PPU_MIRRORING_HORIZONTAL:
       mem->ntat_block0 = mem->nt_buf;
       mem->ntat_block1 = mem->ntat_block0;
       mem->ntat_block2 = (mem->nt_buf + PPU_NTAT_SIZE);
       mem->ntat_block3 = mem->ntat_block2;
       break;
-    case VERTICAL:
+    case PPU_MIRRORING_VERTICAL:
       mem->ntat_block0 = mem->nt_buf;
       mem->ntat_block1 = (mem->nt_buf + PPU_NTAT_SIZE);
       mem->ntat_block2 = mem->ntat_block0;
       mem->ntat_block3 = mem->ntat_block1;
       break;
-    case FOUR_SCREEN:
+    case PPU_MIRRORING_FOUR_SCREEN:
       mem->ntat_block0 = mem->nt_buf;
       mem->ntat_block1 = (mem->ntat_block0 + PPU_NTAT_SIZE);
       mem->ntat_block2 = (mem->ntat_block1 + PPU_NTAT_SIZE);
       mem->ntat_block3 = (mem->ntat_block2 + PPU_NTAT_SIZE);
       break;
-    case SINGLE_SCREEN:
+    case PPU_MIRRORING_SINGLE_SCREEN:
       mem->ntat_block0 = mem->nt_buf;
       mem->ntat_block1 = mem->ntat_block0;
       mem->ntat_block2 = mem->ntat_block0;
@@ -240,8 +241,8 @@ void ppu_sr_data_read(struct ppu_state* state, uint8_t* ptr) {
     default: break;
   }
 
-  if (!state->status.vblank)
-    state->reg_sr_addr += 1;
+  // if (!state->status.vblank)
+  //   state->reg_sr_addr += 1;
 }
 
 void ppu_scroll_write(struct ppu_state* state, uint8_t coord) {

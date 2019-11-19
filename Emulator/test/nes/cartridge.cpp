@@ -23,7 +23,7 @@ TEST(CartridgeTest, iNES1Parsing1) {
     EXPECT_EQ(16384, c.chr_rom_size);
     EXPECT_EQ(12, c.mapper);
     EXPECT_EQ(TV_SYSTEM_NTSC, c.tv_system);
-    EXPECT_EQ(HORIZONTAL, c.mirroring_type);
+    EXPECT_EQ(PPU_MIRRORING_HORIZONTAL, c.mirroring_type);
     // free cartridge
     cartridge_free(&c);
 }
@@ -37,7 +37,7 @@ TEST(CartridgeTest, iNES1Parsing2) {
     EXPECT_EQ(32768, c.chr_rom_size);
     EXPECT_EQ(15, c.mapper);
     EXPECT_EQ(TV_SYSTEM_PAL, c.tv_system);
-    EXPECT_EQ(FOUR_SCREEN, c.mirroring_type);
+    EXPECT_EQ(PPU_MIRRORING_FOUR_SCREEN, c.mirroring_type);
     // free cartridge
     cartridge_free(&c);
 }
