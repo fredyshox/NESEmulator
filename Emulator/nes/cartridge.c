@@ -92,6 +92,9 @@ int cartridge_from_file(struct cartridge* c, char* path) {
   fclose(file);
   return 0;
   catch_error:
+    c->prg_rom = NULL;
+    c->prg_ram = NULL;
+    c->chr_rom = NULL;
     fclose(file);
     free(prg_rom);
     free(chr_rom);

@@ -172,6 +172,7 @@ void ppu_ctrl_write(struct ppu_state* state, uint8_t byte) {
   state->control.ms_select = (byte & 0x01);
   byte >>= 1;
   state->control.gen_nmi = (byte & 0x01);
+  //TODO set gen_nmi during nmi causes nmi
 }
 
 void ppu_mask_write(struct ppu_state* state, uint8_t byte) {
@@ -240,9 +241,6 @@ void ppu_sr_data_read(struct ppu_state* state, uint8_t* ptr) {
       break;
     default: break;
   }
-
-  // if (!state->status.vblank)
-  //   state->reg_sr_addr += 1;
 }
 
 void ppu_scroll_write(struct ppu_state* state, uint8_t coord) {

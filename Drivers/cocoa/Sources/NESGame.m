@@ -36,7 +36,7 @@
     int res = cartridge_from_file(c, (char*) path);
     if (res != 0) {
         NSString* domain = [[NSBundle mainBundle] bundleIdentifier];
-        NSString* message = [NSString stringWithFormat: @"Unable to parse file: %@", [_path absoluteString]];
+        NSString* message = [NSString stringWithFormat: @"Unable to parse rom file: %@", [_path absoluteString]];
         NSDictionary* userInfo = @{
             NSLocalizedDescriptionKey: message
         };

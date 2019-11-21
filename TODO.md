@@ -3,10 +3,6 @@ Emulator
 
 all:
 * fix endianess issues
-* controller tests
-
-cpu:
-* page crossing additional cycles
 
 ppu:
 * automated rom tests
@@ -20,4 +16,3 @@ Cocoa frontend:
 * use keyMap mappings in game
 * rom copying
 * more efficient drawing
-* error alerts

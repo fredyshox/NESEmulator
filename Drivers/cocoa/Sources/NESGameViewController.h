@@ -17,6 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NESGameViewController : NSViewController {
+    NSError* romLoadingError;
     NSThread* emulatorThread;
     nes_t* emulator;
     controller_state joypad;
@@ -29,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)initWithGame:(NESGame*) game;
 - (void)loadGameFromRom;
 - (void)emulateConsole;
-- (void) startEmulation;
+- (void)startEmulation;
 - (void)pauseEmulation;
 - (double)getTimeUSec;
 

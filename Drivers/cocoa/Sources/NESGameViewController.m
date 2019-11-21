@@ -28,11 +28,11 @@
 
 - (void)dealloc {
     NSLog(@"gamevc dealloc");
-    cartridge_free(emulator->cartridge);
-    free(emulator->cartridge);
     if (nes_is_loaded(emulator)) {
         mapper_free(emulator->mapper);
         free(emulator->mapper);
+        cartridge_free(emulator->cartridge);
+        free(emulator->cartridge);
     }
     nes_free(emulator);
 }
@@ -70,6 +70,10 @@
     [super viewDidAppear];
     if (!nes_is_loaded(emulator)) {
         NSLog(@"Rom not loaded!");
+        if (romLoadingError != nil) {
+            NSAlert* alert = [NSAlert alertWithError: romLoadingError];
+            [alert runModal];
+        }
         return;
     } else {
         [self startEmulation];
@@ -96,23 +100,34 @@
 
 - (void)emulateConsole {
     @autoreleasepool {
-        int error = 0;
+        int errorCode = 0;
         double lastTime = [self getTimeUSec];
         
-        while (![[NSThread currentThread] isCancelled] && error == 0) {
+        while (![[NSThread currentThread] isCancelled] && errorCode == 0) {
             [NSThread sleepForTimeInterval: 0.001];
             double current = [self getTimeUSec];
             
             if (current != lastTime) {
-                nes_step_time(emulator, (current - lastTime) / 1E6, &error);
+                nes_step_time(emulator, (current - lastTime) / 1E6, &errorCode);
             }
             
             lastTime = current;
         }
         
         
-        if (error != 0) {
-            NSLog(@"Emulation stopped with error code: %d", error);
+        if (errorCode != 0) {
+            NSString* domain = [[NSBundle mainBundle] bundleIdentifier];
+            NSString* message = [NSString stringWithFormat: @"Emulation stopped with error code: %d", errorCode];
+            NSDictionary* userInfo = @{
+                NSLocalizedDescriptionKey: message
+            };
+            
+            NSError* emuError = [NSError errorWithDomain: domain
+                                                    code: 0x3000
+                                                userInfo: userInfo];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSAlert alertWithError: emuError] runModal];
+            });
         }
     }
 }
@@ -143,14 +158,27 @@
     cartridge* c = [_game loadRomWithError: &error];
     if (error != nil) {
         NSLog(@"Error: %@", [error localizedDescription]);
+        romLoadingError = error;
         return;
     }
     
-    if (nes_load_rom(emulator, c) != 0) {
+    int romStatus = nes_load_rom(emulator, c);
+    if (romStatus != 0) {
+        NSString* domain = [[NSBundle mainBundle] bundleIdentifier];
+        NSString* message = [NSString stringWithFormat: @"Mapper %d is not supported.", c->mapper];
+        NSDictionary* userInfo = @{
+            NSLocalizedDescriptionKey: message
+        };
+        
+        romLoadingError = [NSError errorWithDomain: domain
+                                             code: 0x2000
+                                         userInfo: userInfo];
         NSLog(@"Unable to load rom");
+        // free memory from unused cartridge
+        cartridge_free(c);
+        free(c);
         return;
     }
-    // TODO cartridge memory
 }
 
 - (void)keyUp:(NSEvent *)event {
