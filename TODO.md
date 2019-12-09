@@ -1,18 +1,21 @@
 ## TODO List
-Emulator
 
 all:
-* fix endianess issues
+* discover and fix endianess issues
 
 ppu:
 * automated rom tests
 * ppu register behavior while rendering
+* timing timing timing!
+* nmi delay
 
 mappers:
 * ines 1, ines 4
 
-Cocoa frontend:
-* keyCode to string - better method
-* use keyMap mappings in game
+cocoa driver:
 * rom copying
 * more efficient drawing
+
+other:
+* apu emulation
+* cocoa touch driver
