@@ -7,6 +7,7 @@
 //
 
 #import "NESKeyMap.h"
+#import <Carbon/Carbon.h>
 
 @implementation NESKeyMap {
     uint16_t keyArray[CONTROLLER_BUTTON_COUNT];
@@ -14,6 +15,31 @@
 }
 
 @synthesize source;
+
++ (NESKeyMap *)defaultKeyMap {
+    uint16_t buttons[8] = {/* A */ kVK_ANSI_A, /* B */ kVK_ANSI_S,
+                           /* SELECT */ kVK_ANSI_Q, /*START*/ kVK_ANSI_W,
+                           /* UP */ kVK_UpArrow, /* DOWN */ kVK_DownArrow,
+                           /* LEFT */ kVK_LeftArrow, /* RIGHT */ kVK_RightArrow};
+    NESKeyMap* km = [[NESKeyMap alloc] initWithSource: NESKeyMapSourceKeyboard
+                                          AndKeyArray: buttons
+                                             keyCount: 8];
+    return km;
+}
+
+- (id)initWithSource: (NESKeyMapSource) keyMapSource AndKeyArray: (uint16_t*) arr keyCount: (int) count {
+    if (self = [self initWithSource: keyMapSource]) {
+        for (int i = 0; i < count && i < 8; i++) {
+            keyArray[i] = arr[i];
+            NSNumber* button = [NSNumber numberWithInt: i];
+            NSNumber* keyCode = [NSNumber numberWithUnsignedShort: arr[i]];
+            [keyCodeDict removeObjectForKey: keyCode];
+            [keyCodeDict setObject: button forKey: keyCode];
+        }
+    }
+    
+    return self;
+}
 
 - (id)initWithSource: (NESKeyMapSource) keyMapSource {
     if (self = [super init]) {
@@ -67,17 +93,24 @@
 
 // MARK: Public methods
 
-- (enum controller_button)buttonForKeyCode:(uint16_t)keyCode {
+- (BOOL)buttonForKeyCode: (uint16_t) keyCode buttonPtr: (enum controller_button*) buttonPtr {
     NSNumber* button = [keyCodeDict objectForKey: [NSNumber numberWithUnsignedShort: keyCode]];
     if (button != nil) {
-        return (enum controller_button) button.intValue;
+        *buttonPtr = (enum controller_button) button.intValue;
+        return YES;
     }
     
-    return -1;
+    return NO;
 }
 
-- (uint16_t) keyCodeForButton: (enum controller_button) button {
-    return keyArray[button];
+- (BOOL)keyCodeForButton: (enum controller_button) button keyCodePtr: (uint16_t*) keyCodePtr; {
+    uint16_t keyCode = keyArray[button];
+    if (keyCode != NESKeyMapKeyCodeNone) {
+        *keyCodePtr = keyCode;
+        return YES;
+    }
+    
+    return NO;
 }
 
 - (void)setKeyCode:(uint16_t)keyCode forButton:(enum controller_button)button {
@@ -87,7 +120,6 @@
     NSNumber* keyCodeNumber = [NSNumber numberWithUnsignedShort: keyCode];
     NSNumber* buttonNumber = [NSNumber numberWithInt: button];
     [keyCodeDict setObject: buttonNumber forKey: keyCodeNumber];
-    //[self printKeyMap];
 }
 
 - (void)clearKeyCodeForButton: (enum controller_button) button {

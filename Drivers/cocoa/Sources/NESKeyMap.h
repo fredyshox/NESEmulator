@@ -21,9 +21,10 @@ typedef NS_ENUM(NSInteger, NESKeyMapSource) {
 
 @property NESKeyMapSource source;
 
++ (NESKeyMap*)defaultKeyMap;
 - (id)initWithSource: (NESKeyMapSource) keyMapSource;
-- (enum controller_button)buttonForKeyCode: (uint16_t) keyCode;
-- (uint16_t) keyCodeForButton: (enum controller_button) button;
+- (BOOL)buttonForKeyCode: (uint16_t) keyCode buttonPtr: (enum controller_button*) buttonPtr;
+- (BOOL)keyCodeForButton: (enum controller_button) button keyCodePtr: (uint16_t*) keyCodePtr;
 - (void)setKeyCode: (uint16_t) keyCode forButton: (enum controller_button) button;
 - (void)clearKeyCodeForButton: (enum controller_button) button;
 - (void)clearButtonForKeyCode: (uint16_t) keyCode;

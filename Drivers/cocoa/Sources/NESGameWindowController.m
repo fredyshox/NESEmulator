@@ -7,6 +7,8 @@
 //
 
 #import "NESGameWindowController.h"
+#import "NSUserDefaults+NESKeyMap.h"
+#import "AppDelegate.h"
 #import <ppu/renderer.h>
 
 @implementation NESGameWindowController
@@ -25,7 +27,20 @@
         return;
     }
     
-    _gameViewController = [[NESGameViewController alloc] initWithGame: _game];
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NESKeyMap* joypad1KeyMap = [defaults loadKeyMapUsingKey: kUserDefaultsController1Key];
+    NESKeyMap* joypad2KeyMap = [defaults loadKeyMapUsingKey: kUserDefaultsController2Key];
+    if (joypad1KeyMap == nil) {
+        joypad1KeyMap = [[NESKeyMap alloc] initWithSource: NESKeyMapSourceKeyboard];
+    }
+    
+    if (joypad2KeyMap == nil) {
+        joypad2KeyMap = [[NESKeyMap alloc] initWithSource: NESKeyMapSourceKeyboard];
+    }
+    
+    _gameViewController = [[NESGameViewController alloc] initWithGame: _game
+                                                              keyMap1: joypad1KeyMap
+                                                              keyMap2: joypad2KeyMap];
     [[_gameViewController view] setFrame: [[self window] frame]];
     [[self window] setTitle: [_game title]];
     [[self window] makeFirstResponder: _gameViewController];

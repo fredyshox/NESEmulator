@@ -7,7 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <Carbon/Carbon.h>
 #import "NESKeyMapViewControllerDelegate.h"
 #import "NESKeyMap.h"
 #import "KeyCodeFormatter.h"
@@ -17,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NESKeyMapViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource, NESKeyMapViewControllerDelegate>
 
 @property (strong, readonly) NSString* userDefaultsKey;
+@property (strong, readonly) NSUserDefaults* userDefaults;
 @property (strong) NESKeyMap* keyMap;
 @property (weak, nullable) id<NESKeyMapViewControllerDelegate> delegate;
 @property (weak) IBOutlet NSTableView *tableView;

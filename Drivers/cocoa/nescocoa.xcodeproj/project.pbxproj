@@ -24,6 +24,7 @@
 		E279193C22616B6D00EB941D /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E279193A22616B6D00EB941D /* MainMenu.xib */; };
 		E279193F22616B6D00EB941D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E279193E22616B6D00EB941D /* main.m */; };
 		E279194822616CAF00EB941D /* NESView.m in Sources */ = {isa = PBXBuildFile; fileRef = E279194722616CAF00EB941D /* NESView.m */; };
+		E28527B6239EEA48004D68D4 /* NSUserDefaults+NESKeyMap.m in Sources */ = {isa = PBXBuildFile; fileRef = E28527B5239EEA48004D68D4 /* NSUserDefaults+NESKeyMap.m */; };
 		E2ADBCDC237D83A90083E0ED /* lib6502.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E7E236F1605006D259C /* lib6502.a */; };
 		E2ADBCDD237D83A90083E0ED /* libcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E80236F1605006D259C /* libcommon.a */; };
 		E2ADBCDE237D83A90083E0ED /* libnes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2DE5E84236F1605006D259C /* libnes.a */; };
@@ -189,6 +190,8 @@
 		E279194022616B6D00EB941D /* nescocoa.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = nescocoa.entitlements; sourceTree = "<group>"; };
 		E279194622616CAF00EB941D /* NESView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESView.h; sourceTree = "<group>"; };
 		E279194722616CAF00EB941D /* NESView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESView.m; sourceTree = "<group>"; };
+		E28527B4239EEA48004D68D4 /* NSUserDefaults+NESKeyMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSUserDefaults+NESKeyMap.h"; sourceTree = "<group>"; };
+		E28527B5239EEA48004D68D4 /* NSUserDefaults+NESKeyMap.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSUserDefaults+NESKeyMap.m"; sourceTree = "<group>"; };
 		E2DE5E67236F1605006D259C /* nes-emulator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "nes-emulator.xcodeproj"; path = "Build/nes-emulator.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		E2DE5EA32370D332006D259C /* NESKeyMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NESKeyMap.h; sourceTree = "<group>"; };
 		E2DE5EA42370D332006D259C /* NESKeyMap.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NESKeyMap.m; sourceTree = "<group>"; };
@@ -269,6 +272,8 @@
 				E21CCA5823777AC80022BE64 /* NESKeyMapViewController.xib */,
 				E24B4337237E0B0400149878 /* KeyCodeFormatter.h */,
 				E24B4338237E0B0400149878 /* KeyCodeFormatter.m */,
+				E28527B4239EEA48004D68D4 /* NSUserDefaults+NESKeyMap.h */,
+				E28527B5239EEA48004D68D4 /* NSUserDefaults+NESKeyMap.m */,
 				E279193822616B6D00EB941D /* Assets.xcassets */,
 				E279193A22616B6D00EB941D /* MainMenu.xib */,
 				E279193D22616B6D00EB941D /* Info.plist */,
@@ -513,6 +518,7 @@
 				E21CC9D8237597B80022BE64 /* NESGame.m in Sources */,
 				E279193F22616B6D00EB941D /* main.m in Sources */,
 				E279193722616B6D00EB941D /* AppDelegate.m in Sources */,
+				E28527B6239EEA48004D68D4 /* NSUserDefaults+NESKeyMap.m in Sources */,
 				E279194822616CAF00EB941D /* NESView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -11,6 +11,7 @@
 #import "NESLibraryViewController.h"
 #import "NESKeyMapViewController.h"
 
+extern const NSString* _Nonnull kUserDefaultsInitialSetupKey;
 extern const NSString* _Nonnull kUserDefaultsController1Key;
 extern const NSString* _Nonnull kUserDefaultsController2Key;
 

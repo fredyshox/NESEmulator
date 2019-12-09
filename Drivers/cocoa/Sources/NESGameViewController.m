@@ -7,20 +7,22 @@
 //
 
 #import "NESGameViewController.h"
-#import <Carbon/Carbon.h>
 
 @implementation NESGameViewController
 
 @synthesize nesView = _nesView;
 @synthesize game = _game;
 
-- (id)initWithGame:(NESGame*) game {
+- (id)initWithGame:(NESGame*) game keyMap1: (NESKeyMap*) keyMap1 keyMap2: (NESKeyMap*) keyMap2 {
     self = [super initWithNibName: nil bundle: nil];
     if (self) {
         _game = game;
+        _joypad1KeyMap = keyMap1;
+        _joypad2KeyMap = keyMap2;
         emulator = malloc(sizeof(nes_t));
         nes_create(emulator);
-        memset(&joypad, 0, sizeof(controller_state));
+        memset(&joypad1, 0, sizeof(controller_state));
+        memset(&joypad2, 0, sizeof(controller_state));
     }
     
     return self;
@@ -50,8 +52,8 @@
     }
     
     // reset button state
-    controller_set_buttons(&emulator->controller1, joypad);
-    controller_set_buttons(&emulator->controller2, joypad);
+    controller_set_buttons(&emulator->controller1, joypad1);
+    controller_set_buttons(&emulator->controller2, joypad2);
     // init views
     NSLog(@"NES CPU freq: %f", NES_CPU_FREQ);
     _nesView = [[NESView alloc] initWithPPUHandle: emulator->ppu_handle];
@@ -182,70 +184,25 @@
 }
 
 - (void)keyUp:(NSEvent *)event {
-    int index;
-    switch ([event keyCode]) {
-        case kVK_ANSI_A:
-            index = A_BUTTON;
-            break;
-        case kVK_ANSI_S:
-            index = B_BUTTON;
-            break;
-        case kVK_UpArrow:
-            index = UP_BUTTON;
-            break;
-        case kVK_DownArrow:
-            index = DOWN_BUTTON;
-            break;
-        case kVK_LeftArrow:
-            index = LEFT_BUTTON;
-            break;
-        case kVK_RightArrow:
-            index = RIGHT_BUTTON;
-            break;
-        case kVK_Escape:
-            index = SELECT_BUTTON;
-            break;
-        case kVK_Return:
-            index = START_BUTTON;
-            break;
-        default: return;
+    enum controller_button button;
+    if ([_joypad1KeyMap buttonForKeyCode: [event keyCode] buttonPtr: &button]) {
+        joypad1.buttons[(int) button] = false;
+        controller_set_buttons(&emulator->controller1, joypad1);
+    } else if ([_joypad2KeyMap buttonForKeyCode: [event keyCode] buttonPtr: &button]) {
+        joypad2.buttons[(int) button] = false;
+        controller_set_buttons(&emulator->controller2, joypad2);
     }
-    joypad.buttons[index] = false;
-    controller_set_buttons(&emulator->controller1, joypad);
 }
 
 - (void)keyDown:(NSEvent *)event {
-    NSLog(@"Key down %d, %@", [event keyCode], [event characters]);
-    int index;
-    switch ([event keyCode]) {
-        case kVK_ANSI_A:
-            index = A_BUTTON;
-            break;
-        case kVK_ANSI_S:
-            index = B_BUTTON;
-            break;
-        case kVK_UpArrow:
-            index = UP_BUTTON;
-            break;
-        case kVK_DownArrow:
-            index = DOWN_BUTTON;
-            break;
-        case kVK_LeftArrow:
-            index = LEFT_BUTTON;
-            break;
-        case kVK_RightArrow:
-            index = RIGHT_BUTTON;
-            break;
-        case kVK_Escape:
-            index = SELECT_BUTTON;
-            break;
-        case kVK_Return:
-            index = START_BUTTON;
-            break;
-        default: return;
+    enum controller_button button;
+    if ([_joypad1KeyMap buttonForKeyCode: [event keyCode] buttonPtr: &button]) {
+        joypad1.buttons[(int) button] = true;
+        controller_set_buttons(&emulator->controller1, joypad1);
+    } else if ([_joypad2KeyMap buttonForKeyCode: [event keyCode] buttonPtr: &button]) {
+        joypad2.buttons[(int) button] = true;
+        controller_set_buttons(&emulator->controller2, joypad2);
     }
-    joypad.buttons[index] = true;
-    controller_set_buttons(&emulator->controller1, joypad);
 }
 
 @end

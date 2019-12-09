@@ -7,6 +7,7 @@
 //
 
 #import "NESKeyMapViewController.h"
+#import "NSUserDefaults+NESKeyMap.h"
 #import <nes/controller.h>
 
 @implementation NESKeyMapViewController
@@ -14,6 +15,7 @@
 - (id)initWithUserDefaultsKey:(NSString*) key {
     if (self = [super init]) {
         _userDefaultsKey = key;
+        _userDefaults = [NSUserDefaults standardUserDefaults];
     }
     
     return self;
@@ -22,7 +24,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    _keyMap = [self loadKeyMapUsingKey: _userDefaultsKey];
+    _keyMap = [_userDefaults loadKeyMapUsingKey: _userDefaultsKey];
+    if (_keyMap == nil) {
+        _keyMap = [[NESKeyMap alloc] initWithSource: NESKeyMapSourceKeyboard];
+    }
+    
     [_tableView setAllowsColumnReordering: NO];
     [_tableView setAllowsColumnResizing: NO];
     [_tableView setAllowsTypeSelect: NO];
@@ -43,7 +49,7 @@
 - (void)viewWillDisappear {
     [super viewWillDisappear];
     [_keyMap setSource: [self selectedSource]];
-    [self storeKeyMap: _keyMap usingKey: _userDefaultsKey];
+    [_userDefaults storeKeyMap: _keyMap usingKey: _userDefaultsKey];
 }
 
 - (BOOL)acceptsFirstResponder {
@@ -52,38 +58,6 @@
 
 - (NESKeyMapSource)selectedSource {
     return [_inputButton indexOfSelectedItem];
-}
-
-- (NESKeyMap*)loadKeyMapUsingKey: (NSString*) key {
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    NESKeyMap* keyMap;
-    NSData* data = [defaults objectForKey: key];
-    if (data == nil) {
-        NSLog(@"Created new keymap");
-        return [[NESKeyMap alloc] initWithSource: NESKeyMapSourceKeyboard];
-    }
-    
-    NSError* error;
-    keyMap = [NSKeyedUnarchiver unarchivedObjectOfClass: [NESKeyMap class] fromData: data error: &error];
-    if (error != nil) {
-        NSLog(@"Decoding Error: %@", [error localizedDescription]);
-        NSLog(@"Created new keymap");
-        return [[NESKeyMap alloc] initWithSource: NESKeyMapSourceKeyboard];
-    }
-    
-    return keyMap;
-}
-
-- (void)storeKeyMap: (NESKeyMap*) keyMap usingKey: (NSString*) key {
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    NSError* error;
-    NSData* data = [NSKeyedArchiver archivedDataWithRootObject: keyMap requiringSecureCoding: YES error: &error];
-    if (error != nil) {
-        NSLog(@"Error while saving: %@", [error localizedDescription]);
-        return;
-    }
-    
-    [defaults setObject: data forKey: key];
 }
 
 - (NSString*)stringForButton: (enum controller_button) button {
@@ -139,7 +113,8 @@
     NSString* text;
     BOOL editable;
     enum controller_button button = (enum controller_button) row;
-    uint16_t keyCode = [_keyMap keyCodeForButton: button];
+    uint16_t keyCode;
+    BOOL keyCodeFetchRes = [_keyMap keyCodeForButton: button keyCodePtr: &keyCode];
     if (tableColumn == [[tableView tableColumns] objectAtIndex: 0]) {
         editable = false;
         cellIdentifier = @"buttonCell";
@@ -147,10 +122,9 @@
     } else if (tableColumn == [[tableView tableColumns] objectAtIndex: 1]) {
         editable = false;
         cellIdentifier = @"keyCell";
-        if (keyCode == NESKeyMapKeyCodeNone) {
+        if (!keyCodeFetchRes) {
             text = @"";
         } else {
-            
             text = stringFromKeyCode(keyCode);
         }
     } else {

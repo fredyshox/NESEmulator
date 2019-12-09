@@ -13,6 +13,7 @@
 #import <nes/cartridge.h>
 #import "NESView.h"
 #import "NESGame.h"
+#import "NESKeyMap.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,14 +21,17 @@ NS_ASSUME_NONNULL_BEGIN
     NSError* romLoadingError;
     NSThread* emulatorThread;
     nes_t* emulator;
-    controller_state joypad;
+    controller_state joypad1;
+    controller_state joypad2;
 }
 
 @property (strong, readonly) NESView* nesView;
 @property (strong, readonly) NESGame* game;
+@property (strong, readonly) NESKeyMap* joypad1KeyMap;
+@property (strong, readonly) NESKeyMap* joypad2KeyMap;
 @property (atomic) BOOL isActive;
 
-- (id)initWithGame:(NESGame*) game;
+- (id)initWithGame:(NESGame*) game keyMap1: (NESKeyMap*) keyMap1 keyMap2: (NESKeyMap*) keyMap2;
 - (void)loadGameFromRom;
 - (void)emulateConsole;
 - (void)startEmulation;

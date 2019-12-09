@@ -7,7 +7,9 @@
 //
 
 #import "AppDelegate.h"
+#import "NSUserDefaults+NESKeyMap.h"
 
+NSString* _Nonnull kUserDefaultsInitialSetupKey = @"NESInitialSetup";
 NSString* _Nonnull kUserDefaultsController1Key = @"NESController1";
 NSString* _Nonnull kUserDefaultsController2Key = @"NESController2";
 
@@ -20,12 +22,25 @@ NSString* _Nonnull kUserDefaultsController2Key = @"NESController2";
 @synthesize libraryViewController = _libraryViewController;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    // Initial setup
+    [self initialSetup];
+    
+    // Display window
     [_window setContentSize: NSMakeSize(600, 400)];
     _libraryViewController = [[NESLibraryViewController alloc] init];
     [[_libraryViewController view] setFrame: _window.frame];
     [_window setContentViewController: _libraryViewController];
     NSLog(@"Window frame %f %f", _window.frame.size.width, _window.frame.size.height);
     [_window makeKeyWindow];
+}
+
+- (void)initialSetup {
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    if (![userDefaults boolForKey: kUserDefaultsInitialSetupKey]) {
+        NESKeyMap* controller1 = [NESKeyMap defaultKeyMap];
+        [userDefaults storeKeyMap: controller1 usingKey: kUserDefaultsController1Key];
+        [userDefaults setBool: YES forKey: kUserDefaultsInitialSetupKey];
+    }
 }
 
 - (IBAction)showPreferencesModal:(id)sender {
