@@ -93,11 +93,13 @@ NSString* stringForPrintable(uint16_t keyCode) {
 }
 
 NSString* __nullable stringFromKeyCode(uint16_t keyCode) {
-    NSString* str = stringForPrintable(keyCode);
+    if (nonPritableKeys == nil) {
+        initialize();
+    }
     
-    if (str == nil || [str length] == 0) {
-        NSLog(@"keyCode: %u", keyCode);
-        str = [nonPritableKeys objectForKey: nsni(keyCode)];
+    NSString* str = [nonPritableKeys objectForKey: nsni(keyCode)];
+    if (str == nil) {
+        str = stringForPrintable(keyCode);
     }
     
     return str;

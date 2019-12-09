@@ -25,12 +25,19 @@
     _keyMap = [self loadKeyMapUsingKey: _userDefaultsKey];
     [_tableView setAllowsColumnReordering: NO];
     [_tableView setAllowsColumnResizing: NO];
+    [_tableView setAllowsTypeSelect: NO];
     [_tableView setColumnAutoresizingStyle: NSTableViewUniformColumnAutoresizingStyle];
     [_tableView setDataSource: self];
     [_tableView setDelegate: self];
+    [_tableView setRefusesFirstResponder: YES];
     [_inputButton removeAllItems];
     [_inputButton addItemsWithTitles: @[@"Keyboard"]];
     [_inputButton selectItemAtIndex: [_keyMap source]];
+}
+
+- (void)viewDidAppear {
+    [super viewDidAppear];
+    [[[self view] window] makeFirstResponder: self];
 }
 
 - (void)viewWillDisappear {
@@ -107,7 +114,12 @@
 // MARK: Keyboard
 
 - (void)keyDown:(NSEvent *)event {
+    NSLog(@"Key event");
     NSInteger row = [_tableView selectedRow];
+    if (row == -1) {
+        return;
+    }
+    
     uint16_t keyCode = [event keyCode];
     [_keyMap setKeyCode: keyCode forButton: (enum controller_button) row];
     if (_delegate != nil) {
@@ -138,6 +150,7 @@
         if (keyCode == NESKeyMapKeyCodeNone) {
             text = @"";
         } else {
+            
             text = stringFromKeyCode(keyCode);
         }
     } else {
@@ -156,6 +169,7 @@
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldTypeSelectForEvent:(NSEvent *)event withCurrentSearchString:(NSString *)searchString {
+    NSLog(@"sdfs");
     return NO;
 }
 
