@@ -19,6 +19,7 @@ void state6502_create(struct state6502 *state, struct memory6502 *memory) {
   state->memory = memory;
   state->incoming_int = NONE_INT;
   state->page_crossed = false;
+  state->branch_taken = false;
 }
 
 void state6502_free(struct state6502* state) {

@@ -395,7 +395,6 @@ void ppu_execute_cycle(struct ppu_state* ppu, struct ppu_render_handle* handle) 
 
   // evaluate sprites on 257
   if ((visibleFrame) && handle->cycle == 257) {
-    // TODO 
     uint8_t y_coord = (ppu->v.y_scroll << 3) + ppu->fine_y;
     handle->sprbuf_size = ppu_evaluate_sprites(ppu, handle->spr_buffer, MAX_SPRITES_PER_LINE, y_coord);
     ppu_sprite_pixel_layout(ppu, handle->spr_buffer, handle->sprbuf_size, handle->spr_pixel_buf, HORIZONTAL_RES, y_coord);

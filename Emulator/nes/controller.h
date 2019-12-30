@@ -10,7 +10,7 @@
 #include <string.h>
 
 #define CONTROLLER_JOYPAD1 0x4016
-#define CONTRoLLER_JOYPAD2 0x4017
+#define CONTROLLER_JOYPAD2 0x4017
 #define CONTROLLER_BUTTON_COUNT 8
 
 enum controller_button {

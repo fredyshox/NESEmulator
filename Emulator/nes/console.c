@@ -135,7 +135,7 @@ void nes_step_time(nes_t* console, double seconds, int* error) {
     if (nes_error) {
       pretty_print(stdout, "NES ERROR: CPU error code: %d\n", nes_error);
       *error = nes_error;
-      break; //TODO propagate error message
+      break;
     }
   }
 }
@@ -181,7 +181,7 @@ uint8_t nes_cpu_memory_read(struct memory6502* memory, uint16_t addr) {
     // other io
     if (addr == CONTROLLER_JOYPAD1) {
       return controller_read(&console->controller1);
-    } else if (addr == CONTRoLLER_JOYPAD2) {
+    } else if (addr == CONTROLLER_JOYPAD2) {
       return controller_read(&console->controller2);
     } else {
       debug_print("Warning: Not implemented - write on %04x\n", addr); 
