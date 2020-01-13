@@ -12,10 +12,10 @@ ppu:
 mappers:
 * ines 1, ines 4
 
-cocoa driver:
+cocoa frontend:
 * rom copying
 * more efficient drawing
 
 other:
 * apu emulation
-* cocoa touch driver
+* cocoa touch frontend

@@ -9,6 +9,7 @@ Always wanted to write some console emulator, so here it is.
 * CMake 3.7+ 
 * clang/clang++
 * Google Test 1.8.1+
+* opencv 4 (for some tools)
 * macOS 10.14+ (for Cocoa frontend)
 
 ## How to build
