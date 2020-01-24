@@ -12,6 +12,7 @@ Modular and extensible Nintendo Entertainment System emulator written in C (stil
 Always wanted to write some console emulator, so here it is.
 
 ## What Works
+
 - 6502 cpu emulation - cycle exact, both documented and undocumented opcodes, without decimal mode
 - PPU emulation - still requires some work (graphical artefacts occur), but most popular titles using supported mappers should work just fine
 - iNES memory mappers: 0, 2, 3
@@ -23,13 +24,12 @@ Always wanted to write some console emulator, so here it is.
 
 ## Screenshots
 
-![Game library](./Output/app_library.png)
-
-![Super Mario Bros (1985)](./Output/app_mario.png)
-
-![Pacman (1985)](./Output/app_pacman.png)
-
-![Balloon Fight (1984)](./Output/app_balloon_fight.png)
+<div align="center">
+  <img src="./Output/app_library.png" width="75%" alt="./Output/app_library.png">
+  <img src="./Output/app_mario.png" width="75%" alt="Super Mario Bros (1985)">
+  <img src="./Output/app_pacman.png" width="75%" alt="Pacman (1985)">
+  <img src="./Output/app_balloon_fight.png" width="75%" alt="Balloon Fight (1984)">
+</div>
 
 ## Controls
 
@@ -47,7 +47,9 @@ You can create your own keyboard keymap in settings, located at `nescocoa` -> `P
 
 Project is using client-server architecture, with OS-specific frontend being a client and emulation library acting as a server.
 
-![System Components](./Output/system_components.png)
+<div align="center">
+<img src="./Output/system_components.png" width="80%" alt="System Components">
+</div>
 
 ## Requirements
 
