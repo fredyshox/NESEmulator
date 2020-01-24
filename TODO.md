@@ -2,6 +2,7 @@
 
 all:
 * discover and fix endianess issues
+* docs
 
 ppu:
 * automated rom tests
